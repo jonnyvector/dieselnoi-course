@@ -318,3 +318,62 @@ npm run dev
 - Implement course detail/lesson viewing pages
 - Add subscription check to frontend
 - Phase 2: Video integration (Mux/Bunny) and Stripe payments
+
+---
+
+### Session: 2025-11-02 (Evening) - Course & Lesson Pages Implementation
+
+**Completed:**
+- ✅ Built course detail page (`/courses/[slug]`)
+  - Shows course info, difficulty badge, lesson count, price
+  - Lists all lessons with FREE PREVIEW and LOCKED indicators
+  - Protected route - redirects to login if not authenticated
+- ✅ Built lesson detail page (`/courses/[slug]/lessons/[id]`)
+  - Video player placeholder (ready for Mux integration)
+  - Shows locked state with "Subscribe Now" button for non-subscribers
+  - Displays lesson duration and description
+  - Protected route with authentication check
+- ✅ Made course cards clickable on homepage
+  - Entire card is now a link to course detail page
+- ✅ Implemented subscription-based content locking
+  - Lessons show locked state if `video_url` is null and not free preview
+  - Backend controls access via serializer
+- ✅ Committed all changes to git
+
+**Tech Details:**
+- Using Next.js 14 App Router with dynamic routes `[slug]` and `[id]`
+- Authentication redirects handled client-side via `useAuth` hook
+- Video access controlled server-side (backend returns `video_url: null` for locked content)
+
+**Current State:**
+- Complete user flow working: Browse → Login → View Course → View Lesson
+- Video placeholder ready for Mux/Bunny integration
+- Subscription checks display appropriate UI (locked/unlocked states)
+- All authentication flows tested and working
+
+**Phase 1 Status (COMPLETE):**
+- ✅ Django models and API
+- ✅ Next.js structure
+- ✅ Course listing component
+- ✅ Authentication (session-based + Google OAuth)
+- ✅ Login/signup pages
+- ✅ Protected routes (implemented with redirects)
+- ✅ Course detail pages
+- ✅ Lesson detail pages
+
+**Infrastructure Notes:**
+- Database: SQLite (sufficient for development, will switch to PostgreSQL for production)
+- Security review completed - acceptable for MVP/testing
+- Production hardening deferred (HTTPS, rate limiting, signed video URLs)
+
+**Next Steps - Phase 2:**
+- Stripe subscription integration (PRIORITY)
+  - Need: Stripe API keys (publishable + secret)
+  - Setup: Checkout flow, webhook handlers, subscription model updates
+- Mux/Bunny video integration
+  - Replace video placeholder with actual player
+  - Implement signed URLs for security
+- User dashboard
+  - Show subscription status
+  - Display payment history
+  - Manage billing via Stripe portal
