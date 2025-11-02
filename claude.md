@@ -277,3 +277,44 @@ npm run dev
 - **MediaPipe Pose**: https://google.github.io/mediapipe/solutions/pose
 - **Next.js App Router**: https://nextjs.org/docs/app
 - **DRF Docs**: https://www.django-rest-framework.org/
+
+---
+
+## Development Session Log
+
+### Session: 2025-11-02 - Authentication Testing & Git Setup
+
+**Completed:**
+- ✅ Initialized Git repository and pushed to GitHub
+- ✅ Created `.gitignore` for Python, Django, Node.js, Next.js
+- ✅ Tested authentication endpoints (register, login, logout, CSRF)
+- ✅ Verified session-based authentication works correctly
+- ✅ Tested Google OAuth login flow - fully functional
+- ✅ Created test user: `testuser` / `testpass123`
+- ✅ Confirmed CORS configuration working between frontend/backend
+- ✅ Verified course API requires authentication (403 without login)
+
+**Current State:**
+- Backend running on http://localhost:8000
+- Frontend running on http://localhost:3000
+- Authentication: Session-based + Google OAuth both working
+- Courses API: Requires authentication, returns 403 for unauthenticated users
+- Test data: 3 published courses in database
+
+**Issues Fixed:**
+- Resolved infinite loading on homepage (caused by unauthenticated course API calls)
+- Course API requires login - expected behavior per security requirements
+
+**Phase 1 Status:**
+- ✅ Django models and API
+- ✅ Next.js structure
+- ✅ Course listing component
+- ✅ Authentication (session-based + Google OAuth)
+- ✅ Login/signup pages
+- 🔲 Protected routes (need middleware implementation)
+
+**Next Steps:**
+- Add protected route middleware to Next.js
+- Implement course detail/lesson viewing pages
+- Add subscription check to frontend
+- Phase 2: Video integration (Mux/Bunny) and Stripe payments
