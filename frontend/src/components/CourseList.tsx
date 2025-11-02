@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { courseAPI, Course } from '@/lib/api'
 
 export default function CourseList() {
@@ -82,9 +83,10 @@ export default function CourseList() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <div
+          <Link
             key={course.id}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+            href={`/courses/${course.slug}`}
+            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 block"
           >
             {course.thumbnail_url && (
               <div className="h-48 bg-gray-200">
@@ -124,12 +126,12 @@ export default function CourseList() {
                   <span className="text-sm text-gray-600 font-normal">/month</span>
                 </span>
 
-                <button className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors">
+                <span className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors inline-block">
                   View Course
-                </button>
+                </span>
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
