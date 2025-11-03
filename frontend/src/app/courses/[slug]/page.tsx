@@ -199,8 +199,26 @@ export default function CourseDetailPage() {
                   className="block hover:bg-gray-50 transition-colors"
                 >
                   <div className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                    <div className="flex items-start gap-4">
+                      {/* Video Thumbnail */}
+                      <div className="flex-shrink-0 w-32 h-20 bg-gray-200 rounded-lg overflow-hidden">
+                        {lesson.mux_playback_id ? (
+                          <img
+                            src={`https://image.mux.com/${lesson.mux_playback_id}/thumbnail.jpg?width=256&height=160&fit_mode=smartcrop&time=0`}
+                            alt={lesson.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gray-300">
+                            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Lesson Info */}
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-sm font-semibold text-gray-500">
                             Lesson {index + 1}
@@ -222,11 +240,13 @@ export default function CourseDetailPage() {
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
                           {lesson.title}
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-gray-600 text-sm">
                           {lesson.description}
                         </p>
                       </div>
-                      <div className="ml-6 text-sm text-gray-500">
+
+                      {/* Duration */}
+                      <div className="flex-shrink-0 text-sm text-gray-500">
                         {lesson.duration_minutes} min
                       </div>
                     </div>

@@ -3,18 +3,29 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function SubscriptionSuccessPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { user, loading: authLoading } = useAuth()
   const [countdown, setCountdown] = useState(5)
 
+  const sessionId = searchParams.get('session_id')
+
   useEffect(() => {
+    if (authLoading) return
+
+    if (!user) {
+      router.push('/login')
+      return
+    }
+
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer)
-          router.push('/')
+          router.push('/dashboard')
           return 0
         }
         return prev - 1
@@ -22,51 +33,122 @@ export default function SubscriptionSuccessPage() {
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [router])
+  }, [user, authLoading, router])
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-        {/* Success Icon */}
-        <div className="mb-6">
-          <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-10 h-10 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center px-4">
+      <div className="max-w-2xl w-full">
+        {/* Success Card */}
+        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+          {/* Success Icon */}
+          <div className="mb-6">
+            <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
           </div>
-        </div>
 
-        {/* Success Message */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
-          Welcome to Dieselnoi Muay Thai!
-        </h1>
-        <p className="text-lg text-gray-600 mb-6">
-          Your subscription is now active. You have full access to all courses and lessons.
-        </p>
+          {/* Title */}
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to Dieselnoi Muay Thai! 🥊
+          </h1>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <p className="text-green-800 font-semibold mb-2">
-            What&apos;s next?
+          {/* Subtitle */}
+          <p className="text-xl text-gray-600 mb-8">
+            Your subscription is now active. Get ready to train with the legend!
           </p>
-          <ul className="text-left text-green-700 space-y-1">
-            <li>• Access all premium courses</li>
-            <li>• Watch unlimited lessons</li>
-            <li>• Track your training progress</li>
-          </ul>
+
+          {/* What's Next Section */}
+          <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              🎯 What&apos;s Next?
+            </h2>
+            <ul className="space-y-3">
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <span className="font-medium text-gray-900">Access Your Dashboard</span>
+                  <p className="text-sm text-gray-600">View all your courses and track progress</p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <span className="font-medium text-gray-900">Start Your First Lesson</span>
+                  <p className="text-sm text-gray-600">Begin with the fundamentals or jump into advanced techniques</p>
+                </div>
+              </li>
+              <li className="flex items-start">
+                <svg className="w-6 h-6 text-green-600 mr-3 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <div>
+                  <span className="font-medium text-gray-900">Train Consistently</span>
+                  <p className="text-sm text-gray-600">Learn from Dieselnoi&apos;s decades of championship experience</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          {/* Session Info (if available) */}
+          {sessionId && (
+            <div className="text-sm text-gray-500 mb-6">
+              <p>Confirmation: {sessionId.substring(0, 20)}...</p>
+            </div>
+          )}
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/dashboard"
+              className="px-8 py-4 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold transition-colors shadow-lg"
+            >
+              Go to Dashboard
+            </Link>
+            <Link
+              href="/"
+              className="px-8 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-semibold transition-colors"
+            >
+              Browse Courses
+            </Link>
+          </div>
+
+          {/* Auto-redirect message */}
+          <p className="mt-8 text-sm text-gray-500">
+            Redirecting to your dashboard in {countdown} second{countdown !== 1 ? 's' : ''}...
+          </p>
         </div>
 
-        {/* Auto-redirect message */}
-        <p className="text-sm text-gray-500 mb-6">
-          Redirecting to courses in {countdown} seconds...
-        </p>
-
-        {/* Manual Navigation */}
-        <Link
-          href="/"
-          className="inline-block px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
-        >
-          Start Training Now
-        </Link>
+        {/* Additional Info */}
+        <div className="mt-6 text-center text-sm text-gray-600">
+          <p>
+            Need help? Visit our{' '}
+            <Link href="/dashboard" className="text-primary-600 hover:text-primary-700 font-medium">
+              support center
+            </Link>
+            {' '}or manage your subscription in your{' '}
+            <Link href="/dashboard" className="text-primary-600 hover:text-primary-700 font-medium">
+              dashboard
+            </Link>
+            .
+          </p>
+        </div>
       </div>
     </div>
   )

@@ -36,8 +36,7 @@ class Command(BaseCommand):
             # Create an asset from a URL
             create_asset_request = mux_python.CreateAssetRequest(
                 input=[mux_python.InputSettings(url=video_url)],
-                playback_policy=[mux_python.PlaybackPolicy.SIGNED],  # Use signed URLs for security
-                mp4_support='standard'  # Enable MP4 downloads (optional)
+                playback_policy=[mux_python.PlaybackPolicy.PUBLIC]  # Use public for testing (can change to SIGNED later)
             )
 
             create_asset_response = assets_api.create_asset(create_asset_request)

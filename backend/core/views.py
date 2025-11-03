@@ -7,6 +7,8 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 import stripe
+import mux_python
+from mux_python.rest import ApiException
 from .models import Course, Lesson, Subscription
 from .serializers import (
     CourseSerializer,
@@ -324,6 +326,72 @@ class CreateCustomerPortalSessionView(APIView):
             )
 
 
+class CreateMuxUploadView(APIView):
+    """
+    Create a Mux Direct Upload URL for video uploads.
+    Only staff/admin users can upload videos.
+    """
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def post(self, request):
+        try:
+            lesson_id = request.data.get('lesson_id')
+
+            if not lesson_id:
+                return Response(
+                    {'error': 'lesson_id is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Verify lesson exists
+            try:
+                lesson = Lesson.objects.get(id=lesson_id)
+            except Lesson.DoesNotExist:
+                return Response(
+                    {'error': 'Lesson not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            # Configure Mux API
+            configuration = mux_python.Configuration()
+            configuration.username = settings.MUX_TOKEN_ID
+            configuration.password = settings.MUX_TOKEN_SECRET
+
+            # Create direct upload
+            uploads_api = mux_python.DirectUploadsApi(mux_python.ApiClient(configuration))
+
+            create_upload_request = mux_python.CreateUploadRequest(
+                new_asset_settings=mux_python.CreateAssetRequest(
+                    playback_policy=[mux_python.PlaybackPolicy.PUBLIC],
+                    passthrough=str(lesson_id)  # Store lesson_id to identify later
+                ),
+                cors_origin=settings.FRONTEND_URL
+            )
+
+            create_upload_response = uploads_api.create_direct_upload(create_upload_request)
+            upload = create_upload_response.data
+
+            return Response({
+                'upload_url': upload.url,
+                'upload_id': upload.id
+            })
+
+        except ApiException as e:
+            return Response(
+                {'error': f'Mux API error: {str(e)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            import traceback
+            import sys
+            error_msg = f"Upload creation error: {str(e)}\n{traceback.format_exc()}"
+            print(error_msg, file=sys.stderr, flush=True)
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class StripeWebhookView(APIView):
     """
@@ -422,3 +490,100 @@ class StripeWebhookView(APIView):
             subscription.save()
         except Subscription.DoesNotExist:
             pass
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class MuxWebhookView(APIView):
+    """
+    Handle Mux webhook events for video uploads.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        try:
+            payload = request.body.decode('utf-8')
+            import json
+            import hmac
+            import hashlib
+
+            event = json.loads(payload)
+
+            # Verify webhook signature if secret is configured
+            if settings.MUX_WEBHOOK_SECRET:
+                signature = request.META.get('HTTP_MUX_SIGNATURE')
+                if signature:
+                    # Mux signature format: "t=timestamp,v1=signature"
+                    # Parse out the signature
+                    sig_parts = dict(part.split('=') for part in signature.split(','))
+                    timestamp = sig_parts.get('t', '')
+                    expected_sig = sig_parts.get('v1', '')
+
+                    # Create the signed payload
+                    signed_payload = f"{timestamp}.{payload}"
+                    computed_sig = hmac.new(
+                        settings.MUX_WEBHOOK_SECRET.encode('utf-8'),
+                        signed_payload.encode('utf-8'),
+                        hashlib.sha256
+                    ).hexdigest()
+
+                    # Verify signature matches
+                    if not hmac.compare_digest(computed_sig, expected_sig):
+                        print("Mux webhook signature verification failed", flush=True)
+                        return Response({'error': 'Invalid signature'}, status=401)
+
+            event_type = event.get('type')
+
+            if event_type == 'video.asset.ready':
+                self._handle_asset_ready(event['data'])
+            elif event_type == 'video.asset.errored':
+                self._handle_asset_errored(event['data'])
+
+            return Response({'status': 'success'})
+
+        except Exception as e:
+            import traceback
+            import sys
+            error_msg = f"Mux webhook error: {str(e)}\n{traceback.format_exc()}"
+            print(error_msg, file=sys.stderr, flush=True)
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def _handle_asset_ready(self, asset_data):
+        """Handle when a video asset is ready for playback."""
+        try:
+            asset_id = asset_data.get('id')
+            passthrough = asset_data.get('passthrough')
+            playback_ids = asset_data.get('playback_ids', [])
+
+            if not passthrough:
+                print(f"No passthrough data for asset {asset_id}", flush=True)
+                return
+
+            # passthrough contains the lesson_id
+            lesson_id = int(passthrough)
+
+            try:
+                lesson = Lesson.objects.get(id=lesson_id)
+                lesson.mux_asset_id = asset_id
+
+                # Get the first playback ID
+                if playback_ids and len(playback_ids) > 0:
+                    lesson.mux_playback_id = playback_ids[0].get('id')
+
+                lesson.save()
+                print(f"✓ Updated lesson {lesson_id} with asset {asset_id}", flush=True)
+
+            except Lesson.DoesNotExist:
+                print(f"Lesson {lesson_id} not found for asset {asset_id}", flush=True)
+
+        except Exception as e:
+            import traceback
+            print(f"Error handling asset ready: {str(e)}\n{traceback.format_exc()}", flush=True)
+
+    def _handle_asset_errored(self, asset_data):
+        """Handle when a video asset encounters an error."""
+        asset_id = asset_data.get('id')
+        errors = asset_data.get('errors', {})
+        print(f"Asset {asset_id} errored: {errors}", flush=True)

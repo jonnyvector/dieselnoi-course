@@ -147,4 +147,14 @@ export const stripeAPI = {
   },
 }
 
+export const muxAPI = {
+  // Create a Mux Direct Upload URL for a lesson
+  createUploadUrl: async (lessonId: number): Promise<{ upload_url: string; upload_id: string }> => {
+    const response = await api.post('/mux/create-upload/', {
+      lesson_id: lessonId,
+    })
+    return response.data
+  },
+}
+
 export default api
