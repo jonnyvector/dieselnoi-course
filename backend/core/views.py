@@ -286,6 +286,44 @@ class CreateCheckoutSessionView(APIView):
             )
 
 
+class CreateCustomerPortalSessionView(APIView):
+    """
+    Create a Stripe customer portal session for managing subscriptions.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = request.user
+
+            # User must have a Stripe customer ID
+            if not user.stripe_customer_id:
+                return Response(
+                    {'error': 'No billing account found'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Create customer portal session
+            portal_session = stripe.billing_portal.Session.create(
+                customer=user.stripe_customer_id,
+                return_url=settings.FRONTEND_URL + '/dashboard',
+            )
+
+            return Response({
+                'url': portal_session.url
+            })
+
+        except Exception as e:
+            import traceback
+            import sys
+            error_msg = f"Stripe portal error: {str(e)}\n{traceback.format_exc()}"
+            print(error_msg, file=sys.stderr, flush=True)
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class StripeWebhookView(APIView):
     """

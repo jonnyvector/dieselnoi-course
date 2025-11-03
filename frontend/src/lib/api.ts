@@ -138,6 +138,12 @@ export const stripeAPI = {
     })
     return response.data
   },
+
+  // Create a customer portal session for billing management
+  createPortalSession: async (): Promise<{ url: string }> => {
+    const response = await api.post('/stripe/create-portal-session/')
+    return response.data
+  },
 }
 
 export default api

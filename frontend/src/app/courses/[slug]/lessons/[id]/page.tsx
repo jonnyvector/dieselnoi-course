@@ -97,6 +97,9 @@ export default function LessonDetailPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-4">
+              <Link href="/dashboard" className="text-gray-700 hover:text-gray-900">
+                Dashboard
+              </Link>
               <span className="text-gray-700">Welcome, {user?.username}</span>
             </div>
           </div>

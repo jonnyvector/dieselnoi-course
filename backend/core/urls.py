@@ -10,6 +10,7 @@ from .views import (
     CurrentUserView,
     GetCSRFToken,
     CreateCheckoutSessionView,
+    CreateCustomerPortalSessionView,
     StripeWebhookView,
 )
 
@@ -26,5 +27,6 @@ urlpatterns = [
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('auth/user/', CurrentUserView.as_view(), name='current-user'),
     path('stripe/create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
+    path('stripe/create-portal-session/', CreateCustomerPortalSessionView.as_view(), name='create-portal-session'),
     path('stripe/webhook/', StripeWebhookView.as_view(), name='stripe-webhook'),
 ]

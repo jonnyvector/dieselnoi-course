@@ -28,6 +28,12 @@ export default function Home() {
                 <div className="text-gray-600">Loading...</div>
               ) : user ? (
                 <>
+                  <button
+                    onClick={() => router.push('/dashboard')}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
+                    Dashboard
+                  </button>
                   <span className="text-gray-700">
                     Welcome, {user.username}
                   </span>
