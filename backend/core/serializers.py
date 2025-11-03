@@ -19,6 +19,7 @@ class LessonSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'video_url',
+            'mux_playback_id',
             'duration_minutes',
             'order',
             'is_free_preview',
@@ -27,7 +28,7 @@ class LessonSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def to_representation(self, instance):
-        """Hide video_url for non-subscribers unless it's a free preview."""
+        """Hide video access for non-subscribers unless it's a free preview."""
         data = super().to_representation(instance)
         request = self.context.get('request')
 
@@ -39,8 +40,10 @@ class LessonSerializer(serializers.ModelSerializer):
             ).exists()
             if not has_subscription and not instance.is_free_preview:
                 data['video_url'] = None
+                data['mux_playback_id'] = None
         elif not instance.is_free_preview:
             data['video_url'] = None
+            data['mux_playback_id'] = None
 
         return data
 

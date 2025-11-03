@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import MuxPlayer from '@mux/mux-player-react'
 import api, { Lesson, stripeAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -83,7 +84,7 @@ export default function LessonDetailPage() {
 
   if (!lesson) return null
 
-  const isLocked = !lesson.video_url && !lesson.is_free_preview
+  const isLocked = !lesson.mux_playback_id && !lesson.video_url && !lesson.is_free_preview
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,16 +133,25 @@ export default function LessonDetailPage() {
                 {subscribing ? 'Redirecting...' : 'Subscribe Now'}
               </button>
             </div>
+          ) : lesson.mux_playback_id ? (
+            <MuxPlayer
+              playbackId={lesson.mux_playback_id}
+              streamType="on-demand"
+              autoPlay={false}
+              metadata={{
+                video_title: lesson.title,
+              }}
+              style={{ height: '100%', maxWidth: '100%' }}
+            />
           ) : lesson.video_url ? (
             <div className="h-full flex items-center justify-center bg-gray-900 text-white">
-              {/* Video Player Placeholder */}
+              {/* Fallback for non-Mux videos */}
               <div className="text-center">
                 <svg className="w-20 h-20 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
                 </svg>
-                <p className="text-gray-400 mb-2">Video Player Placeholder</p>
+                <p className="text-gray-400 mb-2">Legacy Video Format</p>
                 <p className="text-sm text-gray-500">Video URL: {lesson.video_url}</p>
-                <p className="text-xs text-gray-600 mt-2">(Mux/Bunny integration coming soon)</p>
               </div>
             </div>
           ) : (

@@ -188,6 +188,10 @@ STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
 # Frontend URL (for Stripe redirect URLs)
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 
+# Mux Video Configuration
+MUX_TOKEN_ID = os.environ.get('MUX_TOKEN_ID', '')
+MUX_TOKEN_SECRET = os.environ.get('MUX_TOKEN_SECRET', '')
+
 
 # Email Configuration
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
