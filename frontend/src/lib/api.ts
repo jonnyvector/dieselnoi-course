@@ -92,6 +92,8 @@ export interface CourseDetail extends Course {
 export interface Subscription {
   id: number
   user_email: string
+  course_title: string
+  course_slug: string
   status: 'active' | 'past_due' | 'cancelled' | 'trialing'
   is_active: boolean
   start_date: string
@@ -121,9 +123,19 @@ export const courseAPI = {
 }
 
 export const subscriptionAPI = {
-  // Get current user's subscription
-  getMySubscription: async (): Promise<Subscription> => {
+  // Get current user's subscriptions (now returns array)
+  getMySubscriptions: async (): Promise<Subscription[]> => {
     const response = await api.get('/subscriptions/me/')
+    return response.data
+  },
+}
+
+export const stripeAPI = {
+  // Create a checkout session for subscription
+  createCheckoutSession: async (courseSlug?: string): Promise<{ sessionId: string; url: string }> => {
+    const response = await api.post('/stripe/create-checkout-session/', {
+      course_slug: courseSlug,
+    })
     return response.data
   },
 }

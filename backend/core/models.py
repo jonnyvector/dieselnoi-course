@@ -65,7 +65,7 @@ class Lesson(models.Model):
 
 
 class Subscription(models.Model):
-    """Represents a user's subscription to the platform."""
+    """Represents a user's subscription to a specific course."""
     STATUS_CHOICES = [
         ('active', 'Active'),
         ('past_due', 'Past Due'),
@@ -73,7 +73,8 @@ class Subscription(models.Model):
         ('trialing', 'Trialing'),
     ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='subscriptions')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     stripe_subscription_id = models.CharField(max_length=255, blank=True, null=True)
     start_date = models.DateTimeField()
@@ -81,8 +82,12 @@ class Subscription(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['user', 'course']
+
     def __str__(self):
-        return f"{self.user.email} - {self.status}"
+        return f"{self.user.email} - {self.course.title} - {self.status}"
 
     @property
     def is_active(self):

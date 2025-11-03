@@ -31,9 +31,12 @@ class LessonSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         request = self.context.get('request')
 
-        # Check if user has active subscription or if lesson is free preview
+        # Check if user has active subscription to this lesson's course
         if request and request.user.is_authenticated:
-            has_subscription = hasattr(request.user, 'subscription') and request.user.subscription.is_active
+            has_subscription = request.user.subscriptions.filter(
+                course=instance.course,
+                status__in=['active', 'trialing']
+            ).exists()
             if not has_subscription and not instance.is_free_preview:
                 data['video_url'] = None
         elif not instance.is_free_preview:
@@ -93,6 +96,8 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     """Serializer for Subscription model."""
     user_email = serializers.EmailField(source='user.email', read_only=True)
+    course_title = serializers.CharField(source='course.title', read_only=True)
+    course_slug = serializers.SlugField(source='course.slug', read_only=True)
     is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
@@ -100,13 +105,15 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'user_email',
+            'course_title',
+            'course_slug',
             'status',
             'is_active',
             'start_date',
             'end_date',
             'created_at',
         ]
-        read_only_fields = ['id', 'created_at', 'user_email', 'is_active']
+        read_only_fields = ['id', 'created_at', 'user_email', 'course_title', 'course_slug', 'is_active']
 
 
 class RegisterSerializer(serializers.ModelSerializer):

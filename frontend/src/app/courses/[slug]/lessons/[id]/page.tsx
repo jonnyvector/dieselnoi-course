@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import api, { Lesson } from '@/lib/api'
+import api, { Lesson, stripeAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function LessonDetailPage() {
@@ -13,6 +13,7 @@ export default function LessonDetailPage() {
   const [lesson, setLesson] = useState<Lesson | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [subscribing, setSubscribing] = useState(false)
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -38,6 +39,19 @@ export default function LessonDetailPage() {
 
     fetchLesson()
   }, [params.id, user, authLoading, router])
+
+  const handleSubscribe = async () => {
+    try {
+      setSubscribing(true)
+      const { url } = await stripeAPI.createCheckoutSession(params.slug as string)
+      // Redirect to Stripe checkout
+      window.location.href = url
+    } catch (err: any) {
+      console.error('Error creating checkout session:', err)
+      alert('Failed to start checkout. Please try again.')
+      setSubscribing(false)
+    }
+  }
 
   if (authLoading || loading) {
     return (
@@ -107,8 +121,12 @@ export default function LessonDetailPage() {
               </svg>
               <h3 className="text-2xl font-bold mb-2">This lesson is locked</h3>
               <p className="text-gray-400 mb-6">Subscribe to access this content</p>
-              <button className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold">
-                Subscribe Now
+              <button
+                onClick={handleSubscribe}
+                disabled={subscribing}
+                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {subscribing ? 'Redirecting...' : 'Subscribe Now'}
               </button>
             </div>
           ) : lesson.video_url ? (

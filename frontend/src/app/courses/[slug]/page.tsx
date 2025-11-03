@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { courseAPI, CourseDetail } from '@/lib/api'
+import { courseAPI, CourseDetail, stripeAPI, subscriptionAPI, Subscription } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function CourseDetailPage() {
@@ -11,11 +11,13 @@ export default function CourseDetailPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [course, setCourse] = useState<CourseDetail | null>(null)
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [subscribing, setSubscribing] = useState(false)
 
   useEffect(() => {
-    const fetchCourse = async () => {
+    const fetchData = async () => {
       if (authLoading) return
 
       if (!user) {
@@ -25,19 +27,49 @@ export default function CourseDetailPage() {
 
       try {
         setLoading(true)
-        const data = await courseAPI.getCourse(params.slug as string)
-        setCourse(data)
+        const [courseData, subscriptionsData] = await Promise.allSettled([
+          courseAPI.getCourse(params.slug as string),
+          subscriptionAPI.getMySubscriptions(),
+        ])
+
+        if (courseData.status === 'fulfilled') {
+          setCourse(courseData.value)
+        } else {
+          console.error('Error fetching course:', courseData.reason)
+          setError(courseData.reason?.response?.data?.detail || 'Failed to load course')
+        }
+
+        if (subscriptionsData.status === 'fulfilled') {
+          setSubscriptions(subscriptionsData.value)
+        } else {
+          // No subscriptions is OK - user just hasn't subscribed yet
+          setSubscriptions([])
+        }
+
         setError(null)
       } catch (err: any) {
-        console.error('Error fetching course:', err)
+        console.error('Error fetching data:', err)
         setError(err.response?.data?.detail || 'Failed to load course')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchCourse()
+    fetchData()
   }, [params.slug, user, authLoading, router])
+
+  const handleSubscribe = async () => {
+    try {
+      setSubscribing(true)
+      const { url } = await stripeAPI.createCheckoutSession(params.slug as string)
+      // Redirect to Stripe checkout
+      window.location.href = url
+    } catch (err: any) {
+      console.error('Error creating checkout session:', err)
+      alert('Failed to start checkout. Please try again.')
+      setSubscribing(false)
+    }
+  }
 
   if (authLoading || loading) {
     return (
@@ -125,10 +157,26 @@ export default function CourseDetailPage() {
               </p>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-primary-600">
+              <div className="text-3xl font-bold text-primary-600 mb-4">
                 ${course.price}
                 <span className="text-sm text-gray-600 font-normal">/month</span>
               </div>
+              {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) ? (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded-lg">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-semibold">Subscribed</span>
+                </div>
+              ) : (
+                <button
+                  onClick={handleSubscribe}
+                  disabled={subscribing}
+                  className="px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {subscribing ? 'Redirecting...' : 'Subscribe Now'}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -9,6 +9,8 @@ from .views import (
     LogoutView,
     CurrentUserView,
     GetCSRFToken,
+    CreateCheckoutSessionView,
+    StripeWebhookView,
 )
 
 router = DefaultRouter()
@@ -23,4 +25,6 @@ urlpatterns = [
     path('auth/login/', LoginView.as_view(), name='login'),
     path('auth/logout/', LogoutView.as_view(), name='logout'),
     path('auth/user/', CurrentUserView.as_view(), name='current-user'),
+    path('stripe/create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
+    path('stripe/webhook/', StripeWebhookView.as_view(), name='stripe-webhook'),
 ]
