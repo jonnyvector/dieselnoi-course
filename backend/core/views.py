@@ -97,9 +97,9 @@ class LessonViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [permissions.IsAuthenticated, IsSubscriberOrReadOnly]
 
-    @method_decorator(ratelimit(key='user', rate='100/m', method='GET', block=True))
+    @method_decorator(ratelimit(key='user', rate='200/m', method='GET', block=True))
     def retrieve(self, request, *args, **kwargs):
-        """Rate-limited lesson retrieval."""
+        """Rate-limited lesson retrieval - 200/min allows smooth browsing."""
         return super().retrieve(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -139,14 +139,14 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
     serializer_class = LessonProgressSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-    @method_decorator(ratelimit(key='user', rate='60/m', method='POST', block=True))
+    @method_decorator(ratelimit(key='user', rate='120/m', method='POST', block=True))
     def create(self, request, *args, **kwargs):
-        """Rate-limited progress creation."""
+        """Rate-limited progress creation - 120/min for smooth video tracking."""
         return super().create(request, *args, **kwargs)
 
-    @method_decorator(ratelimit(key='user', rate='60/m', method='PATCH', block=True))
+    @method_decorator(ratelimit(key='user', rate='120/m', method='PATCH', block=True))
     def partial_update(self, request, *args, **kwargs):
-        """Rate-limited progress update."""
+        """Rate-limited progress update - 120/min for smooth video tracking."""
         return super().partial_update(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -370,9 +370,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
     pagination_class = None  # Will use default from settings (PageNumberPagination)
 
-    @method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True))
+    @method_decorator(ratelimit(key='user', rate='20/m', method='POST', block=True))
     def create(self, request, *args, **kwargs):
-        """Rate-limited comment creation."""
+        """Rate-limited comment creation - 20 per minute to allow conversations."""
         return super().create(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -401,15 +401,34 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class RegisterView(APIView):
     """
-    User registration endpoint.
+    User registration endpoint with smart rate limiting.
     """
     permission_classes = [permissions.AllowAny]
 
-    @method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True))
     def post(self, request):
+        from .auth_security import RegistrationRateLimiter, get_client_ip
+
+        ip_address = get_client_ip(request)
+
+        # Check rate limit
+        can_register, attempts = RegistrationRateLimiter.can_register(ip_address)
+        if not can_register:
+            remaining = RegistrationRateLimiter.get_remaining_attempts(ip_address)
+            return Response(
+                {
+                    'error': 'Registration rate limit exceeded.',
+                    'detail': f'Too many registration attempts. Please try again in an hour. ({attempts}/10 used)'
+                },
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
+
+            # Record the registration
+            RegistrationRateLimiter.record_registration(ip_address)
+
             return Response(
                 {
                     'user': UserSerializer(user).data,
@@ -422,12 +441,13 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     """
-    User login endpoint using session authentication.
+    User login endpoint with progressive delays and account lockout.
     """
     permission_classes = [permissions.AllowAny]
 
-    @method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True))
     def post(self, request):
+        from .auth_security import LoginAttemptTracker, get_client_ip
+
         username = request.data.get('username')
         password = request.data.get('password')
 
@@ -437,10 +457,32 @@ class LoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        ip_address = get_client_ip(request)
+
+        # Check if account is locked out
+        is_locked, seconds_remaining = LoginAttemptTracker.is_locked_out(username)
+        if is_locked:
+            minutes_remaining = seconds_remaining // 60
+            return Response(
+                {
+                    'error': 'Account temporarily locked',
+                    'detail': f'Too many failed login attempts. Please try again in {minutes_remaining} minutes.',
+                    'locked_until_seconds': seconds_remaining
+                },
+                status=status.HTTP_429_TOO_MANY_REQUESTS
+            )
+
+        # Apply progressive delay based on previous failed attempts
+        LoginAttemptTracker.apply_delay(username, ip_address)
+
+        # Attempt authentication
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # Successful login - clear failed attempts
+            LoginAttemptTracker.clear_attempts(username, ip_address)
             login(request, user)
+
             return Response(
                 {
                     'user': UserSerializer(user).data,
@@ -449,8 +491,27 @@ class LoginView(APIView):
                 status=status.HTTP_200_OK
             )
         else:
+            # Failed login - record attempt
+            LoginAttemptTracker.record_failed_attempt(username, ip_address)
+
+            # Get current attempt counts for informative error message
+            user_attempts, ip_attempts = LoginAttemptTracker.get_attempt_count(username, ip_address)
+            max_attempts = max(user_attempts, ip_attempts)
+
+            # Provide helpful feedback
+            attempts_remaining = LoginAttemptTracker.MAX_ATTEMPTS - max_attempts
+            error_detail = 'Invalid credentials'
+
+            if attempts_remaining <= 5 and attempts_remaining > 0:
+                error_detail = f'Invalid credentials. {attempts_remaining} attempts remaining before lockout.'
+            elif attempts_remaining <= 0:
+                error_detail = 'Account locked due to too many failed attempts.'
+
             return Response(
-                {'error': 'Invalid credentials'},
+                {
+                    'error': error_detail,
+                    'attempts_remaining': max(0, attempts_remaining)
+                },
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
@@ -497,7 +558,7 @@ class CreateCheckoutSessionView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
-    @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True))
+    @method_decorator(ratelimit(key='user', rate='20/h', method='POST', block=True))
     def post(self, request):
         try:
             user = request.user
