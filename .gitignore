@@ -60,3 +60,4 @@ htmlcov/
 # Misc
 *.bak
 *.tmp
+backend/logs/

@@ -162,6 +162,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    'EXCEPTION_HANDLER': 'core.ratelimit_handler.custom_exception_handler',
 }
 
 
@@ -192,6 +193,10 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
 MUX_TOKEN_ID = os.environ.get('MUX_TOKEN_ID', '')
 MUX_TOKEN_SECRET = os.environ.get('MUX_TOKEN_SECRET', '')
 MUX_WEBHOOK_SECRET = os.environ.get('MUX_WEBHOOK_SECRET', '')
+
+# Mux Signing Keys (for secure video playback with signed URLs)
+MUX_SIGNING_KEY_ID = os.environ.get('MUX_SIGNING_KEY_ID', '')
+MUX_SIGNING_KEY_PRIVATE = os.environ.get('MUX_SIGNING_KEY_PRIVATE', '')
 
 
 # Email Configuration
@@ -239,3 +244,75 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+        'json': {
+            '()': 'pythonjsonlogger.jsonlogger.JsonFormatter',
+            'format': '%(asctime)s %(name)s %(levelname)s %(message)s'
+        }
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'django.log',
+            'formatter': 'verbose',
+        },
+        'analytics_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'analytics.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console', 'file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'dieselnoi.analytics': {
+            'handlers': ['console', 'analytics_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'core': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+# Create logs directory if it doesn't exist
+import os
+logs_dir = BASE_DIR / 'logs'
+if not os.path.exists(logs_dir):
+    os.makedirs(logs_dir)

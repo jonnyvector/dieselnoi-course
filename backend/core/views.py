@@ -6,6 +6,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django_ratelimit.decorators import ratelimit
+from django_ratelimit.exceptions import Ratelimited
 import stripe
 import mux_python
 from mux_python.rest import ApiException
@@ -95,6 +97,11 @@ class LessonViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LessonSerializer
     permission_classes = [permissions.IsAuthenticated, IsSubscriberOrReadOnly]
 
+    @method_decorator(ratelimit(key='user', rate='100/m', method='GET', block=True))
+    def retrieve(self, request, *args, **kwargs):
+        """Rate-limited lesson retrieval."""
+        return super().retrieve(request, *args, **kwargs)
+
     def get_queryset(self):
         """Return all lessons from published courses with optimized queries."""
         return Lesson.objects.filter(
@@ -131,6 +138,16 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
     """
     serializer_class = LessonProgressSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    @method_decorator(ratelimit(key='user', rate='60/m', method='POST', block=True))
+    def create(self, request, *args, **kwargs):
+        """Rate-limited progress creation."""
+        return super().create(request, *args, **kwargs)
+
+    @method_decorator(ratelimit(key='user', rate='60/m', method='PATCH', block=True))
+    def partial_update(self, request, *args, **kwargs):
+        """Rate-limited progress update."""
+        return super().partial_update(request, *args, **kwargs)
 
     def get_queryset(self):
         """Users can only see their own progress."""
@@ -347,13 +364,22 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 class CommentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for viewing and editing comments on lessons.
+    Paginated to handle large numbers of comments.
     """
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    pagination_class = None  # Will use default from settings (PageNumberPagination)
+
+    @method_decorator(ratelimit(key='user', rate='10/m', method='POST', block=True))
+    def create(self, request, *args, **kwargs):
+        """Rate-limited comment creation."""
+        return super().create(request, *args, **kwargs)
 
     def get_queryset(self):
         """Filter comments by lesson if lesson_id is provided."""
-        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies')
+        from rest_framework.pagination import PageNumberPagination
+
+        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies__user').order_by('-created_at')
 
         lesson_id = self.request.query_params.get('lesson_id')
         if lesson_id:
@@ -379,6 +405,7 @@ class RegisterView(APIView):
     """
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(ratelimit(key='ip', rate='5/h', method='POST', block=True))
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -399,6 +426,7 @@ class LoginView(APIView):
     """
     permission_classes = [permissions.AllowAny]
 
+    @method_decorator(ratelimit(key='ip', rate='10/h', method='POST', block=True))
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -469,6 +497,7 @@ class CreateCheckoutSessionView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated]
 
+    @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True))
     def post(self, request):
         try:
             user = request.user
@@ -591,6 +620,7 @@ class CreateMuxUploadView(APIView):
     """
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
+    @method_decorator(ratelimit(key='user', rate='20/h', method='POST', block=True))
     def post(self, request):
         try:
             lesson_id = request.data.get('lesson_id')

@@ -45,21 +45,75 @@ api.interceptors.request.use(
   }
 )
 
-// Add response interceptor to handle CSRF token expiry
+// Add response interceptor to handle CSRF token expiry and errors
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    // Handle CSRF token expiry
     if (error.response?.status === 403 && error.response?.data?.detail?.includes('CSRF')) {
-      // CSRF token expired, clear it and retry
       csrfToken = null
       const config = error.config
       const token = await getCSRFToken()
       config.headers['X-CSRFToken'] = token
       return api.request(config)
     }
-    return Promise.reject(error)
+
+    // Enhanced error handling with better messages
+    const status = error.response?.status
+    const errorData = error.response?.data
+
+    // Create a user-friendly error object
+    const enhancedError = {
+      ...error,
+      userMessage: getUserFriendlyErrorMessage(status, errorData),
+      statusCode: status,
+      originalError: error
+    }
+
+    return Promise.reject(enhancedError)
   }
 )
+
+// Helper function to generate user-friendly error messages
+function getUserFriendlyErrorMessage(status: number | undefined, errorData: any): string {
+  // Handle specific status codes
+  switch (status) {
+    case 400:
+      if (errorData?.error) return errorData.error
+      if (errorData?.detail) return errorData.detail
+      return 'Invalid request. Please check your input and try again.'
+
+    case 401:
+      return 'Please log in to continue.'
+
+    case 403:
+      return 'You don\'t have permission to access this resource.'
+
+    case 404:
+      return 'The requested resource was not found.'
+
+    case 429:
+      if (errorData?.error) return errorData.error
+      return 'Too many requests. Please slow down and try again later.'
+
+    case 500:
+      return 'Server error. Please try again later.'
+
+    case 503:
+      return 'Service temporarily unavailable. Please try again later.'
+
+    default:
+      // Check for specific error messages in response
+      if (errorData?.error) return errorData.error
+      if (errorData?.detail) return errorData.detail
+      if (errorData?.message) return errorData.message
+
+      // Network errors
+      if (!status) return 'Network error. Please check your internet connection.'
+
+      return 'An unexpected error occurred. Please try again.'
+  }
+}
 
 // Types
 export interface Course {
@@ -277,11 +331,29 @@ export const progressAPI = {
   },
 }
 
+export interface PaginatedResponse<T> {
+  count: number
+  next: string | null
+  previous: string | null
+  results: T[]
+}
+
 export const commentAPI = {
-  // Get comments for a specific lesson
-  getComments: async (lessonId: number): Promise<Comment[]> => {
-    const response = await api.get(`/comments/?lesson_id=${lessonId}`)
-    return response.data.results || response.data
+  // Get comments for a specific lesson (paginated)
+  getComments: async (lessonId: number, page: number = 1): Promise<PaginatedResponse<Comment>> => {
+    const response = await api.get(`/comments/?lesson_id=${lessonId}&page=${page}`)
+    // Handle both paginated and non-paginated responses
+    if (response.data.results) {
+      return response.data
+    } else {
+      // Non-paginated response (shouldn't happen but handle it)
+      return {
+        count: response.data.length,
+        next: null,
+        previous: null,
+        results: response.data
+      }
+    }
   },
 
   // Create a new comment

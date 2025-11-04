@@ -13,26 +13,48 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
   const { user } = useAuth()
   const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [newComment, setNewComment] = useState('')
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
   const [replyText, setReplyText] = useState('')
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editText, setEditText] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMore, setHasMore] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
 
   useEffect(() => {
     fetchComments()
   }, [lessonId])
 
-  const fetchComments = async () => {
+  const fetchComments = async (page: number = 1) => {
     try {
-      setLoading(true)
-      const data = await commentAPI.getComments(lessonId)
-      setComments(data)
+      if (page === 1) {
+        setLoading(true)
+      } else {
+        setLoadingMore(true)
+      }
+      const data = await commentAPI.getComments(lessonId, page)
+      if (page === 1) {
+        setComments(data.results)
+      } else {
+        setComments(prev => [...prev, ...data.results])
+      }
+      setCurrentPage(page)
+      setHasMore(data.next !== null)
+      setTotalCount(data.count)
     } catch (err) {
       console.error('Error fetching comments:', err)
     } finally {
       setLoading(false)
+      setLoadingMore(false)
+    }
+  }
+
+  const loadMoreComments = () => {
+    if (!loadingMore && hasMore) {
+      fetchComments(currentPage + 1)
     }
   }
 
@@ -288,7 +310,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
   return (
     <div className="mt-8">
       <h3 className="text-xl font-bold text-gray-900 mb-6">
-        Comments {comments.length > 0 && `(${comments.length})`}
+        Comments {totalCount > 0 && `(${totalCount})`}
       </h3>
 
       {/* New Comment Form */}
@@ -321,9 +343,31 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
 
       {/* Comments List */}
       {comments.length > 0 ? (
-        <div className="space-y-4">
-          {comments.map(comment => renderComment(comment))}
-        </div>
+        <>
+          <div className="space-y-4">
+            {comments.map(comment => renderComment(comment))}
+          </div>
+
+          {/* Load More Button */}
+          {hasMore && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={loadMoreComments}
+                disabled={loadingMore}
+                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 font-medium"
+              >
+                {loadingMore ? (
+                  <span className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                    Loading...
+                  </span>
+                ) : (
+                  `Load More Comments (${comments.length} of ${totalCount})`
+                )}
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center py-12 text-gray-500">
           <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

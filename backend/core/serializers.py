@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User, Course, Lesson, Subscription, LessonProgress, Comment
+from .mux_utils import get_signed_playback_id
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -41,9 +42,21 @@ class LessonSerializer(serializers.ModelSerializer):
             if not has_subscription and not instance.is_free_preview:
                 data['video_url'] = None
                 data['mux_playback_id'] = None
+            elif instance.mux_playback_id:
+                # User has access - provide signed playback ID with 2-hour expiration
+                data['mux_playback_id'] = get_signed_playback_id(
+                    instance.mux_playback_id,
+                    expiration_seconds=7200  # 2 hours
+                )
         elif not instance.is_free_preview:
             data['video_url'] = None
             data['mux_playback_id'] = None
+        elif instance.mux_playback_id:
+            # Free preview - provide signed playback ID with 2-hour expiration
+            data['mux_playback_id'] = get_signed_playback_id(
+                instance.mux_playback_id,
+                expiration_seconds=7200  # 2 hours
+            )
 
         return data
 
