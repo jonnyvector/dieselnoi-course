@@ -19,6 +19,7 @@ export default function LessonDetailPage() {
   const [isCompleted, setIsCompleted] = useState(false)
   const [savedWatchTime, setSavedWatchTime] = useState<number>(0)
   const [hasResumed, setHasResumed] = useState(false)
+  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
   const playerRef = useRef<any>(null)
   const progressMarkedRef = useRef(false)
   const lastSavedTimeRef = useRef(0)
@@ -68,6 +69,94 @@ export default function LessonDetailPage() {
 
     fetchLesson()
   }, [params.id, user, authLoading, router])
+
+  // Keyboard shortcuts for video player
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      // Don't trigger shortcuts when typing in inputs
+      const target = e.target as HTMLElement
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
+
+      // Toggle help modal
+      if (e.key === '?') {
+        e.preventDefault()
+        setShowKeyboardHelp(prev => !prev)
+        return
+      }
+
+      const player = playerRef.current
+      if (!player) return
+
+      switch (e.key.toLowerCase()) {
+        case ' ':
+        case 'k':
+          e.preventDefault()
+          if (player.paused) {
+            player.play()
+          } else {
+            player.pause()
+          }
+          break
+        case 'arrowleft':
+        case 'j':
+          e.preventDefault()
+          player.currentTime = Math.max(0, player.currentTime - 5)
+          break
+        case 'arrowright':
+        case 'l':
+          e.preventDefault()
+          player.currentTime = Math.min(player.duration, player.currentTime + 5)
+          break
+        case 'arrowup':
+          e.preventDefault()
+          player.volume = Math.min(1, player.volume + 0.1)
+          break
+        case 'arrowdown':
+          e.preventDefault()
+          player.volume = Math.max(0, player.volume - 0.1)
+          break
+        case 'f':
+          e.preventDefault()
+          if (document.fullscreenElement) {
+            document.exitFullscreen()
+          } else {
+            player.requestFullscreen()
+          }
+          break
+        case 'm':
+          e.preventDefault()
+          player.muted = !player.muted
+          break
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          e.preventDefault()
+          const percent = parseInt(e.key) / 10
+          player.currentTime = player.duration * percent
+          break
+        case '<':
+        case ',':
+          e.preventDefault()
+          player.playbackRate = Math.max(0.25, player.playbackRate - 0.25)
+          break
+        case '>':
+        case '.':
+          e.preventDefault()
+          player.playbackRate = Math.min(2, player.playbackRate + 0.25)
+          break
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyPress)
+    return () => window.removeEventListener('keydown', handleKeyPress)
+  }, [])
 
   const handleSubscribe = async () => {
     try {
@@ -329,6 +418,132 @@ export default function LessonDetailPage() {
             </div>
           )}
         </div>
+
+        {/* Keyboard Shortcuts Help Button */}
+        {!isLocked && lesson.mux_playback_id && (
+          <button
+            onClick={() => setShowKeyboardHelp(true)}
+            className="fixed bottom-8 right-8 bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors z-40"
+            title="Keyboard shortcuts"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </button>
+        )}
+
+        {/* Keyboard Shortcuts Modal */}
+        {showKeyboardHelp && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">Keyboard Shortcuts</h2>
+                  <button
+                    onClick={() => setShowKeyboardHelp(false)}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Playback</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Play/Pause</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">Space</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Play/Pause</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">K</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Rewind 5s</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">←</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Rewind 5s</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">J</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Forward 5s</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">→</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Forward 5s</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">L</kbd>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Audio & Display</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Volume Up</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">↑</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Volume Down</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">↓</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Mute/Unmute</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">M</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Fullscreen</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">F</kbd>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Seek to Position</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Jump to 0% (beginning)</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">0</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Jump to 10% - 90%</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">1-9</kbd>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Playback Speed</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Decrease speed</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">&lt;</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Increase speed</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">&gt;</kbd>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-700">Show/Hide shortcuts</span>
+                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">?</kbd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs font-mono">?</kbd> anytime to toggle this help
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
