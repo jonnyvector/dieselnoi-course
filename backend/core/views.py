@@ -239,6 +239,46 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
         serializer = CourseProgressSerializer(progress_data, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['get'])
+    def recently_watched(self, request):
+        """Get recently watched lessons for continue watching."""
+        # Get recent lesson progress, excluding completed ones
+        recent_progress = LessonProgress.objects.filter(
+            user=request.user
+        ).select_related(
+            'lesson', 'lesson__course'
+        ).order_by('-last_watched_at')[:10]
+
+        # Build response with lesson and course details
+        data = []
+        for progress in recent_progress:
+            lesson = progress.lesson
+            course = lesson.course
+
+            # Only include if user has active subscription to this course
+            has_subscription = request.user.subscriptions.filter(
+                course=course,
+                status__in=['active', 'trialing']
+            ).exists()
+
+            if not has_subscription:
+                continue
+
+            data.append({
+                'lesson_id': lesson.id,
+                'lesson_title': lesson.title,
+                'lesson_order': lesson.order,
+                'course_id': course.id,
+                'course_title': course.title,
+                'course_slug': course.slug,
+                'is_completed': progress.is_completed,
+                'watch_time_seconds': progress.watch_time_seconds,
+                'last_watched_at': progress.last_watched_at,
+                'duration_minutes': lesson.duration_minutes,
+            })
+
+        return Response(data)
+
     @action(detail=False, methods=['get'], url_path='course/(?P<course_slug>[^/.]+)')
     def course_detail_progress(self, request, course_slug=None):
         """Get detailed progress for a specific course."""

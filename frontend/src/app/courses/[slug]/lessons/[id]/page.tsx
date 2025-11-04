@@ -17,8 +17,11 @@ export default function LessonDetailPage() {
   const [error, setError] = useState<string | null>(null)
   const [subscribing, setSubscribing] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
+  const [savedWatchTime, setSavedWatchTime] = useState<number>(0)
+  const [hasResumed, setHasResumed] = useState(false)
   const playerRef = useRef<any>(null)
   const progressMarkedRef = useRef(false)
+  const lastSavedTimeRef = useRef(0)
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -31,8 +34,29 @@ export default function LessonDetailPage() {
 
       try {
         setLoading(true)
-        const response = await api.get(`/lessons/${params.id}/`)
-        setLesson(response.data)
+        const [lessonResponse, progressResponse] = await Promise.allSettled([
+          api.get(`/lessons/${params.id}/`),
+          progressAPI.getMyProgress(),
+        ])
+
+        if (lessonResponse.status === 'fulfilled') {
+          setLesson(lessonResponse.value.data)
+        }
+
+        // Check if there's saved progress for this lesson
+        if (progressResponse.status === 'fulfilled') {
+          const lessonProgress = progressResponse.value.find(
+            (p: any) => p.lesson === Number(params.id)
+          )
+          if (lessonProgress) {
+            setSavedWatchTime(lessonProgress.watch_time_seconds || 0)
+            setIsCompleted(lessonProgress.is_completed)
+            if (lessonProgress.is_completed) {
+              progressMarkedRef.current = true
+            }
+          }
+        }
+
         setError(null)
       } catch (err: any) {
         console.error('Error fetching lesson:', err)
@@ -59,7 +83,7 @@ export default function LessonDetailPage() {
   }
 
   const handleVideoProgress = async () => {
-    if (!lesson || progressMarkedRef.current) return
+    if (!lesson) return
 
     const player = playerRef.current
     if (!player) return
@@ -67,8 +91,25 @@ export default function LessonDetailPage() {
     const currentTime = player.currentTime || 0
     const duration = player.duration || 0
 
+    // Resume to saved position on first play
+    if (!hasResumed && savedWatchTime > 5 && currentTime < 5) {
+      player.currentTime = savedWatchTime
+      setHasResumed(true)
+      return
+    }
+
+    // Save progress every 10 seconds
+    if (currentTime - lastSavedTimeRef.current >= 10) {
+      lastSavedTimeRef.current = currentTime
+      try {
+        await progressAPI.updateWatchTime(lesson.id, Math.floor(currentTime))
+      } catch (err) {
+        console.error('Error saving watch time:', err)
+      }
+    }
+
     // Mark as complete if watched 90% or more
-    if (duration > 0 && currentTime / duration >= 0.9) {
+    if (duration > 0 && currentTime / duration >= 0.9 && !progressMarkedRef.current) {
       try {
         progressMarkedRef.current = true
         await progressAPI.markLessonComplete(lesson.id, Math.floor(currentTime))
@@ -156,6 +197,29 @@ export default function LessonDetailPage() {
         >
           ← Back to Course
         </Link>
+
+        {/* Resume notification */}
+        {savedWatchTime > 5 && !hasResumed && !isLocked && lesson.mux_playback_id && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+              </svg>
+              <span className="text-sm text-blue-900 font-medium">
+                Resume from {Math.floor(savedWatchTime / 60)}:{String(Math.floor(savedWatchTime % 60)).padStart(2, '0')}
+              </span>
+            </div>
+            <button
+              onClick={() => {
+                setSavedWatchTime(0)
+                setHasResumed(true)
+              }}
+              className="text-xs text-blue-700 hover:text-blue-900 font-semibold"
+            >
+              Start from beginning
+            </button>
+          </div>
+        )}
 
         {/* Video Player or Locked Message */}
         <div className="bg-black rounded-lg overflow-hidden mb-8" style={{ aspectRatio: '16/9' }}>

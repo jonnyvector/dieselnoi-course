@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { subscriptionAPI, stripeAPI, Subscription, progressAPI, CourseProgress } from '@/lib/api'
+import { subscriptionAPI, stripeAPI, Subscription, progressAPI, CourseProgress, RecentlyWatched } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function DashboardPage() {
@@ -11,6 +11,7 @@ export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [courseProgress, setCourseProgress] = useState<CourseProgress[]>([])
+  const [recentlyWatched, setRecentlyWatched] = useState<RecentlyWatched[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [redirectingToPortal, setRedirectingToPortal] = useState(false)
@@ -26,9 +27,10 @@ export default function DashboardPage() {
 
       try {
         setLoading(true)
-        const [subscriptionsData, progressData] = await Promise.allSettled([
+        const [subscriptionsData, progressData, recentlyWatchedData] = await Promise.allSettled([
           subscriptionAPI.getMySubscriptions(),
           progressAPI.getCourseProgress(),
+          progressAPI.getRecentlyWatched(),
         ])
 
         if (subscriptionsData.status === 'fulfilled') {
@@ -37,6 +39,10 @@ export default function DashboardPage() {
 
         if (progressData.status === 'fulfilled') {
           setCourseProgress(progressData.value)
+        }
+
+        if (recentlyWatchedData.status === 'fulfilled') {
+          setRecentlyWatched(recentlyWatchedData.value)
         }
 
         setError(null)
@@ -231,6 +237,76 @@ export default function DashboardPage() {
             )}
           </div>
         </div>
+
+        {/* Continue Watching */}
+        {recentlyWatched.length > 0 && (
+          <div className="bg-white rounded-lg shadow mb-8">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-900">Continue Watching</h2>
+              <p className="text-sm text-gray-600 mt-1">Pick up where you left off</p>
+            </div>
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recentlyWatched.slice(0, 4).map((item) => {
+                  const progressPercent = item.duration_minutes > 0
+                    ? Math.round((item.watch_time_seconds / (item.duration_minutes * 60)) * 100)
+                    : 0
+
+                  return (
+                    <Link
+                      key={item.lesson_id}
+                      href={`/courses/${item.course_slug}/lessons/${item.lesson_id}`}
+                      className="block p-4 border border-gray-200 rounded-lg hover:border-primary-600 hover:shadow-md transition-all"
+                    >
+                      <div className="flex gap-4">
+                        {/* Video thumbnail placeholder */}
+                        <div className="flex-shrink-0 w-32 h-20 bg-gray-200 rounded flex items-center justify-center">
+                          <svg className="w-10 h-10 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                          </svg>
+                        </div>
+
+                        {/* Lesson info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-gray-500 mb-1 truncate">{item.course_title}</div>
+                          <h3 className="text-sm font-semibold text-gray-900 mb-1 truncate">
+                            Lesson {item.lesson_order}: {item.lesson_title}
+                          </h3>
+
+                          {/* Progress bar */}
+                          <div className="mb-2">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="text-gray-600">
+                                {item.is_completed ? 'Completed' : `${progressPercent}% watched`}
+                              </span>
+                              <span className="text-gray-500">{item.duration_minutes} min</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-1.5">
+                              <div
+                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                  item.is_completed ? 'bg-green-600' : 'bg-primary-600'
+                                }`}
+                                style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          {/* Resume button */}
+                          <div className="flex items-center text-xs text-primary-600 font-semibold">
+                            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                            </svg>
+                            {item.is_completed ? 'Watch Again' : 'Resume'}
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Inactive Subscriptions */}
         {subscriptions.filter(sub => !sub.is_active).length > 0 && (

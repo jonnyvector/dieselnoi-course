@@ -165,6 +165,19 @@ export interface CreateCommentData {
   timestamp_seconds?: number
 }
 
+export interface RecentlyWatched {
+  lesson_id: number
+  lesson_title: string
+  lesson_order: number
+  course_id: number
+  course_title: string
+  course_slug: string
+  is_completed: boolean
+  watch_time_seconds: number
+  last_watched_at: string
+  duration_minutes: number
+}
+
 // API functions
 export const courseAPI = {
   // Get all courses
@@ -254,6 +267,12 @@ export const progressAPI = {
   // Get all lesson progress for the current user
   getMyProgress: async (): Promise<LessonProgress[]> => {
     const response = await api.get('/progress/')
+    return response.data
+  },
+
+  // Get recently watched lessons for continue watching
+  getRecentlyWatched: async (): Promise<RecentlyWatched[]> => {
+    const response = await api.get('/progress/recently_watched/')
     return response.data
   },
 }
