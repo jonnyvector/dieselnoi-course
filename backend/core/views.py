@@ -96,8 +96,10 @@ class LessonViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsSubscriberOrReadOnly]
 
     def get_queryset(self):
-        """Return all lessons from published courses."""
-        return Lesson.objects.filter(course__is_published=True).select_related('course')
+        """Return all lessons from published courses with optimized queries."""
+        return Lesson.objects.filter(
+            course__is_published=True
+        ).select_related('course').prefetch_related('user_progress', 'comments')
 
 
 class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
@@ -109,13 +111,15 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        """Users can only see their own subscriptions."""
-        return Subscription.objects.filter(user=self.request.user)
+        """Users can only see their own subscriptions with optimized queries."""
+        return Subscription.objects.filter(user=self.request.user).select_related('course', 'user')
 
     @action(detail=False, methods=['get'])
     def me(self, request):
         """Get current user's subscriptions."""
-        subscriptions = Subscription.objects.filter(user=request.user)
+        subscriptions = Subscription.objects.filter(
+            user=request.user
+        ).select_related('course', 'user')
         serializer = self.get_serializer(subscriptions, many=True)
         return Response(serializer.data)
 
