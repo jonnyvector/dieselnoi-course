@@ -4,6 +4,8 @@ from .views import (
     CourseViewSet,
     LessonViewSet,
     SubscriptionViewSet,
+    LessonProgressViewSet,
+    CommentViewSet,
     RegisterView,
     LoginView,
     LogoutView,
@@ -20,6 +22,8 @@ router = DefaultRouter()
 router.register(r'courses', CourseViewSet, basename='course')
 router.register(r'lessons', LessonViewSet, basename='lesson')
 router.register(r'subscriptions', SubscriptionViewSet, basename='subscription')
+router.register(r'progress', LessonProgressViewSet, basename='progress')
+router.register(r'comments', CommentViewSet, basename='comment')
 
 urlpatterns = [
     path('', include(router.urls)),

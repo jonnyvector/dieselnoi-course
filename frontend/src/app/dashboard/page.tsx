@@ -3,19 +3,20 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { subscriptionAPI, stripeAPI, Subscription } from '@/lib/api'
+import { subscriptionAPI, stripeAPI, Subscription, progressAPI, CourseProgress } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function DashboardPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+  const [courseProgress, setCourseProgress] = useState<CourseProgress[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [redirectingToPortal, setRedirectingToPortal] = useState(false)
 
   useEffect(() => {
-    const fetchSubscriptions = async () => {
+    const fetchData = async () => {
       if (authLoading) return
 
       if (!user) {
@@ -25,18 +26,29 @@ export default function DashboardPage() {
 
       try {
         setLoading(true)
-        const data = await subscriptionAPI.getMySubscriptions()
-        setSubscriptions(data)
+        const [subscriptionsData, progressData] = await Promise.allSettled([
+          subscriptionAPI.getMySubscriptions(),
+          progressAPI.getCourseProgress(),
+        ])
+
+        if (subscriptionsData.status === 'fulfilled') {
+          setSubscriptions(subscriptionsData.value)
+        }
+
+        if (progressData.status === 'fulfilled') {
+          setCourseProgress(progressData.value)
+        }
+
         setError(null)
       } catch (err: any) {
-        console.error('Error fetching subscriptions:', err)
-        setError(err.response?.data?.detail || 'Failed to load subscriptions')
+        console.error('Error fetching data:', err)
+        setError(err.response?.data?.detail || 'Failed to load dashboard data')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchSubscriptions()
+    fetchData()
   }, [user, authLoading, router])
 
   const handleManageBilling = async () => {
@@ -147,32 +159,60 @@ export default function DashboardPage() {
           <div className="p-6">
             {activeSubscriptions.length > 0 ? (
               <div className="space-y-4">
-                {activeSubscriptions.map((subscription) => (
-                  <Link
-                    key={subscription.id}
-                    href={`/courses/${subscription.course_slug}`}
-                    className="block p-4 border border-gray-200 rounded-lg hover:border-primary-600 hover:shadow-md transition-all"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {subscription.course_title}
-                        </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">
-                            {subscription.status.toUpperCase()}
-                          </span>
-                          <span>
-                            Started {new Date(subscription.start_date).toLocaleDateString()}
-                          </span>
+                {activeSubscriptions.map((subscription) => {
+                  const progress = courseProgress.find(p => p.course_slug === subscription.course_slug)
+                  return (
+                    <Link
+                      key={subscription.id}
+                      href={`/courses/${subscription.course_slug}`}
+                      className="block p-4 border border-gray-200 rounded-lg hover:border-primary-600 hover:shadow-md transition-all"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              {subscription.course_title}
+                            </h3>
+                            {progress && progress.completion_percentage === 100 && (
+                              <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                            <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-semibold">
+                              {subscription.status.toUpperCase()}
+                            </span>
+                            <span>
+                              Started {new Date(subscription.start_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {progress && (
+                            <div>
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                <span className="text-gray-600">
+                                  {progress.completed_lessons} of {progress.total_lessons} lessons completed
+                                </span>
+                                <span className="font-semibold text-primary-600">
+                                  {progress.completion_percentage}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                  className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                                  style={{ width: `${progress.completion_percentage}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          )}
                         </div>
+                        <svg className="w-5 h-5 text-gray-400 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  )
+                })}
               </div>
             ) : (
               <div className="text-center py-12">
@@ -268,11 +308,22 @@ export default function DashboardPage() {
           <div className="p-6 bg-white rounded-lg shadow">
             <div className="flex items-center mb-3">
               <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-1">Training Progress</h3>
-            <p className="text-sm text-gray-600">Coming soon - Track your improvement</p>
+            {courseProgress.length > 0 ? (
+              <div className="text-sm text-gray-600">
+                <p className="mb-2">
+                  {courseProgress.reduce((sum, p) => sum + p.completed_lessons, 0)} total lessons completed
+                </p>
+                <p className="text-xs text-gray-500">
+                  Average: {Math.round(courseProgress.reduce((sum, p) => sum + p.completion_percentage, 0) / courseProgress.length)}% complete
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-gray-600">Start watching lessons to track your progress</p>
+            )}
           </div>
         </div>
       </div>

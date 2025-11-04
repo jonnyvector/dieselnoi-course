@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Course, Lesson, Subscription
+from .models import User, Course, Lesson, Subscription, LessonProgress, Comment
 
 
 @admin.register(User)
@@ -45,3 +45,27 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_filter = ['status']
     search_fields = ['user__email', 'user__username', 'stripe_subscription_id']
     ordering = ['-created_at']
+
+
+@admin.register(LessonProgress)
+class LessonProgressAdmin(admin.ModelAdmin):
+    list_display = ['user', 'lesson', 'is_completed', 'completed_at', 'last_watched_at']
+    list_filter = ['is_completed', 'lesson__course']
+    search_fields = ['user__email', 'user__username', 'lesson__title', 'lesson__course__title']
+    ordering = ['-last_watched_at']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['user', 'lesson', 'content_preview', 'parent', 'timestamp_seconds', 'is_edited', 'created_at']
+    list_filter = ['is_edited', 'lesson__course', 'created_at']
+    search_fields = ['user__email', 'user__username', 'content', 'lesson__title']
+    ordering = ['-created_at']
+    readonly_fields = ['created_at', 'updated_at']
+    raw_id_fields = ['user', 'lesson', 'parent']
+
+    def content_preview(self, obj):
+        """Show a preview of the comment content."""
+        return obj.content[:50] + '...' if len(obj.content) > 50 else obj.content
+    content_preview.short_description = 'Content'

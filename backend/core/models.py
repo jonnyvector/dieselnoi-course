@@ -95,3 +95,63 @@ class Subscription(models.Model):
     def is_active(self):
         """Check if subscription is currently active."""
         return self.status in ['active', 'trialing']
+
+
+class LessonProgress(models.Model):
+    """Tracks user progress through lessons."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lesson_progress')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='user_progress')
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(blank=True, null=True)
+    last_watched_at = models.DateTimeField(auto_now=True)
+    watch_time_seconds = models.PositiveIntegerField(default=0, help_text="Total time watched in seconds")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-last_watched_at']
+        unique_together = ['user', 'lesson']
+        verbose_name_plural = 'Lesson Progress'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} - {'Complete' if self.is_completed else 'In Progress'}"
+
+
+class Comment(models.Model):
+    """Represents a comment on a lesson, with support for replies and timestamps."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='comments')
+    content = models.TextField(help_text="Comment text content")
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name='replies',
+        null=True,
+        blank=True,
+        help_text="Parent comment for threaded replies"
+    )
+    timestamp_seconds = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Video timestamp in seconds where this comment was made"
+    )
+    is_edited = models.BooleanField(default=False, help_text="Has this comment been edited")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['lesson', '-created_at']),
+            models.Index(fields=['parent']),
+        ]
+
+    def __str__(self):
+        timestamp_info = f" @{self.timestamp_seconds}s" if self.timestamp_seconds else ""
+        reply_info = f" (reply to #{self.parent.id})" if self.parent else ""
+        return f"{self.user.username} on {self.lesson.title}{timestamp_info}{reply_info}"
+
+    @property
+    def reply_count(self):
+        """Count of direct replies to this comment."""
+        return self.replies.count()

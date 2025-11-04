@@ -1,11 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import MuxPlayer from '@mux/mux-player-react'
-import api, { Lesson, stripeAPI } from '@/lib/api'
+import api, { Lesson, stripeAPI, progressAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import Comments from '@/components/Comments'
 
 export default function LessonDetailPage() {
   const params = useParams()
@@ -15,6 +16,9 @@ export default function LessonDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [subscribing, setSubscribing] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(false)
+  const playerRef = useRef<any>(null)
+  const progressMarkedRef = useRef(false)
 
   useEffect(() => {
     const fetchLesson = async () => {
@@ -51,6 +55,43 @@ export default function LessonDetailPage() {
       console.error('Error creating checkout session:', err)
       alert('Failed to start checkout. Please try again.')
       setSubscribing(false)
+    }
+  }
+
+  const handleVideoProgress = async () => {
+    if (!lesson || progressMarkedRef.current) return
+
+    const player = playerRef.current
+    if (!player) return
+
+    const currentTime = player.currentTime || 0
+    const duration = player.duration || 0
+
+    // Mark as complete if watched 90% or more
+    if (duration > 0 && currentTime / duration >= 0.9) {
+      try {
+        progressMarkedRef.current = true
+        await progressAPI.markLessonComplete(lesson.id, Math.floor(currentTime))
+        setIsCompleted(true)
+      } catch (err) {
+        console.error('Error marking lesson complete:', err)
+        progressMarkedRef.current = false
+      }
+    }
+  }
+
+  const handleVideoEnded = async () => {
+    if (!lesson || progressMarkedRef.current) return
+
+    try {
+      progressMarkedRef.current = true
+      const player = playerRef.current
+      const watchTime = player?.currentTime ? Math.floor(player.currentTime) : 0
+      await progressAPI.markLessonComplete(lesson.id, watchTime)
+      setIsCompleted(true)
+    } catch (err) {
+      console.error('Error marking lesson complete:', err)
+      progressMarkedRef.current = false
     }
   }
 
@@ -135,12 +176,15 @@ export default function LessonDetailPage() {
             </div>
           ) : lesson.mux_playback_id ? (
             <MuxPlayer
+              ref={playerRef}
               playbackId={lesson.mux_playback_id}
               streamType="on-demand"
               autoPlay={false}
               metadata={{
                 video_title: lesson.title,
               }}
+              onTimeUpdate={handleVideoProgress}
+              onEnded={handleVideoEnded}
               style={{ height: '100%', maxWidth: '100%' }}
             />
           ) : lesson.video_url ? (
@@ -166,12 +210,22 @@ export default function LessonDetailPage() {
         {/* Lesson Info */}
         <div className="bg-white rounded-lg shadow-md p-8">
           <div className="flex items-start justify-between mb-6">
-            <div>
-              {lesson.is_free_preview && (
-                <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded mb-3">
-                  FREE PREVIEW
-                </span>
-              )}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                {lesson.is_free_preview && (
+                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded">
+                    FREE PREVIEW
+                  </span>
+                )}
+                {isCompleted && (
+                  <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded">
+                    <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    COMPLETED
+                  </span>
+                )}
+              </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
                 {lesson.title}
               </h1>
@@ -203,6 +257,13 @@ export default function LessonDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Comments Section */}
+          {!isLocked && (
+            <div className="mt-8 pt-8 border-t border-gray-200">
+              <Comments lessonId={lesson.id} playerRef={playerRef} />
+            </div>
+          )}
         </div>
       </div>
     </div>

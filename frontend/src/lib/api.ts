@@ -102,6 +102,69 @@ export interface Subscription {
   created_at: string
 }
 
+export interface LessonProgress {
+  id: number
+  lesson: number
+  lesson_title: string
+  course_title: string
+  course_slug: string
+  is_completed: boolean
+  completed_at: string | null
+  last_watched_at: string
+  watch_time_seconds: number
+  created_at: string
+}
+
+export interface CourseProgress {
+  course_id: number
+  course_title: string
+  course_slug: string
+  total_lessons: number
+  completed_lessons: number
+  completion_percentage: number
+  last_watched_at: string | null
+}
+
+export interface CourseDetailProgress {
+  course_id: number
+  course_title: string
+  course_slug: string
+  total_lessons: number
+  completed_lessons: number
+  completion_percentage: number
+  lessons: {
+    lesson_id: number
+    lesson_title: string
+    lesson_order: number
+    is_completed: boolean
+    completed_at: string | null
+    last_watched_at: string | null
+    watch_time_seconds: number
+  }[]
+}
+
+export interface Comment {
+  id: number
+  user_id: number
+  username: string
+  lesson: number
+  content: string
+  parent: number | null
+  timestamp_seconds: number | null
+  is_edited: boolean
+  reply_count: number
+  replies: Comment[]
+  created_at: string
+  updated_at: string
+}
+
+export interface CreateCommentData {
+  lesson: number
+  content: string
+  parent?: number
+  timestamp_seconds?: number
+}
+
 // API functions
 export const courseAPI = {
   // Get all courses
@@ -154,6 +217,69 @@ export const muxAPI = {
       lesson_id: lessonId,
     })
     return response.data
+  },
+}
+
+export const progressAPI = {
+  // Mark a lesson as complete
+  markLessonComplete: async (lessonId: number, watchTimeSeconds?: number): Promise<LessonProgress> => {
+    const response = await api.post('/progress/mark_complete/', {
+      lesson_id: lessonId,
+      watch_time_seconds: watchTimeSeconds || 0,
+    })
+    return response.data
+  },
+
+  // Update watch time for a lesson (without marking complete)
+  updateWatchTime: async (lessonId: number, watchTimeSeconds: number): Promise<LessonProgress> => {
+    const response = await api.post('/progress/update_watch_time/', {
+      lesson_id: lessonId,
+      watch_time_seconds: watchTimeSeconds,
+    })
+    return response.data
+  },
+
+  // Get progress summary for all subscribed courses
+  getCourseProgress: async (): Promise<CourseProgress[]> => {
+    const response = await api.get('/progress/course_progress/')
+    return response.data
+  },
+
+  // Get detailed progress for a specific course
+  getCourseDetailProgress: async (courseSlug: string): Promise<CourseDetailProgress> => {
+    const response = await api.get(`/progress/course/${courseSlug}/`)
+    return response.data
+  },
+
+  // Get all lesson progress for the current user
+  getMyProgress: async (): Promise<LessonProgress[]> => {
+    const response = await api.get('/progress/')
+    return response.data
+  },
+}
+
+export const commentAPI = {
+  // Get comments for a specific lesson
+  getComments: async (lessonId: number): Promise<Comment[]> => {
+    const response = await api.get(`/comments/?lesson_id=${lessonId}`)
+    return response.data.results || response.data
+  },
+
+  // Create a new comment
+  createComment: async (data: CreateCommentData): Promise<Comment> => {
+    const response = await api.post('/comments/', data)
+    return response.data
+  },
+
+  // Update a comment
+  updateComment: async (commentId: number, content: string): Promise<Comment> => {
+    const response = await api.patch(`/comments/${commentId}/`, { content })
+    return response.data
+  },
+
+  // Delete a comment
+  deleteComment: async (commentId: number): Promise<void> => {
+    await api.delete(`/comments/${commentId}/`)
   },
 }
 

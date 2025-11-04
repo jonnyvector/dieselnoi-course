@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Course, Lesson, Subscription
+from .models import User, Course, Lesson, Subscription, LessonProgress, Comment
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -117,6 +117,84 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             'created_at',
         ]
         read_only_fields = ['id', 'created_at', 'user_email', 'course_title', 'course_slug', 'is_active']
+
+
+class LessonProgressSerializer(serializers.ModelSerializer):
+    """Serializer for LessonProgress model."""
+    lesson_title = serializers.CharField(source='lesson.title', read_only=True)
+    course_title = serializers.CharField(source='lesson.course.title', read_only=True)
+    course_slug = serializers.SlugField(source='lesson.course.slug', read_only=True)
+
+    class Meta:
+        model = LessonProgress
+        fields = [
+            'id',
+            'lesson',
+            'lesson_title',
+            'course_title',
+            'course_slug',
+            'is_completed',
+            'completed_at',
+            'last_watched_at',
+            'watch_time_seconds',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'lesson_title', 'course_title', 'course_slug']
+
+
+class CourseProgressSerializer(serializers.Serializer):
+    """Serializer for course progress summary."""
+    course_id = serializers.IntegerField()
+    course_title = serializers.CharField()
+    course_slug = serializers.SlugField()
+    total_lessons = serializers.IntegerField()
+    completed_lessons = serializers.IntegerField()
+    completion_percentage = serializers.FloatField()
+    last_watched_at = serializers.DateTimeField(allow_null=True)
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    """Serializer for Comment model."""
+    username = serializers.CharField(source='user.username', read_only=True)
+    user_id = serializers.IntegerField(source='user.id', read_only=True)
+    reply_count = serializers.IntegerField(read_only=True)
+    replies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'user_id',
+            'username',
+            'lesson',
+            'content',
+            'parent',
+            'timestamp_seconds',
+            'is_edited',
+            'reply_count',
+            'replies',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'user_id', 'username', 'is_edited', 'reply_count', 'created_at', 'updated_at']
+
+    def get_replies(self, obj):
+        """Get direct replies to this comment (not nested deeper)."""
+        if obj.parent is None:  # Only show replies for top-level comments
+            replies = obj.replies.all()[:5]  # Limit to 5 most recent replies
+            return CommentSerializer(replies, many=True, context=self.context).data
+        return []
+
+    def create(self, validated_data):
+        """Set the user from the request context."""
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Mark comment as edited when updated."""
+        if 'content' in validated_data and validated_data['content'] != instance.content:
+            validated_data['is_edited'] = True
+        return super().update(instance, validated_data)
 
 
 class RegisterSerializer(serializers.ModelSerializer):

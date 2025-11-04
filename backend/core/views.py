@@ -9,7 +9,9 @@ from django.utils.decorators import method_decorator
 import stripe
 import mux_python
 from mux_python.rest import ApiException
-from .models import Course, Lesson, Subscription
+from django.db.models import Count, Q, Max
+from django.utils import timezone
+from .models import Course, Lesson, Subscription, LessonProgress, Comment
 from .serializers import (
     CourseSerializer,
     CourseDetailSerializer,
@@ -17,6 +19,9 @@ from .serializers import (
     SubscriptionSerializer,
     UserSerializer,
     RegisterSerializer,
+    LessonProgressSerializer,
+    CourseProgressSerializer,
+    CommentSerializer,
 )
 
 # Initialize Stripe
@@ -113,6 +118,215 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
         subscriptions = Subscription.objects.filter(user=request.user)
         serializer = self.get_serializer(subscriptions, many=True)
         return Response(serializer.data)
+
+
+class LessonProgressViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for tracking user progress through lessons.
+    Users can mark lessons as complete and view their progress.
+    """
+    serializer_class = LessonProgressSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Users can only see their own progress."""
+        return LessonProgress.objects.filter(user=self.request.user).select_related('lesson', 'lesson__course')
+
+    @action(detail=False, methods=['post'])
+    def mark_complete(self, request):
+        """Mark a lesson as complete."""
+        lesson_id = request.data.get('lesson_id')
+        watch_time_seconds = request.data.get('watch_time_seconds', 0)
+
+        if not lesson_id:
+            return Response(
+                {'error': 'lesson_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            lesson = Lesson.objects.get(id=lesson_id, course__is_published=True)
+        except Lesson.DoesNotExist:
+            return Response(
+                {'error': 'Lesson not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create or update progress
+        progress, created = LessonProgress.objects.update_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={
+                'is_completed': True,
+                'completed_at': timezone.now(),
+                'watch_time_seconds': watch_time_seconds
+            }
+        )
+
+        serializer = self.get_serializer(progress)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def update_watch_time(self, request):
+        """Update watch time for a lesson (without marking complete)."""
+        lesson_id = request.data.get('lesson_id')
+        watch_time_seconds = request.data.get('watch_time_seconds', 0)
+
+        if not lesson_id:
+            return Response(
+                {'error': 'lesson_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            lesson = Lesson.objects.get(id=lesson_id, course__is_published=True)
+        except Lesson.DoesNotExist:
+            return Response(
+                {'error': 'Lesson not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Create or update progress
+        progress, created = LessonProgress.objects.update_or_create(
+            user=request.user,
+            lesson=lesson,
+            defaults={'watch_time_seconds': watch_time_seconds}
+        )
+
+        serializer = self.get_serializer(progress)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'])
+    def course_progress(self, request):
+        """Get progress summary for all courses the user has access to."""
+        # Get all courses user has subscriptions for
+        subscribed_courses = Course.objects.filter(
+            subscriptions__user=request.user,
+            subscriptions__status__in=['active', 'trialing']
+        ).distinct()
+
+        progress_data = []
+        for course in subscribed_courses:
+            total_lessons = course.lessons.count()
+            completed_lessons = LessonProgress.objects.filter(
+                user=request.user,
+                lesson__course=course,
+                is_completed=True
+            ).count()
+
+            # Get last watched time
+            last_progress = LessonProgress.objects.filter(
+                user=request.user,
+                lesson__course=course
+            ).order_by('-last_watched_at').first()
+
+            completion_percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
+
+            progress_data.append({
+                'course_id': course.id,
+                'course_title': course.title,
+                'course_slug': course.slug,
+                'total_lessons': total_lessons,
+                'completed_lessons': completed_lessons,
+                'completion_percentage': round(completion_percentage, 1),
+                'last_watched_at': last_progress.last_watched_at if last_progress else None
+            })
+
+        serializer = CourseProgressSerializer(progress_data, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='course/(?P<course_slug>[^/.]+)')
+    def course_detail_progress(self, request, course_slug=None):
+        """Get detailed progress for a specific course."""
+        try:
+            course = Course.objects.get(slug=course_slug, is_published=True)
+        except Course.DoesNotExist:
+            return Response(
+                {'error': 'Course not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Get all lessons for this course
+        lessons = course.lessons.all()
+        total_lessons = lessons.count()
+
+        # Get user's progress for each lesson
+        lesson_progress = LessonProgress.objects.filter(
+            user=request.user,
+            lesson__course=course
+        )
+
+        # Create a map of lesson_id -> progress
+        progress_map = {p.lesson_id: p for p in lesson_progress}
+
+        # Build response with lesson details and progress
+        lessons_data = []
+        for lesson in lessons:
+            progress = progress_map.get(lesson.id)
+            lessons_data.append({
+                'lesson_id': lesson.id,
+                'lesson_title': lesson.title,
+                'lesson_order': lesson.order,
+                'is_completed': progress.is_completed if progress else False,
+                'completed_at': progress.completed_at if progress else None,
+                'last_watched_at': progress.last_watched_at if progress else None,
+                'watch_time_seconds': progress.watch_time_seconds if progress else 0
+            })
+
+        completed_lessons = sum(1 for l in lessons_data if l['is_completed'])
+        completion_percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
+
+        return Response({
+            'course_id': course.id,
+            'course_title': course.title,
+            'course_slug': course.slug,
+            'total_lessons': total_lessons,
+            'completed_lessons': completed_lessons,
+            'completion_percentage': round(completion_percentage, 1),
+            'lessons': lessons_data
+        })
+
+
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to only allow owners of a comment to edit/delete it.
+    """
+    def has_object_permission(self, request, view, obj):
+        # Read permissions allowed to anyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        # Write permissions only to owner
+        return obj.user == request.user
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and editing comments on lessons.
+    """
+    serializer_class = CommentSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        """Filter comments by lesson if lesson_id is provided."""
+        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies')
+
+        lesson_id = self.request.query_params.get('lesson_id')
+        if lesson_id:
+            # Only return top-level comments (parent=None) for the lesson
+            queryset = queryset.filter(lesson_id=lesson_id, parent=None)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        """Create a comment and set the user."""
+        serializer.save(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        """Only allow deletion of own comments."""
+        if instance.user != self.request.user and not self.request.user.is_staff:
+            raise permissions.PermissionDenied("You can only delete your own comments.")
+        instance.delete()
 
 
 class RegisterView(APIView):
@@ -556,6 +770,7 @@ class MuxWebhookView(APIView):
             asset_id = asset_data.get('id')
             passthrough = asset_data.get('passthrough')
             playback_ids = asset_data.get('playback_ids', [])
+            duration_seconds = asset_data.get('duration')  # Duration in seconds from Mux
 
             if not passthrough:
                 print(f"No passthrough data for asset {asset_id}", flush=True)
@@ -571,6 +786,13 @@ class MuxWebhookView(APIView):
                 # Get the first playback ID
                 if playback_ids and len(playback_ids) > 0:
                     lesson.mux_playback_id = playback_ids[0].get('id')
+
+                # Update duration from actual video duration
+                if duration_seconds:
+                    # Convert seconds to minutes, rounding up
+                    import math
+                    lesson.duration_minutes = math.ceil(duration_seconds / 60)
+                    print(f"✓ Updated lesson {lesson_id} duration to {lesson.duration_minutes} minutes ({duration_seconds} seconds)", flush=True)
 
                 lesson.save()
                 print(f"✓ Updated lesson {lesson_id} with asset {asset_id}", flush=True)

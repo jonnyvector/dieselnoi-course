@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { courseAPI, CourseDetail, stripeAPI, subscriptionAPI, Subscription } from '@/lib/api'
+import { courseAPI, CourseDetail, stripeAPI, subscriptionAPI, Subscription, progressAPI, CourseDetailProgress } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function CourseDetailPage() {
@@ -12,6 +12,7 @@ export default function CourseDetailPage() {
   const { user, loading: authLoading } = useAuth()
   const [course, setCourse] = useState<CourseDetail | null>(null)
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+  const [progress, setProgress] = useState<CourseDetailProgress | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [subscribing, setSubscribing] = useState(false)
@@ -27,9 +28,10 @@ export default function CourseDetailPage() {
 
       try {
         setLoading(true)
-        const [courseData, subscriptionsData] = await Promise.allSettled([
+        const [courseData, subscriptionsData, progressData] = await Promise.allSettled([
           courseAPI.getCourse(params.slug as string),
           subscriptionAPI.getMySubscriptions(),
+          progressAPI.getCourseDetailProgress(params.slug as string),
         ])
 
         if (courseData.status === 'fulfilled') {
@@ -44,6 +46,13 @@ export default function CourseDetailPage() {
         } else {
           // No subscriptions is OK - user just hasn't subscribed yet
           setSubscriptions([])
+        }
+
+        if (progressData.status === 'fulfilled') {
+          setProgress(progressData.value)
+        } else {
+          // No progress is OK - user might not be subscribed yet
+          setProgress(null)
         }
 
         setError(null)
@@ -143,7 +152,7 @@ export default function CourseDetailPage() {
           </Link>
 
           <div className="flex items-start justify-between">
-            <div>
+            <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${getDifficultyColor(course.difficulty)}`}>
                   {course.difficulty}
@@ -151,6 +160,11 @@ export default function CourseDetailPage() {
                 <span className="text-sm text-gray-600">
                   {course.lesson_count} lessons
                 </span>
+                {progress && progress.completion_percentage > 0 && (
+                  <span className="text-sm font-semibold text-primary-600">
+                    {progress.completion_percentage}% Complete
+                  </span>
+                )}
               </div>
               <h1 className="text-4xl font-bold text-gray-900 mb-4">
                 {course.title}
@@ -158,6 +172,22 @@ export default function CourseDetailPage() {
               <p className="text-lg text-gray-600 max-w-3xl">
                 {course.description}
               </p>
+              {progress && progress.completion_percentage > 0 && (
+                <div className="mt-4 max-w-md">
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="text-gray-600">Progress</span>
+                    <span className="font-semibold text-gray-900">
+                      {progress.completed_lessons} of {progress.total_lessons} lessons
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      className="bg-primary-600 h-2.5 rounded-full transition-all duration-300"
+                      style={{ width: `${progress.completion_percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="text-right">
               <div className="text-3xl font-bold text-primary-600 mb-4">
@@ -223,6 +253,14 @@ export default function CourseDetailPage() {
                           <span className="text-sm font-semibold text-gray-500">
                             Lesson {index + 1}
                           </span>
+                          {progress?.lessons.find(l => l.lesson_id === lesson.id)?.is_completed && (
+                            <span className="inline-flex items-center px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">
+                              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                              COMPLETED
+                            </span>
+                          )}
                           {lesson.is_free_preview && (
                             <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded">
                               FREE PREVIEW
