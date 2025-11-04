@@ -493,3 +493,125 @@ npm run dev
 - Implement video player with Mux or Bunny Stream
 - Build user dashboard for managing subscriptions
 - Add Stripe customer portal for billing management
+
+---
+
+### Session: 2025-11-03 (Evening) - Lesson Progress & Comments System
+
+**Completed:**
+- ✅ Built lesson progress tracking system
+  - Created LessonProgress model with fields: is_completed, completed_at, last_watched_at, watch_time_seconds
+  - Unique constraint on (user, lesson) to prevent duplicates
+  - API endpoints for progress management:
+    - POST `/api/progress/mark_complete/` - marks lesson as complete with watch time
+    - POST `/api/progress/update_watch_time/` - updates watch time without marking complete
+    - GET `/api/progress/course_progress/` - summary of all subscribed courses
+    - GET `/api/progress/course/{slug}/` - detailed progress for specific course
+- ✅ Implemented automatic progress tracking
+  - Video player tracks watch time via `onTimeUpdate` event
+  - Auto-marks lesson complete when user watches 90% or video ends
+  - Uses ref to prevent duplicate API calls
+  - Updates UI immediately with "COMPLETED" badge
+- ✅ Created comments system
+  - Comment model with threaded replies (parent field)
+  - Video timestamp support (timestamp_seconds field)
+  - Edit tracking (is_edited boolean)
+  - Reply counting and nested display
+  - Built Comments.tsx component with:
+    - Comment list sorted by creation time
+    - Reply functionality with nested threads
+    - Edit and delete for own comments
+    - Video timestamp links (clickable to seek)
+    - Real-time updates after posting
+- ✅ Enhanced UI with progress indicators
+  - Course page shows completion percentage and progress bar
+  - Lesson page shows "COMPLETED" badge for finished lessons
+  - Dashboard displays course progress summaries
+  - Completion badges on lesson lists
+- ✅ Synced video durations from Mux
+  - Updated MuxWebhookView to extract duration from asset.ready event
+  - Auto-converts seconds to minutes (rounded up)
+  - Created sync_video_durations.py management command for bulk updates
+  - Ensures accurate lesson duration display
+
+**Backend Changes:**
+- `backend/core/models.py`:
+  - Added LessonProgress model with user/lesson tracking
+  - Added Comment model with parent/replies structure
+  - Indexed fields for performance (lesson + created_at, parent)
+- `backend/core/serializers.py`:
+  - Added LessonProgressSerializer with course context
+  - Added CourseProgressSerializer for summary data
+  - Added CommentSerializer with nested replies (limited to 5)
+  - Auto-sets user from request context on comment creation
+- `backend/core/views.py`:
+  - Added LessonProgressViewSet with custom actions
+  - Added CommentViewSet with IsOwnerOrReadOnly permission
+  - Updated MuxWebhookView to sync video duration
+  - Added course_detail_progress endpoint for per-course stats
+- `backend/core/admin.py`:
+  - Registered LessonProgress with filtering and search
+  - Registered Comment with content preview
+
+**Frontend Changes:**
+- `frontend/src/app/courses/[slug]/page.tsx`:
+  - Fetches course progress data on load
+  - Displays completion percentage if > 0%
+  - Shows progress bar with visual indicator
+  - Marks completed lessons in lesson list
+- `frontend/src/app/courses/[slug]/lessons/[id]/page.tsx`:
+  - Added video progress tracking with useRef hooks
+  - Auto-marks complete at 90% watched or video end
+  - Shows "COMPLETED" badge when done
+  - Integrated Comments component
+- `frontend/src/app/dashboard/page.tsx`:
+  - Updated to show progress for each subscription
+- `frontend/src/lib/api.ts`:
+  - Added progressAPI with methods:
+    - markLessonComplete(lessonId, watchTime)
+    - updateWatchTime(lessonId, watchTime)
+    - getCourseProgress()
+    - getCourseDetailProgress(courseSlug)
+  - Added commentAPI for CRUD operations
+  - TypeScript interfaces for LessonProgress, Comment, CourseDetailProgress
+
+**Database Migrations:**
+- `0003_lessonprogress.py` - Creates lesson_progress table
+- `0004_comment.py` - Creates comments table with indexes
+
+**Management Commands:**
+- `sync_video_durations.py` - Syncs duration from Mux for all lessons with mux_asset_id
+
+**Technical Details:**
+- Progress tracking uses optimistic UI updates (instant feedback)
+- Duplicate prevention via progressMarkedRef to avoid race conditions
+- Comments support infinite nesting but UI shows 2 levels (top + replies)
+- Video timestamps in comments stored as seconds for precise seeking
+- Progress percentage calculated server-side for consistency
+
+**Testing Notes:**
+- Tested progress tracking with multiple lessons
+- Verified completion badges appear correctly
+- Tested comment posting, editing, deleting
+- Confirmed progress bars update in real-time
+- Validated video duration sync from Mux webhook
+
+**Phase 2 Status (UPDATED):**
+- ✅ Stripe integration (checkout flow complete)
+- ✅ Per-course subscription model implemented
+- ✅ Webhook handlers configured
+- ✅ Mux video integration (Direct Upload + playback)
+- ✅ Video player with progress tracking
+- ✅ Lesson progress tracking system
+- ✅ Comments system with threaded replies
+- 🔲 Production webhook setup (needs Stripe Dashboard configuration)
+- 🔲 User dashboard for subscription management
+- 🔲 Stripe customer portal for billing management
+
+**Next Steps:**
+- Add comment notifications (optional)
+- Implement video quality selector
+- Add keyboard shortcuts for video player
+- Build comprehensive user dashboard
+- Set up Stripe customer portal integration
+- Production deployment preparation
