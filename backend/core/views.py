@@ -472,10 +472,7 @@ class LoginView(APIView):
                 status=status.HTTP_429_TOO_MANY_REQUESTS
             )
 
-        # Apply progressive delay based on previous failed attempts
-        LoginAttemptTracker.apply_delay(username, ip_address)
-
-        # Attempt authentication
+        # Attempt authentication (no delay for successful logins)
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
@@ -491,12 +488,15 @@ class LoginView(APIView):
                 status=status.HTTP_200_OK
             )
         else:
-            # Failed login - record attempt
+            # Failed login - record attempt first
             LoginAttemptTracker.record_failed_attempt(username, ip_address)
 
             # Get current attempt counts for informative error message
             user_attempts, ip_attempts = LoginAttemptTracker.get_attempt_count(username, ip_address)
             max_attempts = max(user_attempts, ip_attempts)
+
+            # Apply progressive delay AFTER recording failure (slows down subsequent attempts)
+            LoginAttemptTracker.apply_delay(username, ip_address)
 
             # Provide helpful feedback
             attempts_remaining = LoginAttemptTracker.MAX_ATTEMPTS - max_attempts
