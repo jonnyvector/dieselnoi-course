@@ -13,7 +13,7 @@ import mux_python
 from mux_python.rest import ApiException
 from django.db.models import Count, Q, Max
 from django.utils import timezone
-from .models import Course, Lesson, Subscription, LessonProgress, Comment
+from .models import Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge
 from .serializers import (
     CourseSerializer,
     CourseDetailSerializer,
@@ -24,7 +24,13 @@ from .serializers import (
     LessonProgressSerializer,
     CourseProgressSerializer,
     CommentSerializer,
+    CourseReviewSerializer,
+    CourseResourceSerializer,
+    BadgeSerializer,
+    UserBadgeSerializer,
 )
+from .analytics import AnalyticsService
+from .badge_checker import check_and_award_badges, get_user_badge_progress
 
 # Initialize Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -184,8 +190,20 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
             }
         )
 
+        # Check and award badges
+        newly_earned_badges = check_and_award_badges(request.user)
+
         serializer = self.get_serializer(progress)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response_data = serializer.data
+
+        # Include newly earned badges in response
+        if newly_earned_badges:
+            response_data['newly_earned_badges'] = [
+                {'id': badge.id, 'name': badge.name, 'icon': badge.icon}
+                for badge in newly_earned_badges
+            ]
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['post'])
     def update_watch_time(self, request):
@@ -292,6 +310,7 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
                 'watch_time_seconds': progress.watch_time_seconds,
                 'last_watched_at': progress.last_watched_at,
                 'duration_minutes': lesson.duration_minutes,
+                'mux_playback_id': lesson.mux_playback_id,
             })
 
         return Response(data)
@@ -399,6 +418,127 @@ class CommentViewSet(viewsets.ModelViewSet):
         instance.delete()
 
 
+class CourseReviewViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for viewing and creating course reviews.
+    Students can create/edit their own reviews. Only admins can delete.
+    """
+    serializer_class = CourseReviewSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_context(self):
+        """Add course to serializer context for validation."""
+        context = super().get_serializer_context()
+
+        # For create operations, get course from request data
+        if self.request.method == 'POST':
+            course_id = self.request.data.get('course_id')
+            if course_id:
+                try:
+                    course = Course.objects.get(id=course_id, is_published=True)
+                    context['course'] = course
+                except Course.DoesNotExist:
+                    pass
+        # For update operations, get course from existing instance
+        elif self.request.method in ['PUT', 'PATCH'] and hasattr(self, 'get_object'):
+            try:
+                instance = self.get_object()
+                context['course'] = instance.course
+            except:
+                pass
+
+        return context
+
+    @method_decorator(ratelimit(key='user', rate='10/h', method='POST', block=True))
+    def create(self, request, *args, **kwargs):
+        """Rate-limited review creation - 10 per hour to prevent spam."""
+        return super().create(request, *args, **kwargs)
+
+    def get_queryset(self):
+        """Return all non-hidden reviews, optionally filtered by course."""
+        queryset = CourseReview.objects.filter(is_hidden=False).select_related('user', 'course')
+
+        course_id = self.request.query_params.get('course_id')
+        if course_id:
+            queryset = queryset.filter(course_id=course_id)
+
+        # Sorting
+        sort = self.request.query_params.get('sort', 'newest')
+        if sort == 'highest':
+            queryset = queryset.order_by('-rating', '-created_at')
+        elif sort == 'lowest':
+            queryset = queryset.order_by('rating', '-created_at')
+        else:  # newest (default)
+            queryset = queryset.order_by('-created_at')
+
+        return queryset
+
+    def perform_create(self, serializer):
+        """Create a review with the current user and course from request data."""
+        course = serializer.context.get('course')
+
+        if not course:
+            raise serializers.ValidationError({"course_id": "This field is required."})
+
+        # Verify subscription
+        has_subscription = Subscription.objects.filter(
+            user=self.request.user,
+            course=course,
+            status__in=['active', 'trialing']
+        ).exists()
+
+        if not has_subscription:
+            raise permissions.PermissionDenied("Active subscription required to review this course.")
+
+        serializer.save(user=self.request.user, course=course)
+
+    def perform_update(self, serializer):
+        """Only allow editing own reviews."""
+        if serializer.instance.user != self.request.user:
+            raise permissions.PermissionDenied("You can only edit your own reviews.")
+
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        """Only allow admins to delete reviews."""
+        if not self.request.user.is_staff:
+            raise permissions.PermissionDenied("Only administrators can delete reviews.")
+        instance.delete()
+
+
+class CourseResourceViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for course resources (downloadable PDFs, etc.).
+    Read-only API - resources managed through Django admin.
+    """
+    serializer_class = CourseResourceSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Return all course resources."""
+        return CourseResource.objects.select_related('course').all()
+
+    def retrieve(self, request, pk=None):
+        """Get a single resource with download URL if user has subscription."""
+        resource = self.get_object()
+
+        # Verify subscription
+        has_subscription = Subscription.objects.filter(
+            user=request.user,
+            course=resource.course,
+            status__in=['active', 'trialing']
+        ).exists()
+
+        if not has_subscription and not resource.course.is_published:
+            return Response(
+                {'detail': 'Active subscription required to access this resource.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        serializer = self.get_serializer(resource)
+        return Response(serializer.data)
+
+
 class RegisterView(APIView):
     """
     User registration endpoint with smart rate limiting.
@@ -429,6 +569,40 @@ class RegisterView(APIView):
             # Record the registration
             RegistrationRateLimiter.record_registration(ip_address)
 
+            # Track referral signup if code provided
+            referral_code = request.data.get('referral_code')
+            if referral_code:
+                try:
+                    from django.utils import timezone
+                    ref_code = ReferralCode.objects.get(code=referral_code.upper())
+
+                    # Find or create the referral entry
+                    referral = Referral.objects.filter(
+                        code_used=referral_code.upper(),
+                        referee__isnull=True,
+                        status='clicked'
+                    ).first()
+
+                    if referral:
+                        # Update existing click tracking
+                        referral.referee = user
+                        referral.status = 'signed_up'
+                        referral.signed_up_at = timezone.now()
+                        referral.save()
+                    else:
+                        # Create new referral entry
+                        Referral.objects.create(
+                            referrer=ref_code.user,
+                            referee=user,
+                            code_used=referral_code.upper(),
+                            status='signed_up',
+                            signed_up_at=timezone.now(),
+                            ip_address=ip_address,
+                            user_agent=request.META.get('HTTP_USER_AGENT', '')
+                        )
+                except ReferralCode.DoesNotExist:
+                    pass  # Invalid code, ignore silently
+
             return Response(
                 {
                     'user': UserSerializer(user).data,
@@ -456,6 +630,9 @@ class LoginView(APIView):
                 {'error': 'Please provide both username and password'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Normalize username to lowercase for case-insensitive login
+        username = username.lower()
 
         ip_address = get_client_ip(request)
 
@@ -593,11 +770,37 @@ class CreateCheckoutSessionView(APIView):
             else:
                 customer_id = user.stripe_customer_id
 
+            # Check for referral discount (first-time subscribers only)
+            discounts = []
+            is_first_subscription = not Subscription.objects.filter(user=user).exists()
+
+            if is_first_subscription:
+                # Check if user was referred
+                referral = Referral.objects.filter(
+                    referee=user,
+                    status__in=['signed_up', 'clicked']
+                ).first()
+
+                if referral:
+                    # Apply 20% referral discount
+                    discounts.append({'coupon': 'referral-20-off'})
+
+            # Check for available referral credits
+            from django.utils import timezone
+            available_credits = ReferralCredit.objects.filter(
+                user=user,
+                used=False,
+                expires_at__gt=timezone.now()
+            ).order_by('expires_at')
+
+            # Calculate total available credit
+            total_credit = sum(float(credit.amount) for credit in available_credits)
+
             # Create checkout session
-            checkout_session = stripe.checkout.Session.create(
-                customer=user.stripe_customer_id,
-                payment_method_types=['card'],
-                line_items=[{
+            session_params = {
+                'customer': user.stripe_customer_id,
+                'payment_method_types': ['card'],
+                'line_items': [{
                     'price_data': {
                         'currency': 'usd',
                         'product_data': {
@@ -611,14 +814,21 @@ class CreateCheckoutSessionView(APIView):
                     },
                     'quantity': 1,
                 }],
-                mode='subscription',
-                success_url=settings.FRONTEND_URL + '/subscription/success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url=settings.FRONTEND_URL + '/subscription/cancelled',
-                metadata={
+                'mode': 'subscription',
+                'success_url': settings.FRONTEND_URL + '/subscription/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url': settings.FRONTEND_URL + '/subscription/cancelled',
+                'metadata': {
                     'user_id': user.id,
                     'course_slug': course_slug if course_slug else 'all-access',
+                    'apply_credits': 'true' if total_credit > 0 else 'false',
+                    'credits_to_apply': str(total_credit) if total_credit > 0 else '0',
                 }
-            )
+            }
+
+            if discounts:
+                session_params['discounts'] = discounts
+
+            checkout_session = stripe.checkout.Session.create(**session_params)
 
             return Response({
                 'sessionId': checkout_session.id,
@@ -944,3 +1154,239 @@ class MuxWebhookView(APIView):
         asset_id = asset_data.get('id')
         errors = asset_data.get('errors', {})
         print(f"Asset {asset_id} errored: {errors}", flush=True)
+
+
+# Analytics Views
+
+class AnalyticsOverviewView(APIView):
+    """
+    Get overview analytics for admin dashboard.
+    Only accessible to admin users.
+    """
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def get(self, request):
+        data = AnalyticsService.get_overview_stats()
+        return Response(data)
+
+
+class AnalyticsCoursesView(APIView):
+    """
+    Get analytics for all courses.
+    Only accessible to admin users.
+    """
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def get(self, request):
+        data = AnalyticsService.get_course_analytics()
+        return Response(data)
+
+
+class AnalyticsCourseDetailView(APIView):
+    """
+    Get detailed analytics for a specific course.
+    Only accessible to admin users.
+    """
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def get(self, request, course_slug):
+        data = AnalyticsService.get_course_detail_analytics(course_slug)
+        if data is None:
+            return Response(
+                {'error': 'Course not found'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        return Response(data)
+
+
+class AnalyticsEngagementView(APIView):
+    """
+    Get engagement metrics (top lessons, dropoff rates, etc).
+    Only accessible to admin users.
+    """
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def get(self, request):
+        data = AnalyticsService.get_engagement_metrics()
+        return Response(data)
+
+
+class AnalyticsUserGrowthView(APIView):
+    """
+    Get user growth and retention metrics.
+    Only accessible to admin users.
+    """
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    def get(self, request):
+        data = AnalyticsService.get_user_growth_metrics()
+        return Response(data)
+
+
+class BadgeViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for viewing badges.
+    """
+    queryset = Badge.objects.all()
+    serializer_class = BadgeSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def my_badges(self, request):
+        """Get current user's badge progress (earned and unearned)."""
+        badge_data = get_user_badge_progress(request.user)
+        return Response(badge_data)
+
+    @action(detail=False, methods=['get'])
+    def earned(self, request):
+        """Get only earned badges for current user."""
+        user_badges = UserBadge.objects.filter(user=request.user).select_related('badge')
+        serializer = UserBadgeSerializer(user_badges, many=True)
+        return Response(serializer.data)
+
+
+class ReferralViewSet(viewsets.ViewSet):
+    """ViewSet for referral program."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['get'])
+    def my_code(self, request):
+        """Get or create user's referral code."""
+        from .serializers import ReferralCodeSerializer
+        code, created = ReferralCode.objects.get_or_create(
+            user=request.user,
+            defaults={'code': ReferralCode.generate_code()}
+        )
+        serializer = ReferralCodeSerializer(code, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """Get referral statistics for current user."""
+        from .serializers import ReferralStatsSerializer
+        from django.db.models import Q, Sum
+        from django.utils import timezone
+
+        # Get user's referral code
+        try:
+            ref_code = request.user.referral_code
+        except:
+            return Response({
+                'code': None,
+                'referral_link': None,
+                'clicks': 0,
+                'signups': 0,
+                'conversions': 0,
+                'credits_available': 0,
+                'credits_used': 0,
+                'credits_total': 0
+            })
+
+        # Get referral stats
+        referrals = Referral.objects.filter(referrer=request.user)
+        clicks = referrals.filter(status__in=['clicked', 'signed_up', 'converted', 'rewarded']).count()
+        signups = referrals.filter(status__in=['signed_up', 'converted', 'rewarded']).count()
+        conversions = referrals.filter(status__in=['converted', 'rewarded']).count()
+
+        # Get credit stats
+        credits = ReferralCredit.objects.filter(user=request.user, expires_at__gt=timezone.now())
+        credits_available = credits.filter(used=False).aggregate(Sum('amount'))['amount__sum'] or 0
+        credits_used = ReferralCredit.objects.filter(user=request.user, used=True).aggregate(Sum('amount'))['amount__sum'] or 0
+        credits_total = credits_available + credits_used
+
+        # Build referral link
+        domain = request.get_host().replace(':8000', ':3000')
+        referral_link = f"http://{domain}/signup?ref={ref_code.code}"
+
+        data = {
+            'code': ref_code.code,
+            'referral_link': referral_link,
+            'clicks': clicks,
+            'signups': signups,
+            'conversions': conversions,
+            'credits_available': float(credits_available),
+            'credits_used': float(credits_used),
+            'credits_total': float(credits_total)
+        }
+
+        serializer = ReferralStatsSerializer(data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def history(self, request):
+        """Get referral history."""
+        from .serializers import ReferralHistorySerializer
+        referrals = Referral.objects.filter(
+            referrer=request.user
+        ).select_related('referee').order_by('-created_at')[:50]
+
+        serializer = ReferralHistorySerializer(referrals, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def credits(self, request):
+        """Get available credits."""
+        from .serializers import ReferralCreditSerializer
+        from django.utils import timezone
+
+        credits = ReferralCredit.objects.filter(
+            user=request.user,
+            used=False,
+            expires_at__gt=timezone.now()
+        ).order_by('expires_at')
+
+        serializer = ReferralCreditSerializer(credits, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def track_click(self, request):
+        """Track a referral click (anonymous)."""
+        code = request.data.get('code')
+        if not code:
+            return Response({'error': 'Code required'}, status=400)
+
+        try:
+            ref_code = ReferralCode.objects.get(code=code.upper())
+        except ReferralCode.DoesNotExist:
+            return Response({'error': 'Invalid code'}, status=404)
+
+        # Get client IP and user agent
+        def get_client_ip(request):
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+            return ip
+
+        ip_address = get_client_ip(request)
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+        # Create referral tracking entry
+        Referral.objects.create(
+            referrer=ref_code.user,
+            code_used=code.upper(),
+            status='clicked',
+            clicked_at=timezone.now(),
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
+
+        return Response({'success': True, 'referrer': ref_code.user.username})
+
+    @action(detail=False, methods=['get'])
+    def validate(self, request):
+        """Validate a referral code."""
+        code = request.query_params.get('code')
+        if not code:
+            return Response({'valid': False})
+
+        try:
+            ref_code = ReferralCode.objects.get(code=code.upper())
+            return Response({
+                'valid': True,
+                'code': ref_code.code,
+                'referrer_name': ref_code.user.first_name or ref_code.user.username
+            })
+        except ReferralCode.DoesNotExist:
+            return Response({'valid': False})
