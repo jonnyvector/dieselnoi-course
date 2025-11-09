@@ -1390,3 +1390,79 @@ class ReferralViewSet(viewsets.ViewSet):
             })
         except ReferralCode.DoesNotExist:
             return Response({'valid': False})
+
+
+class GenerateCertificateView(APIView):
+    """Generate a PDF certificate for course completion."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from django.conf import settings
+        from .certificate_generator import generate_certificate
+        from .models import Course, Subscription, LessonProgress
+        import os
+
+        course_slug = request.data.get('course_slug')
+        if not course_slug:
+            return Response({'error': 'Course slug required'}, status=400)
+
+        try:
+            course = Course.objects.get(slug=course_slug)
+        except Course.DoesNotExist:
+            return Response({'error': 'Course not found'}, status=404)
+
+        # Check if user has active subscription
+        has_subscription = Subscription.objects.filter(
+            user=request.user,
+            course=course,
+            status='active'
+        ).exists()
+
+        if not has_subscription:
+            return Response({'error': 'Active subscription required'}, status=403)
+
+        # Check if course is 100% complete
+        total_lessons = course.lessons.count()
+        completed_lessons = LessonProgress.objects.filter(
+            user=request.user,
+            lesson__course=course,
+            is_completed=True
+        ).count()
+
+        if total_lessons == 0 or completed_lessons < total_lessons:
+            return Response({
+                'error': 'Course not completed',
+                'completed': completed_lessons,
+                'total': total_lessons
+            }, status=400)
+
+        # Get completion date (latest lesson completion)
+        latest_completion = LessonProgress.objects.filter(
+            user=request.user,
+            lesson__course=course,
+            is_completed=True
+        ).order_by('-completed_at').first()
+
+        completion_date = latest_completion.completed_at if latest_completion else timezone.now()
+
+        # Generate PDF
+        pdf_buffer = generate_certificate(request.user, course, completion_date)
+
+        # Save to disk
+        certificates_dir = os.path.join(settings.MEDIA_ROOT, 'certificates')
+        os.makedirs(certificates_dir, exist_ok=True)
+
+        filename = f'{request.user.id}_{course.slug}.pdf'
+        filepath = os.path.join(certificates_dir, filename)
+
+        with open(filepath, 'wb') as f:
+            f.write(pdf_buffer.read())
+
+        # Return download URL
+        download_url = f'{settings.MEDIA_URL}certificates/{filename}'
+
+        return Response({
+            'success': True,
+            'download_url': download_url,
+            'filename': filename
+        })

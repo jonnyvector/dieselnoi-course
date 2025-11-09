@@ -25,6 +25,7 @@ from .views import (
     AnalyticsCourseDetailView,
     AnalyticsEngagementView,
     AnalyticsUserGrowthView,
+    GenerateCertificateView,
 )
 
 router = DefaultRouter()
@@ -50,6 +51,7 @@ urlpatterns = [
     path('stripe/webhook/', StripeWebhookView.as_view(), name='stripe-webhook'),
     path('mux/create-upload/', CreateMuxUploadView.as_view(), name='create-mux-upload'),
     path('mux/webhook/', MuxWebhookView.as_view(), name='mux-webhook'),
+    path('certificates/generate/', GenerateCertificateView.as_view(), name='generate-certificate'),
     path('admin/analytics/overview/', AnalyticsOverviewView.as_view(), name='analytics-overview'),
     path('admin/analytics/courses/', AnalyticsCoursesView.as_view(), name='analytics-courses'),
     path('admin/analytics/courses/<slug:course_slug>/', AnalyticsCourseDetailView.as_view(), name='analytics-course-detail'),
