@@ -1,0 +1,27 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Welcome to Dieselnoi Muay Thai! 🥊{% endblock %}
+
+{% block content %}
+<h2><span class="emoji">🥊</span>Welcome to the family, {{ user_name }}!</h2>
+
+<p>You've just joined the premier online platform for authentic "Golden Era" Muay Thai training.</p>
+
+<p>Learn from legendary fighters who dominated the ring during Muay Thai's most exciting era.</p>
+
+<a href="{{ courses_url }}" class="button">Explore Courses →</a>
+
+<div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #1f2937;">Get Started:</h3>
+    <ol style="margin: 0; padding-left: 20px; color: #4b5563;">
+        <li>Browse our course catalog</li>
+        <li>Choose a course that matches your skill level</li>
+        <li>Start training at your own pace</li>
+        <li>Earn badges and certificates as you progress</li>
+    </ol>
+</div>
+
+<p><strong>Share the knowledge:</strong> Invite friends and earn $10 in credits for each successful referral!</p>
+
+<a href="{{ referral_url }}" style="color: #dc2626; text-decoration: none; font-weight: 600;">Get your referral link →</a>
+{% endblock %}

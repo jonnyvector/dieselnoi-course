@@ -1,0 +1,28 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Welcome! Here's your 20% discount 🥊{% endblock %}
+
+{% block content %}
+<h2><span class="emoji">🥊</span>Welcome, {{ referee_name }}!</h2>
+
+<p>Thanks for joining Dieselnoi Muay Thai through <strong>{{ referrer_name }}</strong>'s invitation!</p>
+
+<div style="background-color: #dcfce7; border-left: 4px solid #16a34a; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <p style="margin: 0; color: #166534;">
+        <strong>🎁 Your 20% discount is ready!</strong><br>
+        <span style="font-size: 14px;">Your discount will automatically apply to your first course subscription.</span>
+    </p>
+</div>
+
+<p>Start your Muay Thai journey with authentic "Golden Era" training from legendary fighters like Dieselnoi himself.</p>
+
+<a href="{{ courses_url }}" class="button">Browse Courses →</a>
+
+<p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
+    <strong>What you'll get:</strong><br>
+    ✓ Expert instruction from Muay Thai legends<br>
+    ✓ Structured training programs<br>
+    ✓ Progress tracking and certificates<br>
+    ✓ Downloadable resources
+</p>
+{% endblock %}

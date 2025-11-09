@@ -150,6 +150,18 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Email Configuration
+# For development: emails print to console
+# For production: set EMAIL_BACKEND to 'sendgrid_backend.SendgridBackend' and configure SENDGRID_API_KEY
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+    SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY', '')
+
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@dieselnoi.com')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 

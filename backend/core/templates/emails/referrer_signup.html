@@ -1,0 +1,20 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Your friend just signed up! 🎉{% endblock %}
+
+{% block content %}
+<h2><span class="emoji">🎉</span>Great news, {{ referrer_name }}!</h2>
+
+<p>Your friend <strong>{{ referee_name }}</strong> just joined Dieselnoi Muay Thai using your referral link.</p>
+
+<p>Once they subscribe to their first course, you'll earn <span class="highlight">$10 in credits</span>!</p>
+
+<div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <p style="margin: 0; font-size: 14px; color: #6b7280;">
+        <strong>Keep sharing your referral link:</strong><br>
+        <code style="background-color: #e5e7eb; padding: 4px 8px; border-radius: 3px; font-size: 12px;">{{ referral_link }}</code>
+    </p>
+</div>
+
+<p>The more friends who join, the more credits you earn. Each successful referral gets you $10 to use on any course!</p>
+{% endblock %}

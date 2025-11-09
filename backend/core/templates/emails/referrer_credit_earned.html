@@ -1,0 +1,23 @@
+{% extends "emails/base.html" %}
+
+{% block title %}You earned $10 in credits! 💰{% endblock %}
+
+{% block content %}
+<h2><span class="emoji">💰</span>Awesome, {{ referrer_name }}!</h2>
+
+<p><strong>{{ referee_name }}</strong> just subscribed to <strong>{{ course_name }}</strong>, and you've earned <span class="highlight">$10 in referral credits</span>!</p>
+
+<div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <p style="margin: 0;"><strong>Your Credits:</strong> ${{ total_credits }}</p>
+    <p style="margin: 5px 0 0 0; font-size: 14px; color: #92400e;">Expires: {{ expiration_date }}</p>
+</div>
+
+<p>Your credits will automatically apply to your next course subscription. Keep sharing to earn more!</p>
+
+<a href="{{ dashboard_url }}" class="button">View My Credits →</a>
+
+<p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
+    Want to earn more? Share your referral link:<br>
+    <code style="background-color: #e5e7eb; padding: 4px 8px; border-radius: 3px; font-size: 12px;">{{ referral_link }}</code>
+</p>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "emails/base.html" %}
+
+{% block title %}Congratulations! Course Completed 🏆{% endblock %}
+
+{% block content %}
+<h2><span class="emoji">🏆</span>Congratulations, {{ user_name }}!</h2>
+
+<p>You've successfully completed <strong>{{ course_name }}</strong>!</p>
+
+<div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <p style="margin: 0;">
+        <strong>🎓 Your certificate is ready!</strong><br>
+        <span style="font-size: 14px; color: #92400e;">Download your completion certificate and share your achievement.</span>
+    </p>
+</div>
+
+<a href="{{ certificate_url }}" class="button">Download Certificate →</a>
+
+<p>This is a significant milestone in your Muay Thai journey. You've learned from the best and proven your dedication to the art.</p>
+
+<div style="background-color: #f3f4f6; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #1f2937;">What's Next?</h3>
+    <ul style="margin: 0; padding-left: 20px; color: #4b5563;">
+        <li>Share your certificate on social media</li>
+        <li>Explore our other courses to continue learning</li>
+        <li>Refer friends and earn credits toward your next course</li>
+    </ul>
+</div>
+
+<p style="font-weight: 600; color: #dc2626;">The legend of Dieselnoi lives through you. Keep training!</p>
+{% endblock %}
