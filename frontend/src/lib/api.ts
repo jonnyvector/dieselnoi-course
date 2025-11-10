@@ -2,13 +2,13 @@ import axios from 'axios'
 
 // Dynamically determine API URL based on how the app is accessed
 const getApiUrl = () => {
-  // Server-side: use environment variable
-  if (typeof window === 'undefined') {
-    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  // Use environment variable if set (production)
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return `${process.env.NEXT_PUBLIC_API_URL}/api`
   }
 
-  // Client-side: use the same hostname as the frontend
-  const hostname = window.location.hostname
+  // Fallback for local development
+  const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
   const port = hostname === 'localhost' || hostname === '127.0.0.1' ? '8000' : '8000'
   const apiUrl = `http://${hostname}:${port}/api`
   console.log('API URL:', apiUrl)
