@@ -231,7 +231,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                {comment.username[0].toUpperCase()}
+                {comment.username?.[0]?.toUpperCase() || '?'}
               </div>
               <div>
                 <div className="flex items-center gap-2">
