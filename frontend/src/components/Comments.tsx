@@ -113,14 +113,16 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
 
     const optimisticReply: Comment = {
       id: Date.now(), // Temporary ID
-      user: user.id,
+      user_id: user.id,
       username: user.username,
       lesson: lessonId,
       content: replyText.trim(),
       parent: parentId,
       timestamp_seconds: null,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       is_edited: false,
+      reply_count: 0,
       replies: [],
     }
 
