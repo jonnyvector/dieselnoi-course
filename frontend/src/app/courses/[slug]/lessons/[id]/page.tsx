@@ -156,8 +156,9 @@ export default function LessonDetailPage() {
         addToast('Lesson completed! Great work!', 'success')
 
         // Check for newly earned badges
-        if (response.newly_earned_badges && response.newly_earned_badges.length > 0) {
-          response.newly_earned_badges.forEach((badge: any) => {
+        const responseData = response as any
+        if (responseData.newly_earned_badges && responseData.newly_earned_badges.length > 0) {
+          responseData.newly_earned_badges.forEach((badge: any) => {
             const badgeIcon = getBadgeIcon(badge.icon)
             addToast(`${badgeIcon} Achievement Unlocked: ${badge.name}!`, 'success')
           })
