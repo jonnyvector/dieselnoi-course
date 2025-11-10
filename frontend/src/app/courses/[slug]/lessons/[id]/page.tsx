@@ -59,7 +59,10 @@ export default function LessonDetailPage() {
           const currentLessonId = Number(params.id)
           const currentIndex = courseData.lessons?.findIndex((l: Lesson) => l.id === currentLessonId) ?? -1
           if (currentIndex !== -1 && courseData.lessons && currentIndex < courseData.lessons.length - 1) {
-            setNextLesson(courseData.lessons[currentIndex + 1])
+            const nextLessonData = courseData.lessons[currentIndex + 1]
+            if (nextLessonData) {
+              setNextLesson(nextLessonData)
+            }
           }
         }
 
