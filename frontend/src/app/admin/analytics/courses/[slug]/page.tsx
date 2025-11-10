@@ -23,7 +23,7 @@ interface PageProps {
 }
 
 export default function CourseAnalyticsDetailPage({ params }: PageProps) {
-  const { user, isLoading: authLoading } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const router = useRouter()
   const [data, setData] = useState<CourseDetailAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
