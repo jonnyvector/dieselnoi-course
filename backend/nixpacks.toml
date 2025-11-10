@@ -1,4 +1,4 @@
-[variables]
-NIXPACKS_NO_DJANGO_COLLECT_STATIC = "1"
-
 [phases.build]
+# Override Django auto-detection - skip migrations and collectstatic during build
+# These will run via Procfile release command at runtime when DB is accessible
+cmds = ["echo 'Skipping Django build commands - will run via Procfile'"]
