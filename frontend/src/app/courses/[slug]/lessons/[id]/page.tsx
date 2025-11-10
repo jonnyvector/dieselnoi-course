@@ -130,8 +130,8 @@ export default function LessonDetailPage() {
     const currentTime = player.currentTime || 0
     const duration = player.duration || 0
 
-    // Resume to saved position on first play
-    if (!hasResumed && savedWatchTime > 5 && currentTime < 5) {
+    // Resume to saved position on first play (but not for completed lessons)
+    if (!hasResumed && !isCompleted && savedWatchTime > 5 && currentTime < 5) {
       player.currentTime = savedWatchTime
       setHasResumed(true)
       return

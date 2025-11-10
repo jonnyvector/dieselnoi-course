@@ -1,0 +1,1215 @@
+[
+{
+  "model": "core.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$6Ds8UzY77JCzwRCkKB8NBr$0v3c23yL2+ZIFZmZwxabsZFjKTsbz6DybZ8rIRr2eQ0=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-03T06:22:23.539Z",
+    "email": "admin@test.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-03T06:22:23.619Z",
+    "updated_at": "2025-11-03T06:22:23.619Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$cFnuwp0aE7m786U9F7YOM1$KPZAKFs0xL/MFGqH8sia5oyn+910vJGwTDeWCXrKqLQ=",
+    "last_login": "2025-11-10T03:49:54.886Z",
+    "is_superuser": true,
+    "username": "testuser",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-11-03T06:22:23.620Z",
+    "email": "test@example.com",
+    "stripe_customer_id": "cus_TM0G6aHQJtE7F0",
+    "created_at": "2025-11-03T06:22:23.700Z",
+    "updated_at": "2025-11-04T04:36:11.088Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$Tpt2nALruAO7dlot5Va5XW$KngEmhbMFrAYZSYADaPMdbbNXFoOZAx3qp7ENs5jswk=",
+    "last_login": "2025-11-03T15:45:24.181Z",
+    "is_superuser": false,
+    "username": "jackyeggs",
+    "first_name": "Jacky",
+    "last_name": "Eggs",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-03T15:45:11.126Z",
+    "email": "test@test1234.com",
+    "stripe_customer_id": "cus_TM8DeWmYoJCTj6",
+    "created_at": "2025-11-03T15:45:11.230Z",
+    "updated_at": "2025-11-03T15:45:32.997Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$M8AmxMtlqvsB2MlbCjFZiE$kTh2vUZLd4ptyiGzDwG0o51fX7LFiFhZleTU2vju37k=",
+    "last_login": "2025-11-10T02:13:53.497Z",
+    "is_superuser": false,
+    "username": "jackeyeggs",
+    "first_name": "Jacky",
+    "last_name": "Eggs",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-07T15:15:34.232Z",
+    "email": "jackyeggs@eggs.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-07T15:15:34.339Z",
+    "updated_at": "2025-11-07T15:15:34.339Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 5,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$VOpMkrFYOsPoylqv93Vpb6$FNrBiFL309+L4jUkqJFDDxDMYXwfBgE6Ze2LdVHe7Pg=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "testuser1341",
+    "first_name": "Test",
+    "last_name": "EmailUser",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T12:35:44.273Z",
+    "email": "test8751@example.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-09T12:35:44.276Z",
+    "updated_at": "2025-11-09T12:35:44.276Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 6,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$u2RqHLX5D9LkRBgYPYIGQZ$k0sEr9j4LwKTR2GvTwmzZ50+tMHXUFpcrZnr8x/Pyds=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "emailtest4929",
+    "first_name": "Email Test",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T13:33:34.062Z",
+    "email": "your-test-email@example.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-09T13:33:34.149Z",
+    "updated_at": "2025-11-09T13:33:34.149Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 7,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$89xeuOzOk3ix3rZ61HrYGS$d8cvG0GdjENdCf6lBcaDejkdYwGk1rdsIkno66te6YU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "emailtest1894",
+    "first_name": "Jonny",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T13:34:09.603Z",
+    "email": "jonny@jonnyhicks.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-09T13:34:09.685Z",
+    "updated_at": "2025-11-09T13:34:09.685Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 8,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$uis7jeYfbLKajrwr9NHqXu$w3wS2yhRp0s47ZDN8CFJXsleMyaFiCPalX6zqfdlras=",
+    "last_login": "2025-11-09T13:53:14.927Z",
+    "is_superuser": false,
+    "username": "yuktongofficial",
+    "first_name": "Jonny",
+    "last_name": "Hicks",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T13:40:13.352Z",
+    "email": "yuktongofficial@gmail.com",
+    "stripe_customer_id": "cus_TOLj8DwtZTBFr3",
+    "created_at": "2025-11-09T13:40:13.527Z",
+    "updated_at": "2025-11-09T13:52:18.069Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 9,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$XrLfyCA5QVd57jZhWoHcAj$bOVD8EBd9nXkeEaqZmzT44WIkPA5lR7QPa4FHT6l66o=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "friend2583",
+    "first_name": "New Friend",
+    "last_name": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T13:43:47.592Z",
+    "email": "friend7838@example.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-09T13:43:47.766Z",
+    "updated_at": "2025-11-09T13:43:47.766Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 10,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$OqbBI7AkqFeAoXkDttVyef$bojFqKC2/XQH/oyEBpaRH9LVpWX4iuvzfe3ZsgqZrGo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "testuser2",
+    "first_name": "Jonkey",
+    "last_name": "Donkey",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T13:47:52.102Z",
+    "email": "test@test2.com",
+    "stripe_customer_id": null,
+    "created_at": "2025-11-09T13:47:52.282Z",
+    "updated_at": "2025-11-09T13:47:52.282Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.user",
+  "pk": 11,
+  "fields": {
+    "password": "pbkdf2_sha256$720000$6okCzbFTwwiP2gDGjhtJvI$D9D6hUUPXVD2COTiw+ME/PQUIVnpKQHRaT3PtcVvKnM=",
+    "last_login": "2025-11-09T13:58:03.910Z",
+    "is_superuser": false,
+    "username": "testuser123",
+    "first_name": "Tester",
+    "last_name": "Jonny",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-11-09T13:51:56.517Z",
+    "email": "testuser123@test.com",
+    "stripe_customer_id": "cus_TOLmT8Ru2hHJp1",
+    "created_at": "2025-11-09T13:51:56.729Z",
+    "updated_at": "2025-11-09T13:54:58.245Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.course",
+  "pk": 1,
+  "fields": {
+    "title": "Fundamentals of Muay Thai",
+    "description": "Master the basics of authentic Muay Thai technique",
+    "slug": "fundamentals-of-muay-thai",
+    "difficulty": "beginner",
+    "price": "29.99",
+    "thumbnail_url": null,
+    "is_published": true,
+    "average_rating": null,
+    "total_reviews": 0,
+    "created_at": "2025-11-03T06:22:23.701Z",
+    "updated_at": "2025-11-03T06:22:23.701Z"
+  }
+},
+{
+  "model": "core.course",
+  "pk": 2,
+  "fields": {
+    "title": "Advanced Striking Combinations",
+    "description": "Advanced striking techniques from the Golden Era master",
+    "slug": "advanced-striking-combinations",
+    "difficulty": "advanced",
+    "price": "49.99",
+    "thumbnail_url": null,
+    "is_published": true,
+    "average_rating": null,
+    "total_reviews": 0,
+    "created_at": "2025-11-03T06:22:23.701Z",
+    "updated_at": "2025-11-03T06:22:23.701Z"
+  }
+},
+{
+  "model": "core.course",
+  "pk": 3,
+  "fields": {
+    "title": "Elite Fighting Strategy",
+    "description": "Comprehensive training for serious competitors",
+    "slug": "elite-fighting-strategy",
+    "difficulty": "advanced",
+    "price": "750.00",
+    "thumbnail_url": null,
+    "is_published": true,
+    "average_rating": "3.00",
+    "total_reviews": 1,
+    "created_at": "2025-11-03T06:22:23.702Z",
+    "updated_at": "2025-11-10T03:48:49.722Z"
+  }
+},
+{
+  "model": "core.course",
+  "pk": 4,
+  "fields": {
+    "title": "Dieselnoi Master Class",
+    "description": "Dieselnoi's Masterclass for all levels",
+    "slug": "dieselnoi-master-class",
+    "difficulty": "beginner",
+    "price": "40.00",
+    "thumbnail_url": null,
+    "is_published": true,
+    "average_rating": null,
+    "total_reviews": 0,
+    "created_at": "2025-11-07T12:35:30.234Z",
+    "updated_at": "2025-11-07T12:38:08.500Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 1,
+  "fields": {
+    "course": 1,
+    "title": "Fundamentals Lesson 1",
+    "description": "Lesson 1 description",
+    "video_url": "https://example.com/video-fundamentals-of-muay-thai-1",
+    "mux_asset_id": "buQ6he2p6ux9GLla01JbooWlTFTe2dgsTdx3i7lQw7K4",
+    "mux_playback_id": "02uE2jCRhLY7yicGkK02WhLKGO02vafd01zCWCE01RYca1LM",
+    "duration_minutes": 1,
+    "order": 1,
+    "is_free_preview": true,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.702Z",
+    "updated_at": "2025-11-03T15:11:54.688Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 2,
+  "fields": {
+    "course": 1,
+    "title": "Fundamentals Lesson 2",
+    "description": "Lesson 2 description",
+    "video_url": "https://example.com/video-fundamentals-of-muay-thai-2",
+    "mux_asset_id": "unJF012vvYxfG81j01G1V00Qd01mHdufrPk5sQxOUkgRsMk",
+    "mux_playback_id": "Ui900mE8EYfCqPinuL02ZLp000202tg1641SZEQHF9hSu00lU",
+    "duration_minutes": 10,
+    "order": 2,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.703Z",
+    "updated_at": "2025-11-03T15:11:55.040Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 3,
+  "fields": {
+    "course": 1,
+    "title": "Fundamentals Lesson 3",
+    "description": "Lesson 3 description",
+    "video_url": "https://example.com/video-fundamentals-of-muay-thai-3",
+    "mux_asset_id": "t6ohq7GrWVNyKMErZoMutAFV3ngpUt00endgyeawAfP8",
+    "mux_playback_id": "qQHKlpQZYMA8wE4IEmWt1ym7KT00o01KeTcFOKtAlpKi00",
+    "duration_minutes": 11,
+    "order": 3,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.704Z",
+    "updated_at": "2025-11-03T15:11:55.404Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 4,
+  "fields": {
+    "course": 2,
+    "title": "Advanced Lesson 1",
+    "description": "Lesson 1 description",
+    "video_url": "https://example.com/video-advanced-striking-combinations-1",
+    "mux_asset_id": "gBgEBgEv96PhFirqOpzyFJjX1Cdc3iEG6HA3L2n7mqY",
+    "mux_playback_id": "yp6Olx501200XQnF8kVsePfUORc7Q4ODzrpOZiLuI0002lw",
+    "duration_minutes": 1,
+    "order": 1,
+    "is_free_preview": true,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.704Z",
+    "updated_at": "2025-11-03T15:11:52.580Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 5,
+  "fields": {
+    "course": 2,
+    "title": "Advanced Lesson 2",
+    "description": "Lesson 2 description",
+    "video_url": "https://example.com/video-advanced-striking-combinations-2",
+    "mux_asset_id": "Y3QJ02rp2SebEuJKnuk2AYHD01wygRn6q02Nn00rSHwpxdQ",
+    "mux_playback_id": "2EKfIdsZF9xpacvFuf1qC9bJ6k21en9RCtAa45of00Qc",
+    "duration_minutes": 2,
+    "order": 2,
+    "is_free_preview": false,
+    "unlock_date": "2025-11-08T12:26:12Z",
+    "created_at": "2025-11-03T06:22:23.705Z",
+    "updated_at": "2025-11-08T12:25:17.985Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 6,
+  "fields": {
+    "course": 2,
+    "title": "Advanced Lesson 3",
+    "description": "Lesson 3 description",
+    "video_url": "https://example.com/video-advanced-striking-combinations-3",
+    "mux_asset_id": "BONQD1y02VsZzaN10200qIc7lGktY6T0101PbtPQ02xsXVSvI",
+    "mux_playback_id": "GNfMfCC013ZehkK6901jfsZQmrCR02PLLjXWHbjydrMU00E",
+    "duration_minutes": 1,
+    "order": 3,
+    "is_free_preview": false,
+    "unlock_date": "2025-11-08T12:12:00Z",
+    "created_at": "2025-11-03T06:22:23.705Z",
+    "updated_at": "2025-11-08T12:10:53.759Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 7,
+  "fields": {
+    "course": 3,
+    "title": "Elite Lesson 1",
+    "description": "Lesson 1 description",
+    "video_url": "https://example.com/video-elite-fighting-strategy-1",
+    "mux_asset_id": "sHywIPb2ZFM6pltkvZHQj1AOJ2Olnn00bgZCHWA9NJ38",
+    "mux_playback_id": "L01oG3ZYW99tW1WySqq56huUN2Xg01bfvv000100eSC8jSmc",
+    "duration_minutes": 1,
+    "order": 1,
+    "is_free_preview": true,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.705Z",
+    "updated_at": "2025-11-03T15:11:53.635Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 8,
+  "fields": {
+    "course": 3,
+    "title": "Elite Lesson 2",
+    "description": "Lesson 2 description",
+    "video_url": "https://example.com/video-elite-fighting-strategy-2",
+    "mux_asset_id": "2fBY1O01aZBkouZwpqlvpXbuPOdCPSGFHQApw3ImG62U",
+    "mux_playback_id": "TgiSOInjzN02cEMeQZcmIcbuTI2q024ObrV6fer1DzrXA",
+    "duration_minutes": 4,
+    "order": 2,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.706Z",
+    "updated_at": "2025-11-03T15:11:53.987Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 9,
+  "fields": {
+    "course": 3,
+    "title": "Elite Lesson 3",
+    "description": "Lesson 3 description",
+    "video_url": "https://example.com/video-elite-fighting-strategy-3",
+    "mux_asset_id": "QvtiQXkNCFN023PZhKCPlL9dD01VhlQafglGRHxXmDCns",
+    "mux_playback_id": "wlFHpLVUTFGsdXjG52EZpwFOMqf19reP7hzTaWFw1G00",
+    "duration_minutes": 13,
+    "order": 3,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-03T06:22:23.706Z",
+    "updated_at": "2025-11-03T15:11:54.337Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 10,
+  "fields": {
+    "course": 4,
+    "title": "Basic stance",
+    "description": "",
+    "video_url": null,
+    "mux_asset_id": null,
+    "mux_playback_id": null,
+    "duration_minutes": 5,
+    "order": 1,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-07T12:35:30.236Z",
+    "updated_at": "2025-11-07T12:35:30.236Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 11,
+  "fields": {
+    "course": 4,
+    "title": "Basic movement",
+    "description": "",
+    "video_url": null,
+    "mux_asset_id": null,
+    "mux_playback_id": null,
+    "duration_minutes": 5,
+    "order": 2,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-07T12:35:30.236Z",
+    "updated_at": "2025-11-07T12:35:30.236Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 12,
+  "fields": {
+    "course": 4,
+    "title": "Dieselnoi Guard",
+    "description": "",
+    "video_url": null,
+    "mux_asset_id": null,
+    "mux_playback_id": null,
+    "duration_minutes": 5,
+    "order": 3,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-07T12:35:30.236Z",
+    "updated_at": "2025-11-07T12:35:30.236Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 13,
+  "fields": {
+    "course": 4,
+    "title": "Knee Basics",
+    "description": "",
+    "video_url": null,
+    "mux_asset_id": null,
+    "mux_playback_id": null,
+    "duration_minutes": 5,
+    "order": 4,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-07T12:35:30.237Z",
+    "updated_at": "2025-11-07T12:35:30.237Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 14,
+  "fields": {
+    "course": 4,
+    "title": "Knee Shadowboxing",
+    "description": "",
+    "video_url": null,
+    "mux_asset_id": null,
+    "mux_playback_id": null,
+    "duration_minutes": 5,
+    "order": 5,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-07T12:35:30.237Z",
+    "updated_at": "2025-11-07T12:35:30.237Z"
+  }
+},
+{
+  "model": "core.lesson",
+  "pk": 15,
+  "fields": {
+    "course": 4,
+    "title": "Knee Entry",
+    "description": "",
+    "video_url": null,
+    "mux_asset_id": null,
+    "mux_playback_id": null,
+    "duration_minutes": 5,
+    "order": 6,
+    "is_free_preview": false,
+    "unlock_date": null,
+    "created_at": "2025-11-07T12:35:30.237Z",
+    "updated_at": "2025-11-07T12:35:30.237Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "course": 1,
+    "status": "active",
+    "stripe_subscription_id": "sub_test_12345",
+    "start_date": "2025-11-03T06:22:23.707Z",
+    "end_date": null,
+    "created_at": "2025-11-03T06:22:23.707Z",
+    "updated_at": "2025-11-03T06:22:23.707Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "course": 2,
+    "status": "active",
+    "stripe_subscription_id": "sub_real_from_checkout",
+    "start_date": "2025-11-03T09:14:13.490Z",
+    "end_date": null,
+    "created_at": "2025-11-03T09:14:13.490Z",
+    "updated_at": "2025-11-03T09:14:13.490Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 3,
+  "fields": {
+    "user": 2,
+    "course": 3,
+    "status": "active",
+    "stripe_subscription_id": null,
+    "start_date": "2025-11-03T10:50:52.243Z",
+    "end_date": null,
+    "created_at": "2025-11-03T10:50:52.244Z",
+    "updated_at": "2025-11-03T10:50:52.244Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 4,
+  "fields": {
+    "user": 3,
+    "course": 2,
+    "status": "active",
+    "stripe_subscription_id": "manual_sub_3_2",
+    "start_date": "2025-11-03T15:49:02.351Z",
+    "end_date": null,
+    "created_at": "2025-11-03T15:49:02.352Z",
+    "updated_at": "2025-11-03T15:49:02.352Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 5,
+  "fields": {
+    "user": 3,
+    "course": 3,
+    "status": "active",
+    "stripe_subscription_id": "manual_sub_3_3",
+    "start_date": "2025-11-03T15:49:02.353Z",
+    "end_date": null,
+    "created_at": "2025-11-03T15:49:02.353Z",
+    "updated_at": "2025-11-03T15:49:02.353Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 6,
+  "fields": {
+    "user": 3,
+    "course": 1,
+    "status": "active",
+    "stripe_subscription_id": "manual_sub_3_1",
+    "start_date": "2025-11-03T15:49:02.353Z",
+    "end_date": null,
+    "created_at": "2025-11-03T15:49:02.354Z",
+    "updated_at": "2025-11-03T15:49:02.354Z"
+  }
+},
+{
+  "model": "core.subscription",
+  "pk": 7,
+  "fields": {
+    "user": 1,
+    "course": 2,
+    "status": "active",
+    "stripe_subscription_id": null,
+    "start_date": "2025-11-09T12:23:36.544Z",
+    "end_date": null,
+    "created_at": "2025-11-09T12:23:36.545Z",
+    "updated_at": "2025-11-09T12:23:36.545Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "lesson": 1,
+    "is_completed": true,
+    "completed_at": "2025-11-03T15:06:37.439Z",
+    "last_watched_at": "2025-11-07T12:38:49.271Z",
+    "watch_time_seconds": 13,
+    "created_at": "2025-11-03T15:06:37.441Z",
+    "updated_at": "2025-11-07T12:38:49.271Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "lesson": 7,
+    "is_completed": true,
+    "completed_at": "2025-11-03T15:07:49.529Z",
+    "last_watched_at": "2025-11-10T03:50:15.198Z",
+    "watch_time_seconds": 15,
+    "created_at": "2025-11-03T15:07:49.531Z",
+    "updated_at": "2025-11-10T03:50:15.198Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 3,
+  "fields": {
+    "user": 2,
+    "lesson": 4,
+    "is_completed": true,
+    "completed_at": "2025-11-03T15:08:23.179Z",
+    "last_watched_at": "2025-11-09T07:30:55.484Z",
+    "watch_time_seconds": 15,
+    "created_at": "2025-11-03T15:08:23.179Z",
+    "updated_at": "2025-11-09T07:30:55.484Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 4,
+  "fields": {
+    "user": 2,
+    "lesson": 8,
+    "is_completed": true,
+    "completed_at": "2025-11-03T15:18:22.245Z",
+    "last_watched_at": "2025-11-10T03:15:48.645Z",
+    "watch_time_seconds": 205,
+    "created_at": "2025-11-03T15:18:22.246Z",
+    "updated_at": "2025-11-10T03:15:48.645Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 5,
+  "fields": {
+    "user": 3,
+    "lesson": 1,
+    "is_completed": true,
+    "completed_at": "2025-11-03T16:13:47.393Z",
+    "last_watched_at": "2025-11-03T16:13:47.394Z",
+    "watch_time_seconds": 13,
+    "created_at": "2025-11-03T16:13:47.394Z",
+    "updated_at": "2025-11-03T16:13:47.394Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 6,
+  "fields": {
+    "user": 2,
+    "lesson": 5,
+    "is_completed": true,
+    "completed_at": "2025-11-08T12:27:05.621Z",
+    "last_watched_at": "2025-11-10T03:51:16.838Z",
+    "watch_time_seconds": 54,
+    "created_at": "2025-11-08T09:04:31.418Z",
+    "updated_at": "2025-11-10T03:51:16.838Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 7,
+  "fields": {
+    "user": 2,
+    "lesson": 6,
+    "is_completed": true,
+    "completed_at": "2025-11-09T07:54:05.113Z",
+    "last_watched_at": "2025-11-09T07:54:05.114Z",
+    "watch_time_seconds": 13,
+    "created_at": "2025-11-09T07:52:25.248Z",
+    "updated_at": "2025-11-09T07:54:05.114Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 8,
+  "fields": {
+    "user": 2,
+    "lesson": 9,
+    "is_completed": true,
+    "completed_at": "2025-11-09T07:54:44.491Z",
+    "last_watched_at": "2025-11-09T07:54:45.144Z",
+    "watch_time_seconds": 732,
+    "created_at": "2025-11-09T07:54:43.710Z",
+    "updated_at": "2025-11-09T07:54:45.144Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 9,
+  "fields": {
+    "user": 2,
+    "lesson": 2,
+    "is_completed": true,
+    "completed_at": "2025-11-09T07:55:51.089Z",
+    "last_watched_at": "2025-11-09T07:56:01.425Z",
+    "watch_time_seconds": 596,
+    "created_at": "2025-11-09T07:55:47.572Z",
+    "updated_at": "2025-11-09T07:56:01.425Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 10,
+  "fields": {
+    "user": 2,
+    "lesson": 3,
+    "is_completed": true,
+    "completed_at": "2025-11-09T07:56:29.822Z",
+    "last_watched_at": "2025-11-09T07:56:30.930Z",
+    "watch_time_seconds": 651,
+    "created_at": "2025-11-09T07:56:29.739Z",
+    "updated_at": "2025-11-09T07:56:30.930Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 11,
+  "fields": {
+    "user": 1,
+    "lesson": 4,
+    "is_completed": true,
+    "completed_at": "2025-11-09T12:23:36.548Z",
+    "last_watched_at": "2025-11-09T12:23:36.549Z",
+    "watch_time_seconds": 0,
+    "created_at": "2025-11-09T12:23:36.549Z",
+    "updated_at": "2025-11-09T12:23:36.549Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 12,
+  "fields": {
+    "user": 1,
+    "lesson": 5,
+    "is_completed": true,
+    "completed_at": "2025-11-09T12:23:36.549Z",
+    "last_watched_at": "2025-11-09T12:23:36.550Z",
+    "watch_time_seconds": 0,
+    "created_at": "2025-11-09T12:23:36.550Z",
+    "updated_at": "2025-11-09T12:23:36.550Z"
+  }
+},
+{
+  "model": "core.lessonprogress",
+  "pk": 13,
+  "fields": {
+    "user": 1,
+    "lesson": 6,
+    "is_completed": true,
+    "completed_at": "2025-11-09T12:23:36.550Z",
+    "last_watched_at": "2025-11-09T12:23:36.550Z",
+    "watch_time_seconds": 0,
+    "created_at": "2025-11-09T12:23:36.550Z",
+    "updated_at": "2025-11-09T12:23:36.550Z"
+  }
+},
+{
+  "model": "core.comment",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "lesson": 1,
+    "content": "hello there",
+    "parent": null,
+    "timestamp_seconds": null,
+    "is_edited": true,
+    "created_at": "2025-11-03T15:29:00.101Z",
+    "updated_at": "2025-11-07T09:24:42.465Z"
+  }
+},
+{
+  "model": "core.comment",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "lesson": 1,
+    "content": "ดกหฟดกฟหdfadfdasfdafdasf",
+    "parent": null,
+    "timestamp_seconds": null,
+    "is_edited": false,
+    "created_at": "2025-11-03T15:29:12.514Z",
+    "updated_at": "2025-11-03T15:29:12.514Z"
+  }
+},
+{
+  "model": "core.comment",
+  "pk": 3,
+  "fields": {
+    "user": 2,
+    "lesson": 1,
+    "content": "sfdsfa",
+    "parent": null,
+    "timestamp_seconds": null,
+    "is_edited": false,
+    "created_at": "2025-11-03T15:29:35.031Z",
+    "updated_at": "2025-11-03T15:29:35.031Z"
+  }
+},
+{
+  "model": "core.comment",
+  "pk": 5,
+  "fields": {
+    "user": 2,
+    "lesson": 7,
+    "content": "eat an egg",
+    "parent": null,
+    "timestamp_seconds": null,
+    "is_edited": false,
+    "created_at": "2025-11-03T15:40:50.439Z",
+    "updated_at": "2025-11-03T15:40:50.439Z"
+  }
+},
+{
+  "model": "core.comment",
+  "pk": 7,
+  "fields": {
+    "user": 3,
+    "lesson": 1,
+    "content": "Totally",
+    "parent": 3,
+    "timestamp_seconds": null,
+    "is_edited": false,
+    "created_at": "2025-11-03T16:13:45.099Z",
+    "updated_at": "2025-11-03T16:13:45.099Z"
+  }
+},
+{
+  "model": "core.comment",
+  "pk": 8,
+  "fields": {
+    "user": 2,
+    "lesson": 1,
+    "content": "Does she eat eggs?",
+    "parent": null,
+    "timestamp_seconds": 12,
+    "is_edited": false,
+    "created_at": "2025-11-07T09:24:15.152Z",
+    "updated_at": "2025-11-07T09:24:15.152Z"
+  }
+},
+{
+  "model": "core.coursereview",
+  "pk": 1,
+  "fields": {
+    "course": 3,
+    "user": 2,
+    "rating": 3,
+    "review_text": "Amazing course!",
+    "created_at": "2025-11-08T07:03:41.700Z",
+    "updated_at": "2025-11-09T15:41:53.630Z",
+    "is_edited": true,
+    "is_hidden": false,
+    "is_featured": false
+  }
+},
+{
+  "model": "core.courseresource",
+  "pk": 1,
+  "fields": {
+    "course": 2,
+    "title": "8-Week Muay Thai Training Plan",
+    "description": "Comprehensive 8-week training schedule with conditioning, technique drills, and sparring sessions designed by Dieselnoi.",
+    "file": "course_resources/8-week-training-plan.pdf",
+    "uploaded_at": "2025-11-08T08:46:14.759Z",
+    "order": 1
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 1,
+  "fields": {
+    "name": "First Steps",
+    "description": "Complete your first lesson",
+    "icon": "gi-white-belt",
+    "category": "starter",
+    "requirement_value": 1,
+    "created_at": "2025-11-08T12:37:50.158Z"
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 2,
+  "fields": {
+    "name": "Getting Started",
+    "description": "Complete 5 lessons",
+    "icon": "books",
+    "category": "starter",
+    "requirement_value": 5,
+    "created_at": "2025-11-08T12:37:50.159Z"
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 3,
+  "fields": {
+    "name": "Committed Learner",
+    "description": "Complete 10 lessons",
+    "icon": "muscle",
+    "category": "starter",
+    "requirement_value": 10,
+    "created_at": "2025-11-08T12:37:50.159Z"
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 4,
+  "fields": {
+    "name": "Course Complete",
+    "description": "Complete any course (100%)",
+    "icon": "check-circle",
+    "category": "completion",
+    "requirement_value": 1,
+    "created_at": "2025-11-08T12:37:50.160Z"
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 5,
+  "fields": {
+    "name": "Completionist",
+    "description": "Complete all available courses",
+    "icon": "trophy",
+    "category": "completion",
+    "requirement_value": null,
+    "created_at": "2025-11-08T12:37:50.161Z"
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 6,
+  "fields": {
+    "name": "Conversation Starter",
+    "description": "Leave your first comment",
+    "icon": "chat",
+    "category": "engagement",
+    "requirement_value": 1,
+    "created_at": "2025-11-08T12:37:50.162Z"
+  }
+},
+{
+  "model": "core.badge",
+  "pk": 7,
+  "fields": {
+    "name": "Active Member",
+    "description": "Leave 10 comments",
+    "icon": "chat-dots",
+    "category": "engagement",
+    "requirement_value": 10,
+    "created_at": "2025-11-08T12:37:50.163Z"
+  }
+},
+{
+  "model": "core.userbadge",
+  "pk": 1,
+  "fields": {
+    "user": 2,
+    "badge": 1,
+    "earned_at": "2025-11-09T07:54:05.117Z"
+  }
+},
+{
+  "model": "core.userbadge",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "badge": 2,
+    "earned_at": "2025-11-09T07:54:05.119Z"
+  }
+},
+{
+  "model": "core.userbadge",
+  "pk": 3,
+  "fields": {
+    "user": 2,
+    "badge": 4,
+    "earned_at": "2025-11-09T07:54:05.138Z"
+  }
+},
+{
+  "model": "core.userbadge",
+  "pk": 4,
+  "fields": {
+    "user": 2,
+    "badge": 6,
+    "earned_at": "2025-11-09T07:54:05.144Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 1,
+  "fields": {
+    "user": 1,
+    "code": "DN-DTK94",
+    "created_at": "2025-11-09T08:15:40.015Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 2,
+  "fields": {
+    "user": 2,
+    "code": "DN-6RC6H",
+    "created_at": "2025-11-09T08:15:40.017Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 3,
+  "fields": {
+    "user": 3,
+    "code": "DN-TM85H",
+    "created_at": "2025-11-09T08:15:40.020Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 4,
+  "fields": {
+    "user": 4,
+    "code": "DN-MOKNJ",
+    "created_at": "2025-11-09T08:15:40.037Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 5,
+  "fields": {
+    "user": 5,
+    "code": "DN-07Y9R",
+    "created_at": "2025-11-09T12:35:44.278Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 6,
+  "fields": {
+    "user": 6,
+    "code": "DN-RFNNB",
+    "created_at": "2025-11-09T13:33:34.151Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 7,
+  "fields": {
+    "user": 7,
+    "code": "DN-9DUN2",
+    "created_at": "2025-11-09T13:34:09.687Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 8,
+  "fields": {
+    "user": 8,
+    "code": "DN-XFL6E",
+    "created_at": "2025-11-09T13:40:13.532Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 9,
+  "fields": {
+    "user": 9,
+    "code": "DN-QP9TI",
+    "created_at": "2025-11-09T13:43:47.773Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 10,
+  "fields": {
+    "user": 10,
+    "code": "DN-VTMMQ",
+    "created_at": "2025-11-09T13:47:52.287Z"
+  }
+},
+{
+  "model": "core.referralcode",
+  "pk": 11,
+  "fields": {
+    "user": 11,
+    "code": "DN-ER62G",
+    "created_at": "2025-11-09T13:51:56.733Z"
+  }
+},
+{
+  "model": "core.referral",
+  "pk": 1,
+  "fields": {
+    "referrer": 2,
+    "referee": 9,
+    "code_used": "DN-6RC6H",
+    "clicked_at": null,
+    "signed_up_at": null,
+    "first_subscription_at": null,
+    "status": "signed_up",
+    "ip_address": "127.0.0.1",
+    "user_agent": null,
+    "created_at": "2025-11-09T13:43:52.748Z",
+    "updated_at": "2025-11-09T13:43:52.748Z"
+  }
+},
+{
+  "model": "core.referral",
+  "pk": 2,
+  "fields": {
+    "referrer": 8,
+    "referee": 11,
+    "code_used": "DN-XFL6E",
+    "clicked_at": "2025-11-09T13:51:15.120Z",
+    "signed_up_at": "2025-11-09T13:52:00.409Z",
+    "first_subscription_at": null,
+    "status": "signed_up",
+    "ip_address": "127.0.0.1",
+    "user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36",
+    "created_at": "2025-11-09T13:51:15.120Z",
+    "updated_at": "2025-11-09T13:52:00.409Z"
+  }
+}
+]
