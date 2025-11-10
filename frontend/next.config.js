@@ -2,7 +2,7 @@ const withPWA = require('next-pwa')({
   dest: 'public',
   register: true,
   skipWaiting: true,
-  disable: false, // Enable PWA in both dev and production
+  disable: process.env.NODE_ENV === 'production', // Disable PWA in production for now
   runtimeCaching: [
     {
       urlPattern: /^https?.*/,
