@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = ["python312", "postgresql"]
+
+[phases.install]
+cmds = ["pip install --upgrade pip", "pip install -r requirements.txt"]
+
+[phases.build]
+# Don't run migrations during build - they'll run via Procfile release command
+cmds = []
+
+[start]
+cmd = "gunicorn backend.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --threads 2 --timeout 120"
