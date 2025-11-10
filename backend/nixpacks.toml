@@ -2,11 +2,11 @@
 nixPkgs = ["python312", "postgresql"]
 
 [phases.install]
-cmds = ["pip install --upgrade pip", "pip install -r requirements.txt"]
+cmds = ["pip install -r requirements.txt"]
 
 [phases.build]
-# Don't run migrations during build - they'll run via Procfile release command
-cmds = []
+# Skip build phase - no collectstatic or migrations during build
+# Migrations will run via Procfile release command at runtime
 
 [start]
 cmd = "gunicorn backend.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 3 --threads 2 --timeout 120"
