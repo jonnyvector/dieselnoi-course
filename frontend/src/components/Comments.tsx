@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Comment, commentAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import { useToast } from '@/contexts/ToastContext'
 
 interface CommentsProps {
   lessonId: number
@@ -11,6 +12,7 @@ interface CommentsProps {
 
 export default function Comments({ lessonId, playerRef }: CommentsProps) {
   const { user } = useAuth()
+  const { addToast } = useToast()
   const [comments, setComments] = useState<Comment[]>([])
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -61,44 +63,99 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Submitting comment:', newComment)
-    if (!newComment.trim() || submitting) return
+    if (!newComment.trim() || submitting || !user) return
+
+    const currentTime = playerRef?.current?.currentTime
+    const optimisticComment: Comment = {
+      id: Date.now(), // Temporary ID
+      user: user.id,
+      username: user.username,
+      lesson: lessonId,
+      content: newComment.trim(),
+      parent: null,
+      timestamp_seconds: currentTime ? Math.floor(currentTime) : null,
+      created_at: new Date().toISOString(),
+      is_edited: false,
+      replies: [],
+    }
+
+    // Optimistically add comment to UI
+    setComments(prev => [optimisticComment, ...prev])
+    setNewComment('')
+    setSubmitting(true)
 
     try {
-      setSubmitting(true)
-      const currentTime = playerRef?.current?.currentTime
       const result = await commentAPI.createComment({
         lesson: lessonId,
-        content: newComment.trim(),
-        timestamp_seconds: currentTime ? Math.floor(currentTime) : undefined,
+        content: optimisticComment.content,
+        timestamp_seconds: optimisticComment.timestamp_seconds || undefined,
       })
       console.log('Comment posted:', result)
-      setNewComment('')
-      await fetchComments()
-      console.log('Comments refreshed')
+      // Replace optimistic comment with real one
+      setComments(prev => prev.map(c => c.id === optimisticComment.id ? result : c))
+      addToast('Comment posted successfully!', 'success')
     } catch (err) {
       console.error('Error posting comment:', err)
-      alert('Failed to post comment')
+      // Remove optimistic comment on error
+      setComments(prev => prev.filter(c => c.id !== optimisticComment.id))
+      addToast('Failed to post comment', 'error')
+      // Restore the comment text so user can try again
+      setNewComment(optimisticComment.content)
     } finally {
       setSubmitting(false)
     }
   }
 
   const handleSubmitReply = async (parentId: number) => {
-    if (!replyText.trim() || submitting) return
+    if (!replyText.trim() || submitting || !user) return
+
+    const optimisticReply: Comment = {
+      id: Date.now(), // Temporary ID
+      user: user.id,
+      username: user.username,
+      lesson: lessonId,
+      content: replyText.trim(),
+      parent: parentId,
+      timestamp_seconds: null,
+      created_at: new Date().toISOString(),
+      is_edited: false,
+      replies: [],
+    }
+
+    // Optimistically add reply to UI
+    setComments(prev => prev.map(c =>
+      c.id === parentId
+        ? { ...c, replies: [optimisticReply, ...(c.replies || [])] }
+        : c
+    ))
+    setReplyText('')
+    setReplyingTo(null)
+    setSubmitting(true)
 
     try {
-      setSubmitting(true)
-      await commentAPI.createComment({
+      const result = await commentAPI.createComment({
         lesson: lessonId,
-        content: replyText.trim(),
+        content: optimisticReply.content,
         parent: parentId,
       })
-      setReplyText('')
-      setReplyingTo(null)
-      await fetchComments()
+      // Replace optimistic reply with real one
+      setComments(prev => prev.map(c =>
+        c.id === parentId
+          ? { ...c, replies: c.replies?.map(r => r.id === optimisticReply.id ? result : r) || [] }
+          : c
+      ))
+      addToast('Reply posted successfully!', 'success')
     } catch (err) {
       console.error('Error posting reply:', err)
-      alert('Failed to post reply')
+      // Remove optimistic reply on error
+      setComments(prev => prev.map(c =>
+        c.id === parentId
+          ? { ...c, replies: c.replies?.filter(r => r.id !== optimisticReply.id) || [] }
+          : c
+      ))
+      addToast('Failed to post reply', 'error')
+      setReplyText(optimisticReply.content)
+      setReplyingTo(parentId)
     } finally {
       setSubmitting(false)
     }
@@ -113,9 +170,10 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
       setEditingId(null)
       setEditText('')
       await fetchComments()
+      addToast('Comment updated successfully!', 'success')
     } catch (err) {
       console.error('Error updating comment:', err)
-      alert('Failed to update comment')
+      addToast('Failed to update comment', 'error')
     } finally {
       setSubmitting(false)
     }
@@ -127,9 +185,10 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
     try {
       await commentAPI.deleteComment(commentId)
       await fetchComments()
+      addToast('Comment deleted successfully!', 'success')
     } catch (err) {
       console.error('Error deleting comment:', err)
-      alert('Failed to delete comment')
+      addToast('Failed to delete comment', 'error')
     }
   }
 
@@ -163,25 +222,25 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
 
     return (
       <div key={comment.id} className={`${isReply ? 'ml-12' : ''} mb-4`}>
-        <div className="bg-white rounded-lg p-4 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
           {/* Comment Header */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <div className="w-8 h-8 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                 {comment.username[0].toUpperCase()}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-gray-900">{comment.username}</span>
-                  <span className="text-xs text-gray-500">{formatDate(comment.created_at)}</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{comment.username}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{formatDate(comment.created_at)}</span>
                   {comment.is_edited && (
-                    <span className="text-xs text-gray-400 italic">(edited)</span>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 italic">(edited)</span>
                   )}
                 </div>
                 {comment.timestamp_seconds !== null && (
                   <button
                     onClick={() => jumpToTimestamp(comment.timestamp_seconds!)}
-                    className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                    className="text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center gap-1"
                   >
                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                       <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
@@ -198,13 +257,13 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
                     setEditingId(comment.id)
                     setEditText(comment.content)
                   }}
-                  className="text-xs text-gray-600 hover:text-gray-900"
+                  className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteComment(comment.id)}
-                  className="text-xs text-red-600 hover:text-red-700"
+                  className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                 >
                   Delete
                 </button>
@@ -218,14 +277,14 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
               <textarea
                 value={editText}
                 onChange={(e) => setEditText(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent text-gray-900"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
                 rows={3}
               />
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => handleEditComment(comment.id)}
                   disabled={submitting}
-                  className="px-3 py-1 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50 text-sm"
+                  className="px-3 py-1 bg-primary-600 dark:bg-primary-500 text-white rounded hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 text-sm transition-colors"
                 >
                   Save
                 </button>
@@ -234,21 +293,21 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
                     setEditingId(null)
                     setEditText('')
                   }}
-                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                  className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-sm transition-colors"
                 >
                   Cancel
                 </button>
               </div>
             </div>
           ) : (
-            <p className="text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+            <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{comment.content}</p>
           )}
 
           {/* Reply Button */}
           {!isReply && !isEditing && (
             <button
               onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
-              className="mt-2 text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+              className="mt-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
@@ -264,14 +323,14 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 placeholder="Write a reply..."
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent text-gray-900"
+                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
                 rows={2}
               />
               <div className="flex gap-2 mt-2">
                 <button
                   onClick={() => handleSubmitReply(comment.id)}
                   disabled={submitting || !replyText.trim()}
-                  className="px-3 py-1 bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50 text-sm"
+                  className="px-3 py-1 bg-primary-600 dark:bg-primary-500 text-white rounded hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 text-sm transition-colors"
                 >
                   Reply
                 </button>
@@ -280,7 +339,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
                     setReplyingTo(null)
                     setReplyText('')
                   }}
-                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm"
+                  className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-sm transition-colors"
                 >
                   Cancel
                 </button>
@@ -302,14 +361,14 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
   if (loading) {
     return (
       <div className="text-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 dark:border-primary-400 mx-auto"></div>
       </div>
     )
   }
 
   return (
     <div className="mt-8">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">
+      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
         Comments {totalCount > 0 && `(${totalCount})`}
       </h3>
 
@@ -322,11 +381,11 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
             setNewComment(e.target.value)
           }}
           placeholder="Add a comment..."
-          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-600 focus:border-transparent text-gray-900"
+          className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
           rows={3}
         />
         <div className="flex justify-between items-center mt-2">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             {playerRef?.current?.currentTime && (
               <>💡 Your comment will be linked to {formatTimestamp(Math.floor(playerRef.current.currentTime))}</>
             )}
@@ -334,7 +393,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
           <button
             type="submit"
             disabled={submitting || !newComment.trim()}
-            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 font-semibold"
+            className="px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 font-semibold transition-colors"
           >
             {submitting ? 'Posting...' : 'Post Comment'}
           </button>
@@ -354,11 +413,11 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
               <button
                 onClick={loadMoreComments}
                 disabled={loadingMore}
-                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 disabled:opacity-50 font-medium"
+                className="px-6 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 font-medium transition-colors"
               >
                 {loadingMore ? (
                   <span className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700"></div>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700 dark:border-gray-300"></div>
                     Loading...
                   </span>
                 ) : (
@@ -369,8 +428,8 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
           )}
         </>
       ) : (
-        <div className="text-center py-12 text-gray-500">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           </svg>
           <p>No comments yet. Be the first to comment!</p>

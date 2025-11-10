@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import MuxUploader from '@mux/mux-uploader-react'
-import api, { courseAPI, muxAPI } from '@/lib/api'
+import { courseAPI, muxAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
+import Navigation from '@/components/Navigation'
+
+// Lazy load MuxUploader to improve initial page load
+const MuxUploader = lazy(() => import('@mux/mux-uploader-react'))
 
 interface Course {
   id: number
@@ -116,73 +118,53 @@ export default function AdminUploadVideoPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-900">
-                Dieselnoi Muay Thai
-              </Link>
-              <span className="ml-4 px-3 py-1 bg-red-100 text-red-800 text-sm font-semibold rounded">
-                ADMIN
-              </span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-gray-700 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <span className="text-gray-700">Welcome, {user?.username}</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation currentPage="admin" />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
             Upload Video to Lesson
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-400">
             Select a lesson and upload a video file. The video will be processed by Mux and automatically attached to the lesson.
           </p>
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-red-800">{error}</p>
+          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+            <p className="text-red-800 dark:text-red-300">{error}</p>
           </div>
         )}
 
         {/* Success Message */}
         {success && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-green-800">{success}</p>
+          <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+            <p className="text-green-800 dark:text-green-300">{success}</p>
           </div>
         )}
 
         {/* Course and Lesson Selection */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
             Step 1: Select Lesson
           </h2>
 
           {/* Course Selector */}
           <div className="mb-4">
-            <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="course" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Course
             </label>
             <select
@@ -193,7 +175,7 @@ export default function AdminUploadVideoPage() {
                 setSelectedLesson(null)
                 setUploadUrl(null)
               }}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Select a course...</option>
               {courses.map((course) => (
@@ -207,7 +189,7 @@ export default function AdminUploadVideoPage() {
           {/* Lesson Selector */}
           {selectedCourse && (
             <div className="mb-4">
-              <label htmlFor="lesson" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="lesson" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Lesson
               </label>
               <select
@@ -217,7 +199,7 @@ export default function AdminUploadVideoPage() {
                   setSelectedLesson(Number(e.target.value))
                   setUploadUrl(null)
                 }}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">Select a lesson...</option>
                 {lessons.map((lesson) => (
@@ -243,20 +225,22 @@ export default function AdminUploadVideoPage() {
 
         {/* Upload Component */}
         {uploadUrl && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Step 2: Upload Video File
             </h2>
 
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-              <MuxUploader
-                endpoint={uploadUrl}
-                onSuccess={handleUploadSuccess}
-                onError={handleUploadError}
-              />
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div></div>}>
+                <MuxUploader
+                  endpoint={uploadUrl}
+                  onSuccess={handleUploadSuccess}
+                  onError={handleUploadError}
+                />
+              </Suspense>
             </div>
 
-            <div className="mt-4 text-sm text-gray-600">
+            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
               <p className="mb-2"><strong>Tips:</strong></p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Supported formats: MP4, MOV, AVI, and more</li>

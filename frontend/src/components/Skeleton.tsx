@@ -5,7 +5,7 @@ interface SkeletonProps {
 export function Skeleton({ className = '' }: SkeletonProps) {
   return (
     <div
-      className={`animate-pulse bg-gray-200 rounded ${className}`}
+      className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${className}`}
       aria-hidden="true"
     />
   )
@@ -13,7 +13,7 @@ export function Skeleton({ className = '' }: SkeletonProps) {
 
 export function CourseCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <Skeleton className="w-full h-48" />
       <div className="p-6">
         <Skeleton className="h-6 w-3/4 mb-3" />
@@ -44,7 +44,7 @@ export function LessonListSkeleton({ count = 5 }: { count?: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200"
+          className="flex items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
         >
           <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
           <div className="flex-1">
@@ -61,7 +61,7 @@ export function LessonListSkeleton({ count = 5 }: { count?: number }) {
 export function VideoPlayerSkeleton() {
   return (
     <div
-      className="bg-gray-300 rounded-lg overflow-hidden animate-pulse"
+      className="bg-gray-300 dark:bg-gray-700 rounded-lg overflow-hidden animate-pulse"
       style={{ aspectRatio: '16/9' }}
     >
       <div className="w-full h-full flex items-center justify-center">
@@ -79,7 +79,7 @@ export function VideoPlayerSkeleton() {
 
 export function CommentSkeleton() {
   return (
-    <div className="flex gap-3 p-4 border-b border-gray-100">
+    <div className="flex gap-3 p-4 border-b border-gray-100 dark:border-gray-700">
       <Skeleton className="w-10 h-10 rounded-full flex-shrink-0" />
       <div className="flex-1">
         <Skeleton className="h-4 w-32 mb-2" />
@@ -112,7 +112,7 @@ export function DashboardSkeleton() {
       {/* Subscription cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-white rounded-lg shadow p-6">
+          <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <Skeleton className="h-6 w-3/4 mb-3" />
             <Skeleton className="h-4 w-full mb-2" />
             <Skeleton className="h-4 w-2/3 mb-4" />

@@ -108,6 +108,12 @@ class Subscription(models.Model):
     class Meta:
         ordering = ['-created_at']
         unique_together = ['user', 'course']
+        indexes = [
+            models.Index(fields=['course', 'status']),
+            models.Index(fields=['user', 'course', 'status']),
+            models.Index(fields=['status', 'created_at']),
+            models.Index(fields=['status', 'updated_at']),
+        ]
 
     def __str__(self):
         return f"{self.user.email} - {self.course.title} - {self.status}"
@@ -133,6 +139,11 @@ class LessonProgress(models.Model):
         ordering = ['-last_watched_at']
         unique_together = ['user', 'lesson']
         verbose_name_plural = 'Lesson Progress'
+        indexes = [
+            models.Index(fields=['lesson', 'is_completed']),
+            models.Index(fields=['user', 'lesson']),
+            models.Index(fields=['lesson', 'user', 'is_completed']),
+        ]
 
     def __str__(self):
         return f"{self.user.username} - {self.lesson.title} - {'Complete' if self.is_completed else 'In Progress'}"

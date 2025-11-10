@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { referralAPI } from '@/lib/api'
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -16,8 +17,37 @@ export default function SignupPage() {
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [referralCode, setReferralCode] = useState<string | null>(null)
+  const [referrerName, setReferrerName] = useState<string | null>(null)
+  const [validatingReferral, setValidatingReferral] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { register } = useAuth()
+
+  useEffect(() => {
+    const checkReferralCode = async () => {
+      const refCode = searchParams.get('ref')
+      if (!refCode) return
+
+      setValidatingReferral(true)
+      try {
+        const validation = await referralAPI.validateCode(refCode)
+        if (validation.valid) {
+          setReferralCode(refCode)
+          setReferrerName(validation.referrer_name || null)
+
+          // Track the click
+          await referralAPI.trackClick(refCode)
+        }
+      } catch (err) {
+        console.error('Failed to validate referral code:', err)
+      } finally {
+        setValidatingReferral(false)
+      }
+    }
+
+    checkReferralCode()
+  }, [searchParams])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -32,7 +62,12 @@ export default function SignupPage() {
     setLoading(true)
 
     try {
-      await register(formData)
+      // Include referral code in registration if present
+      const registrationData = {
+        ...formData,
+        ...(referralCode && { referral_code: referralCode })
+      }
+      await register(registrationData)
       router.push('/')
     } catch (err: any) {
       const errorMsg = err.response?.data
@@ -63,6 +98,49 @@ export default function SignupPage() {
             </Link>
           </p>
         </div>
+
+        {/* Referral Banner */}
+        {referralCode && referrerName && (
+          <div className="rounded-lg bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-400 p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <svg className="h-6 w-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3 flex-1">
+                <h3 className="text-sm font-semibold text-green-900">
+                  🎁 Special Referral Discount Applied!
+                </h3>
+                <div className="mt-2 text-sm text-green-800">
+                  <p>
+                    <span className="font-semibold">{referrerName}</span> has referred you to Dieselnoi's Muay Thai training platform.
+                  </p>
+                  <p className="mt-1 font-bold">
+                    Get 20% off your first month when you subscribe! 🥊
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {validatingReferral && (
+          <div className="rounded-lg bg-blue-50 border border-blue-200 p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </div>
+              <p className="ml-3 text-sm text-blue-800">
+                Validating referral code...
+              </p>
+            </div>
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="rounded-md bg-red-50 p-4">

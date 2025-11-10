@@ -2,19 +2,44 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { courseAPI, Course } from '@/lib/api'
+import { courseAPI, subscriptionAPI, Course } from '@/lib/api'
+import { CourseListSkeleton } from './Skeleton'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function CourseList() {
+  const { user } = useAuth()
   const [courses, setCourses] = useState<Course[]>([])
+  const [subscribedCourseIds, setSubscribedCourseIds] = useState<Set<number>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const data = await courseAPI.getCourses()
-        setCourses(data)
+
+        // Fetch courses
+        const coursesData = await courseAPI.getCourses()
+        setCourses(coursesData)
+
+        // Fetch subscriptions if user is logged in
+        if (user) {
+          try {
+            const subscriptions = await subscriptionAPI.getMySubscriptions()
+            console.log('Fetched subscriptions:', subscriptions)
+            const subscribedIds = new Set(
+              subscriptions
+                .filter((sub: any) => sub.status === 'active')
+                .map((sub: any) => sub.course_id)
+            )
+            console.log('Subscribed course IDs:', Array.from(subscribedIds))
+            setSubscribedCourseIds(subscribedIds)
+          } catch (subError) {
+            // Subscriptions might fail if user isn't fully authenticated yet
+            console.error('Could not fetch subscriptions:', subError)
+          }
+        }
+
         setError(null)
       } catch (err: any) {
         console.error('Error fetching courses:', err)
@@ -27,28 +52,26 @@ export default function CourseList() {
       }
     }
 
-    fetchCourses()
-  }, [])
+    fetchData()
+  }, [user])
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading courses...</p>
-        </div>
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-gray-900">Available Courses</h2>
+        <CourseListSkeleton count={3} />
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-        <h3 className="text-red-800 font-semibold mb-2">Error Loading Courses</h3>
-        <p className="text-red-700">{error}</p>
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+        <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Courses</h3>
+        <p className="text-red-700 dark:text-red-300">{error}</p>
         <button
           onClick={() => window.location.reload()}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+          className="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
         >
           Try Again
         </button>
@@ -58,8 +81,8 @@ export default function CourseList() {
 
   if (courses.length === 0) {
     return (
-      <div className="text-center py-12 bg-white rounded-lg shadow">
-        <p className="text-gray-600 text-lg">No courses available yet.</p>
+      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
+        <p className="text-gray-600 dark:text-gray-400 text-lg">No courses available yet.</p>
       </div>
     )
   }
@@ -79,17 +102,17 @@ export default function CourseList() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Available Courses</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Available Courses</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
           <Link
             key={course.id}
             href={`/courses/${course.slug}`}
-            className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 block"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
           >
             {course.thumbnail_url && (
-              <div className="h-48 bg-gray-200">
+              <div className="h-48 bg-gray-200 flex-shrink-0">
                 <img
                   src={course.thumbnail_url}
                   alt={course.title}
@@ -98,8 +121,8 @@ export default function CourseList() {
               </div>
             )}
 
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-3">
+            <div className="p-4 sm:p-6 flex flex-col flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold uppercase ${getDifficultyColor(
                     course.difficulty
@@ -107,27 +130,36 @@ export default function CourseList() {
                 >
                   {course.difficulty}
                 </span>
-                <span className="text-sm text-gray-600">
+                {subscribedCourseIds.has(course.id) && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-300 dark:border-green-700">
+                    ✓ Subscribed
+                  </span>
+                )}
+                <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
                   {course.lesson_count} lessons
                 </span>
               </div>
 
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 {course.title}
               </h3>
 
-              <p className="text-gray-600 mb-4 line-clamp-3">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-grow">
                 {course.description}
               </p>
 
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-primary-600">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-auto">
+                <span className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-primary-400">
                   ${course.price}
-                  <span className="text-sm text-gray-600 font-normal">/month</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400 font-normal">/month</span>
                 </span>
 
-                <span className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors inline-block">
-                  View Course
+                <span className={`w-full sm:w-auto text-center px-4 py-2 text-white rounded transition-colors inline-block ${
+                  subscribedCourseIds.has(course.id)
+                    ? 'bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600'
+                    : 'bg-primary-600 dark:bg-primary-500 hover:bg-primary-700 dark:hover:bg-primary-600'
+                }`}>
+                  {subscribedCourseIds.has(course.id) ? 'View Course' : 'Subscribe Now'}
                 </span>
               </div>
             </div>

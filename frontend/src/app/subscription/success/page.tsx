@@ -10,37 +10,52 @@ export default function SubscriptionSuccessPage() {
   const searchParams = useSearchParams()
   const { user, loading: authLoading } = useAuth()
   const [countdown, setCountdown] = useState(5)
+  const [waitingForAuth, setWaitingForAuth] = useState(true)
 
   const sessionId = searchParams.get('session_id')
 
   useEffect(() => {
     if (authLoading) return
 
-    if (!user) {
-      router.push('/login')
+    if (!user && waitingForAuth) {
+      // Give auth a moment to restore after Stripe redirect
+      const authTimeout = setTimeout(() => {
+        setWaitingForAuth(false)
+      }, 2000)
+
+      return () => clearTimeout(authTimeout)
+    }
+
+    if (!user && !waitingForAuth) {
+      // After waiting, still no user - redirect to login
+      router.push('/login?from=subscription')
       return
     }
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          router.push('/dashboard')
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+    if (user) {
+      // User authenticated, start countdown
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer)
+            router.push('/dashboard')
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
 
-    return () => clearInterval(timer)
-  }, [user, authLoading, router])
+      return () => clearInterval(timer)
+    }
+  }, [user, authLoading, router, waitingForAuth])
 
-  if (authLoading) {
+  if (authLoading || (waitingForAuth && !user)) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
+        <div className="text-center bg-white rounded-2xl shadow-xl p-12">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto"></div>
+          <p className="mt-6 text-xl text-gray-700 font-medium">Processing your subscription...</p>
+          <p className="mt-2 text-sm text-gray-500">Please wait a moment</p>
         </div>
       </div>
     )

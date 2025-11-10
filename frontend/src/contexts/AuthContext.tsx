@@ -34,9 +34,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Start false so pages render immediately
 
   const checkAuth = async () => {
+    setLoading(true)
     try {
       const response = await api.get('/auth/user/')
       setUser(response.data)
@@ -49,17 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Add timeout to prevent infinite loading
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.warn('Auth check timed out, setting loading to false')
-        setLoading(false)
-      }
-    }, 5000)
-
+    // Check auth in background without blocking page render
     checkAuth()
-
-    return () => clearTimeout(timeout)
   }, [])
 
   const login = async (username: string, password: string) => {

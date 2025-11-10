@@ -214,6 +214,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     user_email = serializers.EmailField(source='user.email', read_only=True)
     course_title = serializers.CharField(source='course.title', read_only=True)
     course_slug = serializers.SlugField(source='course.slug', read_only=True)
+    course_id = serializers.IntegerField(source='course.id', read_only=True)
     is_active = serializers.BooleanField(read_only=True)
 
     class Meta:
@@ -221,6 +222,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'user_email',
+            'course_id',
             'course_title',
             'course_slug',
             'status',

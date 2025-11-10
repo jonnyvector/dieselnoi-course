@@ -4,22 +4,27 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import MuxPlayer from '@mux/mux-player-react'
-import api, { Lesson, stripeAPI, progressAPI } from '@/lib/api'
+import api, { Lesson, stripeAPI, progressAPI, courseAPI, CourseDetail } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import Comments from '@/components/Comments'
+import { VideoPlayerSkeleton, CommentListSkeleton } from '@/components/Skeleton'
+import { useToast } from '@/contexts/ToastContext'
+import Navigation from '@/components/Navigation'
 
 export default function LessonDetailPage() {
   const params = useParams()
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
+  const { addToast } = useToast()
   const [lesson, setLesson] = useState<Lesson | null>(null)
+  const [course, setCourse] = useState<CourseDetail | null>(null)
+  const [nextLesson, setNextLesson] = useState<Lesson | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [subscribing, setSubscribing] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [savedWatchTime, setSavedWatchTime] = useState<number>(0)
   const [hasResumed, setHasResumed] = useState(false)
-  const [showKeyboardHelp, setShowKeyboardHelp] = useState(false)
   const playerRef = useRef<any>(null)
   const progressMarkedRef = useRef(false)
   const lastSavedTimeRef = useRef(0)
@@ -35,8 +40,9 @@ export default function LessonDetailPage() {
 
       try {
         setLoading(true)
-        const [lessonResponse, progressResponse] = await Promise.allSettled([
+        const [lessonResponse, courseResponse, progressResponse] = await Promise.allSettled([
           api.get(`/lessons/${params.id}/`),
+          courseAPI.getCourse(params.slug as string),
           progressAPI.getMyProgress(),
         ])
 
@@ -44,9 +50,25 @@ export default function LessonDetailPage() {
           setLesson(lessonResponse.value.data)
         }
 
+        // Get course data to find next lesson
+        if (courseResponse.status === 'fulfilled') {
+          const courseData = courseResponse.value
+          setCourse(courseData)
+
+          // Find current lesson index and next lesson
+          const currentLessonId = Number(params.id)
+          const currentIndex = courseData.lessons?.findIndex((l: Lesson) => l.id === currentLessonId) ?? -1
+          if (currentIndex !== -1 && courseData.lessons && currentIndex < courseData.lessons.length - 1) {
+            setNextLesson(courseData.lessons[currentIndex + 1])
+          }
+        }
+
         // Check if there's saved progress for this lesson
         if (progressResponse.status === 'fulfilled') {
-          const lessonProgress = progressResponse.value.find(
+          const progressData = progressResponse.value
+          // Handle both paginated and non-paginated responses
+          const progressArray = Array.isArray(progressData) ? progressData : (progressData.results || [])
+          const lessonProgress = progressArray.find(
             (p: any) => p.lesson === Number(params.id)
           )
           if (lessonProgress) {
@@ -68,95 +90,20 @@ export default function LessonDetailPage() {
     }
 
     fetchLesson()
-  }, [params.id, user, authLoading, router])
+  }, [params.id, params.slug, user, authLoading, router])
 
-  // Keyboard shortcuts for video player
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      // Don't trigger shortcuts when typing in inputs
-      const target = e.target as HTMLElement
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
-
-      // Toggle help modal
-      if (e.key === '?') {
-        e.preventDefault()
-        setShowKeyboardHelp(prev => !prev)
-        return
-      }
-
-      const player = playerRef.current
-      if (!player) return
-
-      switch (e.key.toLowerCase()) {
-        case ' ':
-        case 'k':
-          e.preventDefault()
-          if (player.paused) {
-            player.play()
-          } else {
-            player.pause()
-          }
-          break
-        case 'arrowleft':
-        case 'j':
-          e.preventDefault()
-          player.currentTime = Math.max(0, player.currentTime - 5)
-          break
-        case 'arrowright':
-        case 'l':
-          e.preventDefault()
-          player.currentTime = Math.min(player.duration, player.currentTime + 5)
-          break
-        case 'arrowup':
-          e.preventDefault()
-          player.volume = Math.min(1, player.volume + 0.1)
-          break
-        case 'arrowdown':
-          e.preventDefault()
-          player.volume = Math.max(0, player.volume - 0.1)
-          break
-        case 'f':
-          e.preventDefault()
-          if (document.fullscreenElement) {
-            document.exitFullscreen()
-          } else {
-            player.requestFullscreen()
-          }
-          break
-        case 'm':
-          e.preventDefault()
-          player.muted = !player.muted
-          break
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          e.preventDefault()
-          const percent = parseInt(e.key) / 10
-          player.currentTime = player.duration * percent
-          break
-        case '<':
-        case ',':
-          e.preventDefault()
-          player.playbackRate = Math.max(0.25, player.playbackRate - 0.25)
-          break
-        case '>':
-        case '.':
-          e.preventDefault()
-          player.playbackRate = Math.min(2, player.playbackRate + 0.25)
-          break
-      }
+  const getBadgeIcon = (iconName: string): string => {
+    const iconMap: { [key: string]: string } = {
+      'gi-white-belt': '🥋',
+      'books': '📚',
+      'muscle': '💪',
+      'trophy': '🏆',
+      'star': '⭐',
+      'chat': '💬',
+      'megaphone': '📣',
     }
-
-    window.addEventListener('keydown', handleKeyPress)
-    return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [])
+    return iconMap[iconName] || '🎖️'
+  }
 
   const handleSubscribe = async () => {
     try {
@@ -201,8 +148,17 @@ export default function LessonDetailPage() {
     if (duration > 0 && currentTime / duration >= 0.9 && !progressMarkedRef.current) {
       try {
         progressMarkedRef.current = true
-        await progressAPI.markLessonComplete(lesson.id, Math.floor(currentTime))
+        const response = await progressAPI.markLessonComplete(lesson.id, Math.floor(currentTime))
         setIsCompleted(true)
+        addToast('Lesson completed! Great work!', 'success')
+
+        // Check for newly earned badges
+        if (response.newly_earned_badges && response.newly_earned_badges.length > 0) {
+          response.newly_earned_badges.forEach((badge: any) => {
+            const badgeIcon = getBadgeIcon(badge.icon)
+            addToast(`${badgeIcon} Achievement Unlocked: ${badge.name}!`, 'success')
+          })
+        }
       } catch (err) {
         console.error('Error marking lesson complete:', err)
         progressMarkedRef.current = false
@@ -217,8 +173,17 @@ export default function LessonDetailPage() {
       progressMarkedRef.current = true
       const player = playerRef.current
       const watchTime = player?.currentTime ? Math.floor(player.currentTime) : 0
-      await progressAPI.markLessonComplete(lesson.id, watchTime)
+      const response = await progressAPI.markLessonComplete(lesson.id, watchTime)
       setIsCompleted(true)
+      addToast('Lesson completed! Great work!', 'success')
+
+      // Check for newly earned badges
+      if (response.newly_earned_badges && response.newly_earned_badges.length > 0) {
+        response.newly_earned_badges.forEach((badge: any) => {
+          const badgeIcon = getBadgeIcon(badge.icon)
+          addToast(`${badgeIcon} Achievement Unlocked: ${badge.name}!`, 'success')
+        })
+      }
     } catch (err) {
       console.error('Error marking lesson complete:', err)
       progressMarkedRef.current = false
@@ -227,10 +192,13 @@ export default function LessonDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading lesson...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navigation currentPage="lesson" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <VideoPlayerSkeleton />
+          <div className="mt-8">
+            <CommentListSkeleton count={3} />
+          </div>
         </div>
       </div>
     )
@@ -238,13 +206,13 @@ export default function LessonDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
-          <h3 className="text-red-800 font-semibold mb-2">Error Loading Lesson</h3>
-          <p className="text-red-700">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
+          <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Lesson</h3>
+          <p className="text-red-700 dark:text-red-300">{error}</p>
           <button
             onClick={() => router.push(`/courses/${params.slug}`)}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="mt-4 px-4 py-2 bg-red-600 dark:bg-red-700 text-white rounded hover:bg-red-700 dark:hover:bg-red-600 transition-colors"
           >
             Back to Course
           </button>
@@ -255,55 +223,51 @@ export default function LessonDetailPage() {
 
   if (!lesson) return null
 
-  const isLocked = !lesson.mux_playback_id && !lesson.video_url && !lesson.is_free_preview
+  const isLocked = lesson.is_locked
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-900">
-                Dieselnoi Muay Thai
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard" className="text-gray-700 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <span className="text-gray-700">Welcome, {user?.username}</span>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation currentPage="lesson" />
 
       {/* Lesson Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href={`/courses/${params.slug}`}
-          className="text-primary-600 hover:text-primary-700 mb-6 inline-block"
+          className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-6 inline-block"
         >
           ← Back to Course
         </Link>
 
         {/* Resume notification */}
         {savedWatchTime > 5 && !hasResumed && !isLocked && lesson.mux_playback_id && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-              </svg>
-              <span className="text-sm text-blue-900 font-medium">
-                Resume from {Math.floor(savedWatchTime / 60)}:{String(Math.floor(savedWatchTime % 60)).padStart(2, '0')}
-              </span>
-            </div>
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
             <button
               onClick={() => {
+                if (playerRef.current) {
+                  playerRef.current.currentTime = savedWatchTime
+                  playerRef.current.play()
+                }
+                setHasResumed(true)
+              }}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+              </svg>
+              <span className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+                Resume from {Math.floor(savedWatchTime / 60)}:{String(Math.floor(savedWatchTime % 60)).padStart(2, '0')}
+              </span>
+            </button>
+            <button
+              onClick={() => {
+                if (playerRef.current) {
+                  playerRef.current.currentTime = 0
+                  playerRef.current.play()
+                }
                 setSavedWatchTime(0)
                 setHasResumed(true)
               }}
-              className="text-xs text-blue-700 hover:text-blue-900 font-semibold"
+              className="text-xs text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 font-semibold"
             >
               Start from beginning
             </button>
@@ -313,19 +277,41 @@ export default function LessonDetailPage() {
         {/* Video Player or Locked Message */}
         <div className="bg-black rounded-lg overflow-hidden mb-8" style={{ aspectRatio: '16/9' }}>
           {isLocked ? (
-            <div className="h-full flex flex-col items-center justify-center text-white bg-gray-900">
+            <div className="h-full flex flex-col items-center justify-center text-white bg-gray-900 px-6">
               <svg className="w-16 h-16 mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
               <h3 className="text-2xl font-bold mb-2">This lesson is locked</h3>
-              <p className="text-gray-400 mb-6">Subscribe to access this content</p>
-              <button
-                onClick={handleSubscribe}
-                disabled={subscribing}
-                className="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {subscribing ? 'Redirecting...' : 'Subscribe Now'}
-              </button>
+              {lesson.unlock_date ? (
+                <p className="text-gray-400 mb-6 text-center">
+                  This lesson will unlock on{' '}
+                  <span className="font-semibold text-yellow-400">
+                    {new Date(lesson.unlock_date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                    {' at '}
+                    {new Date(lesson.unlock_date).toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      timeZoneName: 'short'
+                    })}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-gray-400 mb-6">Subscribe to access this content</p>
+              )}
+              {!lesson.unlock_date && (
+                <button
+                  onClick={handleSubscribe}
+                  disabled={subscribing}
+                  className="px-6 py-3 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {subscribing ? 'Redirecting...' : 'Subscribe Now'}
+                </button>
+              )}
             </div>
           ) : lesson.mux_playback_id ? (
             <MuxPlayer
@@ -361,17 +347,17 @@ export default function LessonDetailPage() {
         </div>
 
         {/* Lesson Info */}
-        <div className="bg-white rounded-lg shadow-md p-8">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
                 {lesson.is_free_preview && (
-                  <span className="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded">
+                  <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm font-semibold rounded">
                     FREE PREVIEW
                   </span>
                 )}
                 {isCompleted && (
-                  <span className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-sm font-semibold rounded">
+                  <span className="inline-flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-sm font-semibold rounded">
                     <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
@@ -379,171 +365,67 @@ export default function LessonDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                 {lesson.title}
               </h1>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-gray-400">
               {lesson.duration_minutes} minutes
             </div>
           </div>
 
           <div className="prose max-w-none">
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-lg">
               {lesson.description}
             </p>
           </div>
 
           {/* Additional lesson content could go here */}
-          <div className="mt-8 pt-8 border-t border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">About this lesson</h3>
+          <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">About this lesson</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Duration:</span>
-                <span className="ml-2 font-semibold">{lesson.duration_minutes} minutes</span>
+                <span className="text-gray-600 dark:text-gray-400">Duration:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">{lesson.duration_minutes} minutes</span>
               </div>
               <div>
-                <span className="text-gray-600">Access:</span>
-                <span className="ml-2 font-semibold">
+                <span className="text-gray-600 dark:text-gray-400">Access:</span>
+                <span className="ml-2 font-semibold text-gray-900 dark:text-gray-100">
                   {lesson.is_free_preview ? 'Free Preview' : 'Subscription Required'}
                 </span>
               </div>
             </div>
           </div>
 
+          {/* Next Lesson Button */}
+          {nextLesson && (
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <Link
+                href={`/courses/${params.slug}/lessons/${nextLesson.id}`}
+                className="flex items-center justify-between p-6 bg-primary-50 dark:bg-primary-900/20 hover:bg-primary-100 dark:hover:bg-primary-900/30 rounded-lg border-2 border-primary-200 dark:border-primary-800 transition-colors group"
+              >
+                <div className="flex-1">
+                  <p className="text-sm text-primary-600 dark:text-primary-400 font-semibold mb-1">UP NEXT</p>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{nextLesson.title}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{nextLesson.duration_minutes} minutes</p>
+                </div>
+                <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300">
+                  <span className="font-semibold">Continue</span>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
+            </div>
+          )}
+
           {/* Comments Section */}
           {!isLocked && (
-            <div className="mt-8 pt-8 border-t border-gray-200">
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
               <Comments lessonId={lesson.id} playerRef={playerRef} />
             </div>
           )}
         </div>
-
-        {/* Keyboard Shortcuts Help Button */}
-        {!isLocked && lesson.mux_playback_id && (
-          <button
-            onClick={() => setShowKeyboardHelp(true)}
-            className="fixed bottom-8 right-8 bg-gray-800 text-white p-3 rounded-full shadow-lg hover:bg-gray-700 transition-colors z-40"
-            title="Keyboard shortcuts"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-          </button>
-        )}
-
-        {/* Keyboard Shortcuts Modal */}
-        {showKeyboardHelp && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Keyboard Shortcuts</h2>
-                  <button
-                    onClick={() => setShowKeyboardHelp(false)}
-                    className="text-gray-400 hover:text-gray-600"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Playback</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Play/Pause</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">Space</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Play/Pause</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">K</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Rewind 5s</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">←</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Rewind 5s</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">J</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Forward 5s</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">→</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Forward 5s</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">L</kbd>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Audio & Display</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Volume Up</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">↑</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Volume Down</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">↓</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Mute/Unmute</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">M</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Fullscreen</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">F</kbd>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Seek to Position</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Jump to 0% (beginning)</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">0</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Jump to 10% - 90%</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">1-9</kbd>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Playback Speed</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Decrease speed</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">&lt;</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Increase speed</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">&gt;</kbd>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-gray-700">Show/Hide shortcuts</span>
-                        <kbd className="px-2 py-1 bg-gray-100 rounded text-sm font-mono">?</kbd>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 pt-6 border-t border-gray-200">
-                  <p className="text-sm text-gray-600">
-                    Press <kbd className="px-2 py-1 bg-gray-100 rounded text-xs font-mono">?</kbd> anytime to toggle this help
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

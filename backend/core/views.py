@@ -13,7 +13,7 @@ import mux_python
 from mux_python.rest import ApiException
 from django.db.models import Count, Q, Max
 from django.utils import timezone
-from .models import Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge
+from .models import Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge, Referral, ReferralCode, ReferralCredit, ReferralFraudCheck
 from .serializers import (
     CourseSerializer,
     CourseDetailSerializer,
@@ -69,7 +69,7 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     List view shows all published courses.
     Detail view shows course with all lessons.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
 
     def get_queryset(self):
@@ -424,7 +424,7 @@ class CourseReviewViewSet(viewsets.ModelViewSet):
     Students can create/edit their own reviews. Only admins can delete.
     """
     serializer_class = CourseReviewSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_serializer_context(self):
         """Add course to serializer context for validation."""
@@ -1162,11 +1162,20 @@ class AnalyticsOverviewView(APIView):
     """
     Get overview analytics for admin dashboard.
     Only accessible to admin users.
+    Cached for 1 hour to reduce database load.
     """
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def get(self, request):
-        data = AnalyticsService.get_overview_stats()
+        from django.core.cache import cache
+
+        cache_key = 'analytics:overview:v1'
+        data = cache.get(cache_key)
+
+        if data is None:
+            data = AnalyticsService.get_overview_stats()
+            cache.set(cache_key, data, 3600)  # Cache for 1 hour
+
         return Response(data)
 
 
@@ -1174,11 +1183,20 @@ class AnalyticsCoursesView(APIView):
     """
     Get analytics for all courses.
     Only accessible to admin users.
+    Cached for 1 hour to reduce database load.
     """
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def get(self, request):
-        data = AnalyticsService.get_course_analytics()
+        from django.core.cache import cache
+
+        cache_key = 'analytics:courses:v1'
+        data = cache.get(cache_key)
+
+        if data is None:
+            data = AnalyticsService.get_course_analytics()
+            cache.set(cache_key, data, 3600)  # Cache for 1 hour
+
         return Response(data)
 
 
@@ -1186,16 +1204,25 @@ class AnalyticsCourseDetailView(APIView):
     """
     Get detailed analytics for a specific course.
     Only accessible to admin users.
+    Cached for 1 hour to reduce database load.
     """
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def get(self, request, course_slug):
-        data = AnalyticsService.get_course_detail_analytics(course_slug)
+        from django.core.cache import cache
+
+        cache_key = f'analytics:course:{course_slug}:v1'
+        data = cache.get(cache_key)
+
         if data is None:
-            return Response(
-                {'error': 'Course not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            data = AnalyticsService.get_course_detail_analytics(course_slug)
+            if data is None:
+                return Response(
+                    {'error': 'Course not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+            cache.set(cache_key, data, 3600)  # Cache for 1 hour
+
         return Response(data)
 
 
@@ -1203,11 +1230,20 @@ class AnalyticsEngagementView(APIView):
     """
     Get engagement metrics (top lessons, dropoff rates, etc).
     Only accessible to admin users.
+    Cached for 1 hour to reduce database load.
     """
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def get(self, request):
-        data = AnalyticsService.get_engagement_metrics()
+        from django.core.cache import cache
+
+        cache_key = 'analytics:engagement:v1'
+        data = cache.get(cache_key)
+
+        if data is None:
+            data = AnalyticsService.get_engagement_metrics()
+            cache.set(cache_key, data, 3600)  # Cache for 1 hour
+
         return Response(data)
 
 
@@ -1215,11 +1251,20 @@ class AnalyticsUserGrowthView(APIView):
     """
     Get user growth and retention metrics.
     Only accessible to admin users.
+    Cached for 1 hour to reduce database load.
     """
     permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
 
     def get(self, request):
-        data = AnalyticsService.get_user_growth_metrics()
+        from django.core.cache import cache
+
+        cache_key = 'analytics:user_growth:v1'
+        data = cache.get(cache_key)
+
+        if data is None:
+            data = AnalyticsService.get_user_growth_metrics()
+            cache.set(cache_key, data, 3600)  # Cache for 1 hour
+
         return Response(data)
 
 

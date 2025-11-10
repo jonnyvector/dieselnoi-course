@@ -158,62 +158,59 @@ class AnalyticsService:
         """
         Get analytics for all courses.
         Returns list of course performance metrics.
+        Optimized to use database aggregation instead of Python loops.
         """
-        courses = Course.objects.filter(is_published=True).prefetch_related(
-            'lessons',
-            'subscriptions'
-        )
+        from django.db.models import Count, Case, When, IntegerField, FloatField
+
+        courses = Course.objects.filter(is_published=True).prefetch_related('lessons')
 
         course_data = []
 
         for course in courses:
-            # Enrollment metrics
-            active_subs = course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES).count()
-            total_subs = course.subscriptions.count()
-
-            # Lesson count
             lesson_count = course.lessons.count()
 
-            # Completion metrics
+            # Get active subscribers for this course
+            active_subs_qs = course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES)
+            active_subs = active_subs_qs.count()
+            total_subs = course.subscriptions.count()
+
             if active_subs > 0 and lesson_count > 0:
-                total_completion = 0
-                total_progress = 0
-                users_with_progress = 0
+                # Get all active subscriber user IDs
+                active_user_ids = list(active_subs_qs.values_list('user_id', flat=True))
 
-                for sub in course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES):
-                    user_id = sub.user_id
+                # Count completed lessons per user in a single query
+                user_completion_data = LessonProgress.objects.filter(
+                    lesson__course=course,
+                    user_id__in=active_user_ids,
+                    is_completed=True
+                ).values('user_id').annotate(
+                    completed_count=Count('id')
+                )
 
-                    completed = LessonProgress.objects.filter(
-                        user_id=user_id,
-                        lesson__course=course,
-                        is_completed=True
-                    ).count()
+                # Build lookup dict
+                user_completed_lessons = {item['user_id']: item['completed_count'] for item in user_completion_data}
 
-                    progress_pct = (completed / lesson_count) * 100
-                    total_progress += progress_pct
-                    users_with_progress += 1
-
-                    if completed == lesson_count:
-                        total_completion += 1
+                # Calculate metrics
+                total_completion = sum(1 for count in user_completed_lessons.values() if count == lesson_count)
+                total_progress = sum((user_completed_lessons.get(uid, 0) / lesson_count) * 100 for uid in active_user_ids)
 
                 completion_rate = (total_completion / active_subs) * 100 if active_subs > 0 else 0
-                avg_progress = total_progress / users_with_progress if users_with_progress > 0 else 0
+                avg_progress = total_progress / active_subs if active_subs > 0 else 0
             else:
                 completion_rate = 0
                 avg_progress = 0
 
-            # Watch time (only for active subscribers)
+            # Watch time (only for active subscribers) - single query
             total_watch_seconds = LessonProgress.objects.filter(
                 lesson__course=course,
-                user__subscriptions__course=course,
-                user__subscriptions__status__in=ACTIVE_SUBSCRIPTION_STATUSES
+                user_id__in=active_subs_qs.values_list('user_id', flat=True)
             ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
             total_watch_time_hours = round(total_watch_seconds / 3600, 1)
 
             # Average watch time per active user
             avg_watch_time_per_user = (total_watch_time_hours / active_subs) if active_subs > 0 else 0
 
-            # Comment count
+            # Comment count - single query
             comment_count = Comment.objects.filter(lesson__course=course).count()
 
             # Revenue
@@ -224,8 +221,8 @@ class AnalyticsService:
                 'title': course.title,
                 'difficulty': course.difficulty,
                 'price': float(course.price),
-                'active_subscribers': active_subs,  # Currently active (was: enrollments)
-                'total_enrollments': total_subs,     # All-time enrollments (was: total_subscribers)
+                'active_subscribers': active_subs,
+                'total_enrollments': total_subs,
                 'completion_rate': round(completion_rate, 1),
                 'avg_progress': round(avg_progress, 1),
                 'total_watch_time_hours': total_watch_time_hours,
@@ -273,40 +270,46 @@ class AnalyticsService:
             status__in=['cancelled', 'past_due']
         ).count()
 
-        # Course-level completion
-        total_completion = 0
-        total_progress = 0
-        users_with_progress = 0
+        # Course-level completion - optimized with single query
+        if active_subs > 0 and lesson_count > 0:
+            # Get active subscriber user IDs
+            active_subs_qs = course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES)
+            active_user_ids = list(active_subs_qs.values_list('user_id', flat=True))
 
-        for sub in course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES):
-            user_id = sub.user_id
-
-            completed = LessonProgress.objects.filter(
-                user_id=user_id,
+            # Count completed lessons per user in a single query
+            user_completion_data = LessonProgress.objects.filter(
                 lesson__course=course,
+                user_id__in=active_user_ids,
                 is_completed=True
-            ).count()
+            ).values('user_id').annotate(
+                completed_count=Count('id')
+            )
 
-            if lesson_count > 0:
-                progress_pct = (completed / lesson_count) * 100
-                total_progress += progress_pct
-                users_with_progress += 1
+            # Build lookup dict
+            user_completed_lessons = {item['user_id']: item['completed_count'] for item in user_completion_data}
 
-                if completed == lesson_count:
-                    total_completion += 1
+            # Calculate metrics
+            total_completion = sum(1 for count in user_completed_lessons.values() if count == lesson_count)
+            total_progress = sum((user_completed_lessons.get(uid, 0) / lesson_count) * 100 for uid in active_user_ids)
 
-        completion_rate = (total_completion / active_subs) * 100 if active_subs > 0 else 0
-        avg_progress = total_progress / users_with_progress if users_with_progress > 0 else 0
+            completion_rate = (total_completion / active_subs) * 100 if active_subs > 0 else 0
+            avg_progress = total_progress / active_subs if active_subs > 0 else 0
+        else:
+            completion_rate = 0
+            avg_progress = 0
 
-        # Watch time (only for active subscribers)
-        total_watch_seconds = LessonProgress.objects.filter(
-            lesson__course=course,
-            user__subscriptions__course=course,
-            user__subscriptions__status__in=ACTIVE_SUBSCRIPTION_STATUSES
-        ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
-        total_watch_time_hours = round(total_watch_seconds / 3600, 1)
-
-        avg_watch_time_per_user = (total_watch_time_hours / active_subs) if active_subs > 0 else 0
+        # Watch time (only for active subscribers) - optimized
+        if active_subs > 0:
+            active_subs_qs = course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES)
+            total_watch_seconds = LessonProgress.objects.filter(
+                lesson__course=course,
+                user_id__in=active_subs_qs.values_list('user_id', flat=True)
+            ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
+            total_watch_time_hours = round(total_watch_seconds / 3600, 1)
+            avg_watch_time_per_user = (total_watch_time_hours / active_subs) if active_subs > 0 else 0
+        else:
+            total_watch_time_hours = 0
+            avg_watch_time_per_user = 0
 
         # Comment count
         comment_count = Comment.objects.filter(lesson__course=course).count()
@@ -342,53 +345,66 @@ class AnalyticsService:
             for item in subscriber_trend
         ]
 
-        # Recent user activity (last 50 active subscribers with their progress)
+        # Recent user activity (last 50 active subscribers with their progress) - optimized
         recent_activity = []
         active_subscriptions = course.subscriptions.filter(
             status__in=ACTIVE_SUBSCRIPTION_STATUSES
         ).select_related('user').order_by('-updated_at')[:50]
 
-        for sub in active_subscriptions:
-            user = sub.user
+        if active_subscriptions and lesson_count > 0:
+            # Get user IDs for batch queries
+            activity_user_ids = [sub.user_id for sub in active_subscriptions]
 
-            # Calculate user's progress
-            if lesson_count > 0:
-                completed_lessons = LessonProgress.objects.filter(
-                    user=user,
-                    lesson__course=course,
-                    is_completed=True
-                ).count()
-                progress_pct = (completed_lessons / lesson_count) * 100
-            else:
-                progress_pct = 0
+            # Batch fetch completed lesson counts per user
+            user_completed = LessonProgress.objects.filter(
+                lesson__course=course,
+                user_id__in=activity_user_ids,
+                is_completed=True
+            ).values('user_id').annotate(completed=Count('id'))
+            completed_dict = {item['user_id']: item['completed'] for item in user_completed}
 
-            # Get total watch time for this user
-            user_watch_seconds = LessonProgress.objects.filter(
-                user=user,
-                lesson__course=course
-            ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
-            user_watch_hours = round(user_watch_seconds / 3600, 1)
+            # Batch fetch watch times per user
+            user_watch_time = LessonProgress.objects.filter(
+                lesson__course=course,
+                user_id__in=activity_user_ids
+            ).values('user_id').annotate(total_seconds=Sum('watch_time_seconds'))
+            watch_time_dict = {item['user_id']: item['total_seconds'] or 0 for item in user_watch_time}
 
-            # Get last watched lesson
-            last_progress = LessonProgress.objects.filter(
-                user=user,
-                lesson__course=course
-            ).order_by('-last_watched_at').first()
+            # Batch fetch last watched lesson per user
+            last_watched_data = {}
+            for user_id in activity_user_ids:
+                last_progress = LessonProgress.objects.filter(
+                    user_id=user_id,
+                    lesson__course=course
+                ).select_related('lesson').order_by('-last_watched_at').first()
+                if last_progress:
+                    last_watched_data[user_id] = {
+                        'lesson_title': last_progress.lesson.title,
+                        'watched_at': last_progress.last_watched_at
+                    }
 
-            last_lesson_watched = last_progress.lesson.title if last_progress else None
-            last_watched_at = last_progress.last_watched_at if last_progress else None
+            # Build activity list
+            for sub in active_subscriptions:
+                user = sub.user
+                completed_count = completed_dict.get(user.id, 0)
+                progress_pct = (completed_count / lesson_count) * 100 if lesson_count > 0 else 0
 
-            recent_activity.append({
-                'user_id': user.id,
-                'username': user.username,
-                'email': mask_email(user.email),  # Privacy: mask email
-                'progress_percentage': round(progress_pct, 1),
-                'total_watch_time_hours': user_watch_hours,
-                'subscription_status': sub.status,
-                'subscription_start_date': sub.created_at.isoformat(),
-                'last_watched_at': last_watched_at.isoformat() if last_watched_at else None,
-                'last_lesson_watched': last_lesson_watched,
-            })
+                user_watch_seconds = watch_time_dict.get(user.id, 0)
+                user_watch_hours = round(user_watch_seconds / 3600, 1)
+
+                last_data = last_watched_data.get(user.id, {})
+
+                recent_activity.append({
+                    'user_id': user.id,
+                    'username': user.username,
+                    'email': mask_email(user.email),
+                    'progress_percentage': round(progress_pct, 1),
+                    'total_watch_time_hours': user_watch_hours,
+                    'subscription_status': sub.status,
+                    'subscription_start_date': sub.created_at.isoformat(),
+                    'last_watched_at': last_data.get('watched_at').isoformat() if last_data.get('watched_at') else None,
+                    'last_lesson_watched': last_data.get('lesson_title'),
+                })
 
         # Per-lesson analytics
         lesson_analytics = []
