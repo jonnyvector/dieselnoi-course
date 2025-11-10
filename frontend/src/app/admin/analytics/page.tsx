@@ -28,7 +28,7 @@ const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr
 const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false })
 
 export default function AdminAnalyticsPage() {
-  const { user, isLoading } = useAuth()
+  const { user, loading: isLoading } = useAuth()
   const router = useRouter()
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null)
   const [courses, setCourses] = useState<CourseAnalytics[]>([])
