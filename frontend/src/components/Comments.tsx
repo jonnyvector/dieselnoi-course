@@ -68,14 +68,16 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
     const currentTime = playerRef?.current?.currentTime
     const optimisticComment: Comment = {
       id: Date.now(), // Temporary ID
-      user: user.id,
+      user_id: user.id,
       username: user.username,
       lesson: lessonId,
       content: newComment.trim(),
       parent: null,
       timestamp_seconds: currentTime ? Math.floor(currentTime) : null,
       created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
       is_edited: false,
+      reply_count: 0,
       replies: [],
     }
 
