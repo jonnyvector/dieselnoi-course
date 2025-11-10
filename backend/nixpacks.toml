@@ -1,0 +1,4 @@
+[variables]
+NIXPACKS_NO_DJANGO_COLLECT_STATIC = "1"
+
+[phases.build]
