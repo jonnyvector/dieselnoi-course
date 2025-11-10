@@ -1,6 +1,16 @@
 """
 Analytics calculation functions for admin dashboard.
 Provides metrics on users, courses, subscriptions, and engagement.
+
+METRIC DEFINITIONS:
+- Active Subscriber: User with subscription status in ['active', 'trialing']
+- Completion: User has completed (is_completed=True) for ALL lessons in a course
+- Average Progress: Average percentage of lessons completed across active subscribers
+- Watch Time: Sum of watch_time_seconds from LessonProgress (foreground playback only)
+- MRR (Monthly Recurring Revenue): Sum of course.price for all active subscriptions
+- ARPU (Average Revenue Per User): MRR ÷ active subscribers count
+- Churn Rate: Percentage of subscribers who cancelled within measurement period
+- Completion Rate: (Users who completed all lessons ÷ Total active subscribers) × 100
 """
 
 from django.db.models import Count, Sum, Avg, Q, F
@@ -8,6 +18,28 @@ from django.utils import timezone
 from datetime import timedelta
 from decimal import Decimal
 from .models import User, Course, Subscription, Lesson, LessonProgress, Comment
+
+
+# Metric calculation constants
+ACTIVE_SUBSCRIPTION_STATUSES = ['active', 'trialing']
+COMPLETION_WATCH_THRESHOLD = 0.90  # 90% watched = completed
+
+
+def mask_email(email):
+    """
+    Mask email address for privacy.
+    Example: jonathan@example.com -> j***@example.com
+    """
+    if not email or '@' not in email:
+        return email
+
+    username, domain = email.split('@', 1)
+    if len(username) <= 1:
+        masked_username = '*' * len(username)
+    else:
+        masked_username = username[0] + '***'
+
+    return f"{masked_username}@{domain}"
 
 
 class AnalyticsService:
@@ -136,7 +168,7 @@ class AnalyticsService:
 
         for course in courses:
             # Enrollment metrics
-            active_subs = course.subscriptions.filter(status__in=['active', 'trialing']).count()
+            active_subs = course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES).count()
             total_subs = course.subscriptions.count()
 
             # Lesson count
@@ -148,7 +180,7 @@ class AnalyticsService:
                 total_progress = 0
                 users_with_progress = 0
 
-                for sub in course.subscriptions.filter(status__in=['active', 'trialing']):
+                for sub in course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES):
                     user_id = sub.user_id
 
                     completed = LessonProgress.objects.filter(
@@ -170,11 +202,16 @@ class AnalyticsService:
                 completion_rate = 0
                 avg_progress = 0
 
-            # Watch time
+            # Watch time (only for active subscribers)
             total_watch_seconds = LessonProgress.objects.filter(
-                lesson__course=course
+                lesson__course=course,
+                user__subscriptions__course=course,
+                user__subscriptions__status__in=ACTIVE_SUBSCRIPTION_STATUSES
             ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
             total_watch_time_hours = round(total_watch_seconds / 3600, 1)
+
+            # Average watch time per active user
+            avg_watch_time_per_user = (total_watch_time_hours / active_subs) if active_subs > 0 else 0
 
             # Comment count
             comment_count = Comment.objects.filter(lesson__course=course).count()
@@ -187,11 +224,12 @@ class AnalyticsService:
                 'title': course.title,
                 'difficulty': course.difficulty,
                 'price': float(course.price),
-                'enrollments': active_subs,
-                'total_subscribers': total_subs,
+                'active_subscribers': active_subs,  # Currently active (was: enrollments)
+                'total_enrollments': total_subs,     # All-time enrollments (was: total_subscribers)
                 'completion_rate': round(completion_rate, 1),
                 'avg_progress': round(avg_progress, 1),
                 'total_watch_time_hours': total_watch_time_hours,
+                'avg_watch_time_per_user': round(avg_watch_time_per_user, 1),
                 'comment_count': comment_count,
                 'lesson_count': lesson_count,
                 'monthly_revenue': round(monthly_revenue, 2),
@@ -202,24 +240,45 @@ class AnalyticsService:
     @staticmethod
     def get_course_detail_analytics(course_slug):
         """
-        Get detailed analytics for a specific course including per-lesson metrics.
+        Get detailed analytics for a specific course including per-lesson metrics,
+        subscriber trends, revenue trends, and recent user activity.
         """
         try:
             course = Course.objects.get(slug=course_slug, is_published=True)
         except Course.DoesNotExist:
             return None
 
+        now = timezone.now()
+        thirty_days_ago = now - timedelta(days=30)
+        seven_days_ago = now - timedelta(days=7)
+
         # Overall course metrics
-        active_subs = course.subscriptions.filter(status__in=['active', 'trialing']).count()
+        active_subs = course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES).count()
         total_subs = course.subscriptions.count()
         lesson_count = course.lessons.count()
+
+        # New and cancelled subscribers
+        new_subs_7d = course.subscriptions.filter(
+            created_at__gte=seven_days_ago,
+            status__in=ACTIVE_SUBSCRIPTION_STATUSES
+        ).count()
+
+        new_subs_30d = course.subscriptions.filter(
+            created_at__gte=thirty_days_ago,
+            status__in=ACTIVE_SUBSCRIPTION_STATUSES
+        ).count()
+
+        cancelled_30d = course.subscriptions.filter(
+            updated_at__gte=thirty_days_ago,
+            status__in=['cancelled', 'past_due']
+        ).count()
 
         # Course-level completion
         total_completion = 0
         total_progress = 0
         users_with_progress = 0
 
-        for sub in course.subscriptions.filter(status__in=['active', 'trialing']):
+        for sub in course.subscriptions.filter(status__in=ACTIVE_SUBSCRIPTION_STATUSES):
             user_id = sub.user_id
 
             completed = LessonProgress.objects.filter(
@@ -239,9 +298,11 @@ class AnalyticsService:
         completion_rate = (total_completion / active_subs) * 100 if active_subs > 0 else 0
         avg_progress = total_progress / users_with_progress if users_with_progress > 0 else 0
 
-        # Watch time
+        # Watch time (only for active subscribers)
         total_watch_seconds = LessonProgress.objects.filter(
-            lesson__course=course
+            lesson__course=course,
+            user__subscriptions__course=course,
+            user__subscriptions__status__in=ACTIVE_SUBSCRIPTION_STATUSES
         ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
         total_watch_time_hours = round(total_watch_seconds / 3600, 1)
 
@@ -252,10 +313,86 @@ class AnalyticsService:
 
         # Revenue
         monthly_revenue = float(course.price * active_subs)
+        arpu = monthly_revenue / active_subs if active_subs > 0 else 0
+
+        # Subscriber trend (last 30 days)
+        subscriber_trend = []
+        for i in range(30):
+            date = (thirty_days_ago + timedelta(days=i)).date()
+
+            # Count active subscriptions on that date
+            active_on_date = course.subscriptions.filter(
+                created_at__lte=date,
+                status__in=ACTIVE_SUBSCRIPTION_STATUSES
+            ).filter(
+                Q(updated_at__gt=date) | Q(status__in=ACTIVE_SUBSCRIPTION_STATUSES)
+            ).count()
+
+            subscriber_trend.append({
+                'date': str(date),
+                'active_count': active_on_date,
+            })
+
+        # Revenue trend (last 30 days) - simple calculation based on active subs
+        revenue_trend = [
+            {
+                'date': item['date'],
+                'mrr': round(float(course.price * item['active_count']), 2),
+            }
+            for item in subscriber_trend
+        ]
+
+        # Recent user activity (last 50 active subscribers with their progress)
+        recent_activity = []
+        active_subscriptions = course.subscriptions.filter(
+            status__in=ACTIVE_SUBSCRIPTION_STATUSES
+        ).select_related('user').order_by('-updated_at')[:50]
+
+        for sub in active_subscriptions:
+            user = sub.user
+
+            # Calculate user's progress
+            if lesson_count > 0:
+                completed_lessons = LessonProgress.objects.filter(
+                    user=user,
+                    lesson__course=course,
+                    is_completed=True
+                ).count()
+                progress_pct = (completed_lessons / lesson_count) * 100
+            else:
+                progress_pct = 0
+
+            # Get total watch time for this user
+            user_watch_seconds = LessonProgress.objects.filter(
+                user=user,
+                lesson__course=course
+            ).aggregate(total=Sum('watch_time_seconds'))['total'] or 0
+            user_watch_hours = round(user_watch_seconds / 3600, 1)
+
+            # Get last watched lesson
+            last_progress = LessonProgress.objects.filter(
+                user=user,
+                lesson__course=course
+            ).order_by('-last_watched_at').first()
+
+            last_lesson_watched = last_progress.lesson.title if last_progress else None
+            last_watched_at = last_progress.last_watched_at if last_progress else None
+
+            recent_activity.append({
+                'user_id': user.id,
+                'username': user.username,
+                'email': mask_email(user.email),  # Privacy: mask email
+                'progress_percentage': round(progress_pct, 1),
+                'total_watch_time_hours': user_watch_hours,
+                'subscription_status': sub.status,
+                'subscription_start_date': sub.created_at.isoformat(),
+                'last_watched_at': last_watched_at.isoformat() if last_watched_at else None,
+                'last_lesson_watched': last_lesson_watched,
+            })
 
         # Per-lesson analytics
         lesson_analytics = []
-        for lesson in course.lessons.all():
+        for lesson in course.lessons.all().order_by('order'):
             # Watch count (unique users)
             watch_count = LessonProgress.objects.filter(lesson=lesson).count()
 
@@ -291,27 +428,46 @@ class AnalyticsService:
                 'lesson_id': lesson.id,
                 'title': lesson.title,
                 'order': lesson.order,
-                'watch_count': watch_count,
+                'duration_minutes': lesson.duration_minutes or 0,
+                'unique_viewers': watch_count,
                 'completion_rate': round(lesson_completion_rate, 1),
                 'avg_watch_percentage': round(avg_watch_percentage, 1),
                 'total_watch_time_hours': lesson_watch_hours,
                 'comment_count': lesson_comment_count,
-                'drop_off_rate': round(drop_off_rate, 1),
+                'dropout_rate': round(drop_off_rate, 1),
             })
 
         return {
-            'course_slug': course.slug,
-            'title': course.title,
-            'enrollments': active_subs,
-            'total_subscribers': total_subs,
-            'completion_rate': round(completion_rate, 1),
-            'avg_progress': round(avg_progress, 1),
-            'total_watch_time_hours': total_watch_time_hours,
-            'avg_watch_time_per_user': round(avg_watch_time_per_user, 1),
-            'comment_count': comment_count,
-            'lesson_count': lesson_count,
-            'monthly_revenue': round(monthly_revenue, 2),
-            'lesson_analytics': lesson_analytics,
+            'course': {
+                'slug': course.slug,
+                'title': course.title,
+                'difficulty': course.difficulty,
+                'price': float(course.price),
+                'lesson_count': lesson_count,
+                'total_duration_minutes': sum(l.duration_minutes or 0 for l in course.lessons.all()),
+            },
+            'subscribers': {
+                'active': active_subs,
+                'total_all_time': total_subs,
+                'new_7d': new_subs_7d,
+                'new_30d': new_subs_30d,
+                'cancelled_30d': cancelled_30d,
+                'trend': subscriber_trend,
+            },
+            'engagement': {
+                'total_watch_time_hours': total_watch_time_hours,
+                'avg_watch_time_per_user': round(avg_watch_time_per_user, 1),
+                'completion_rate': round(completion_rate, 1),
+                'avg_progress': round(avg_progress, 1),
+                'comment_count': comment_count,
+            },
+            'revenue': {
+                'mrr': round(monthly_revenue, 2),
+                'arpu': round(arpu, 2),
+                'trend': revenue_trend,
+            },
+            'lessons': lesson_analytics,
+            'recent_activity': recent_activity,
         }
 
     @staticmethod

@@ -1,6 +1,21 @@
 import axios from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+// Dynamically determine API URL based on how the app is accessed
+const getApiUrl = () => {
+  // Server-side: use environment variable
+  if (typeof window === 'undefined') {
+    return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+  }
+
+  // Client-side: use the same hostname as the frontend
+  const hostname = window.location.hostname
+  const port = hostname === 'localhost' || hostname === '127.0.0.1' ? '8000' : '8000'
+  const apiUrl = `http://${hostname}:${port}/api`
+  console.log('API URL:', apiUrl)
+  return apiUrl
+}
+
+const API_URL = getApiUrl()
 
 // Create axios instance with default config
 const api = axios.create({
@@ -116,6 +131,27 @@ function getUserFriendlyErrorMessage(status: number | undefined, errorData: any)
 }
 
 // Types
+export interface CourseReview {
+  id: number
+  rating: number
+  review_text: string
+  user_name: string
+  created_at: string
+  updated_at: string
+  is_edited: boolean
+  is_featured: boolean
+  can_edit: boolean
+}
+
+export interface CourseResource {
+  id: number
+  title: string
+  description: string
+  download_url: string | null
+  file_size_display: string
+  uploaded_at: string
+}
+
 export interface Course {
   id: number
   title: string
@@ -137,11 +173,17 @@ export interface Lesson {
   duration_minutes: number
   order: number
   is_free_preview: boolean
+  unlock_date: string | null
+  is_locked: boolean
   created_at: string
 }
 
 export interface CourseDetail extends Course {
   lessons: Lesson[]
+  resources: CourseResource[]
+  average_rating?: string | number
+  total_reviews?: number
+  user_review?: CourseReview | null
 }
 
 export interface Subscription {
@@ -230,6 +272,167 @@ export interface RecentlyWatched {
   watch_time_seconds: number
   last_watched_at: string
   duration_minutes: number
+  mux_playback_id: string | null
+}
+
+// Analytics types
+export interface AnalyticsOverview {
+  total_users: number
+  active_subscriptions: number
+  total_courses: number
+  published_courses: number
+  avg_completion_rate: number
+  total_watch_time_hours: number
+  comments_last_30_days: number
+  new_users_last_7_days: number
+  new_users_last_30_days: number
+  estimated_mrr: number
+  growth_metrics: {
+    users_growth_7d: number
+    subs_growth_7d: number
+  }
+}
+
+export interface CourseAnalytics {
+  course_slug: string
+  title: string
+  difficulty: string
+  price: number
+  active_subscribers: number        // Currently active subscribers
+  total_enrollments: number          // All-time enrollments
+  completion_rate: number
+  avg_progress: number
+  total_watch_time_hours: number
+  avg_watch_time_per_user: number   // Average hours per active subscriber
+  comment_count: number
+  lesson_count: number
+  monthly_revenue: number            // MRR for this course
+}
+
+export interface LessonAnalytics {
+  lesson_id: number
+  title: string
+  order: number
+  duration_minutes: number
+  unique_viewers: number
+  completion_rate: number
+  avg_watch_percentage: number
+  total_watch_time_hours: number
+  comment_count: number
+  dropout_rate: number
+}
+
+export interface SubscriberTrendPoint {
+  date: string
+  active_count: number
+}
+
+export interface RevenueTrendPoint {
+  date: string
+  mrr: number
+}
+
+export interface UserActivity {
+  user_id: number
+  username: string
+  email: string  // Masked for privacy
+  progress_percentage: number
+  total_watch_time_hours: number
+  subscription_status: string
+  subscription_start_date: string
+  last_watched_at: string | null
+  last_lesson_watched: string | null
+}
+
+export interface CourseDetailAnalytics {
+  course: {
+    slug: string
+    title: string
+    difficulty: string
+    price: number
+    lesson_count: number
+    total_duration_minutes: number
+  }
+  subscribers: {
+    active: number
+    total_all_time: number
+    new_7d: number
+    new_30d: number
+    cancelled_30d: number
+    trend: SubscriberTrendPoint[]
+  }
+  engagement: {
+    total_watch_time_hours: number
+    avg_watch_time_per_user: number
+    completion_rate: number
+    avg_progress: number
+    comment_count: number
+  }
+  revenue: {
+    mrr: number
+    arpu: number
+    trend: RevenueTrendPoint[]
+  }
+  lessons: LessonAnalytics[]
+  recent_activity: UserActivity[]
+}
+
+export interface TopLesson {
+  lesson_id: number
+  lesson_title: string
+  course_title: string
+  total_watch_time_hours?: number
+  unique_watchers?: number
+  comment_count?: number
+  unique_commenters?: number
+  completion_rate?: number
+  watch_count?: number
+  dropout_rate?: number
+}
+
+export interface EngagementMetrics {
+  top_lessons_by_watch_time: TopLesson[]
+  top_lessons_by_comments: TopLesson[]
+  highest_completion_lessons: TopLesson[]
+  highest_dropout_lessons: TopLesson[]
+}
+
+export interface DailyMetric {
+  date: string
+  count: number
+}
+
+export interface UserGrowthMetrics {
+  daily_signups: DailyMetric[]
+  active_users_trend: DailyMetric[]
+  retention_rate: number | null
+  churn_rate: number | null
+}
+
+// Badge types
+export interface Badge {
+  id: number
+  name: string
+  description: string
+  icon: string
+  category: string
+  requirement_value: number | null
+  created_at: string
+}
+
+export interface BadgeProgress {
+  id: number
+  name: string
+  description: string
+  icon: string
+  category: string
+  earned: boolean
+  earned_at: string | null
+  progress: {
+    current: number
+    target: number
+    percentage: number
+  }
 }
 
 // API functions
@@ -371,6 +574,156 @@ export const commentAPI = {
   // Delete a comment
   deleteComment: async (commentId: number): Promise<void> => {
     await api.delete(`/comments/${commentId}/`)
+  },
+}
+
+export const analyticsAPI = {
+  // Get overview stats
+  getOverview: async (): Promise<AnalyticsOverview> => {
+    const response = await api.get('/admin/analytics/overview/')
+    return response.data
+  },
+
+  // Get course analytics
+  getCourses: async (): Promise<{ courses: CourseAnalytics[] }> => {
+    const response = await api.get('/admin/analytics/courses/')
+    return response.data
+  },
+
+  // Get course detail analytics
+  getCourseDetail: async (courseSlug: string): Promise<CourseDetailAnalytics> => {
+    const response = await api.get(`/admin/analytics/courses/${courseSlug}/`)
+    return response.data
+  },
+
+  // Get engagement metrics
+  getEngagement: async (): Promise<EngagementMetrics> => {
+    const response = await api.get('/admin/analytics/engagement/')
+    return response.data
+  },
+
+  // Get user growth metrics
+  getUserGrowth: async (): Promise<UserGrowthMetrics> => {
+    const response = await api.get('/admin/analytics/user-growth/')
+    return response.data
+  },
+}
+
+export const badgeAPI = {
+  // Get all badges
+  getAllBadges: async (): Promise<Badge[]> => {
+    const response = await api.get('/badges/')
+    return response.data
+  },
+
+  // Get user's badge progress (earned and unearned with progress)
+  getMyBadges: async (): Promise<BadgeProgress[]> => {
+    const response = await api.get('/badges/my_badges/')
+    return response.data
+  },
+
+  // Get only earned badges
+  getEarnedBadges: async (): Promise<Badge[]> => {
+    const response = await api.get('/badges/earned/')
+    return response.data
+  },
+}
+
+// Referral types
+export interface ReferralCode {
+  code: string
+  referral_link: string
+  created_at: string
+}
+
+export interface ReferralStats {
+  code: string
+  referral_link: string
+  clicks: number
+  signups: number
+  conversions: number
+  credits_available: number
+  credits_used: number
+  credits_total: number
+}
+
+export interface ReferralHistory {
+  id: number
+  referee_email: string
+  referee_name: string
+  status: 'clicked' | 'signed_up' | 'converted' | 'rewarded'
+  clicked_at: string | null
+  signed_up_at: string | null
+  first_subscription_at: string | null
+  created_at: string
+}
+
+export interface ReferralCredit {
+  id: number
+  amount: number
+  earned_at: string
+  expires_at: string
+  used: boolean
+  used_at: string | null
+  referral_id: number
+}
+
+export interface ReferralValidation {
+  valid: boolean
+  code?: string
+  referrer_name?: string
+}
+
+export const referralAPI = {
+  // Get user's referral code
+  getMyCode: async (): Promise<ReferralCode> => {
+    const response = await api.get('/referrals/my_code/')
+    return response.data
+  },
+
+  // Get referral statistics
+  getStats: async (): Promise<ReferralStats> => {
+    const response = await api.get('/referrals/stats/')
+    return response.data
+  },
+
+  // Get referral history
+  getHistory: async (): Promise<ReferralHistory[]> => {
+    const response = await api.get('/referrals/history/')
+    return response.data
+  },
+
+  // Get available credits
+  getCredits: async (): Promise<ReferralCredit[]> => {
+    const response = await api.get('/referrals/credits/')
+    return response.data
+  },
+
+  // Track a referral click (anonymous)
+  trackClick: async (code: string): Promise<void> => {
+    await api.post('/referrals/track_click/', { code })
+  },
+
+  // Validate a referral code
+  validateCode: async (code: string): Promise<ReferralValidation> => {
+    const response = await api.get(`/referrals/validate/?code=${code}`)
+    return response.data
+  },
+}
+
+export interface CertificateResponse {
+  success: boolean
+  download_url: string
+  filename: string
+}
+
+export const certificateAPI = {
+  // Generate certificate for a completed course
+  generateCertificate: async (courseSlug: string): Promise<CertificateResponse> => {
+    const response = await api.post('/certificates/generate/', {
+      course_slug: courseSlug
+    })
+    return response.data
   },
 }
 
