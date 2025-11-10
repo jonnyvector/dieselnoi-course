@@ -70,7 +70,7 @@ export default function LessonDetailPage() {
         if (progressResponse.status === 'fulfilled') {
           const progressData = progressResponse.value
           // Handle both paginated and non-paginated responses
-          const progressArray = Array.isArray(progressData) ? progressData : (progressData.results || [])
+          const progressArray = Array.isArray(progressData) ? progressData : ((progressData as any)?.results || [])
           const lessonProgress = progressArray.find(
             (p: any) => p.lesson === Number(params.id)
           )
