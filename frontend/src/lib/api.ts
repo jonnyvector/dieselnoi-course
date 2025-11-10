@@ -36,6 +36,9 @@ export const getCSRFToken = async (): Promise<string> => {
   try {
     const response = await api.get('/auth/csrf/')
     csrfToken = response.data.csrfToken
+    if (!csrfToken) {
+      throw new Error('CSRF token not returned from server')
+    }
     return csrfToken
   } catch (error) {
     console.error('Failed to fetch CSRF token:', error)
