@@ -81,8 +81,8 @@ export default function CourseList() {
 
   if (courses.length === 0) {
     return (
-      <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg shadow">
-        <p className="text-gray-600 dark:text-gray-400 text-lg">No courses available yet.</p>
+      <div className="text-center py-12 bg-white dark:bg-dark-bg rounded-lg shadow">
+        <p className="text-gray-600 dark:text-gray-300 text-lg">No courses available yet.</p>
       </div>
     )
   }
@@ -102,14 +102,14 @@ export default function CourseList() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Available Courses</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-heading">Available Courses</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
           <Link
             key={course.id}
             href={`/courses/${course.slug}`}
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
+            className="bg-white dark:bg-dark-bg rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
           >
             {course.thumbnail_url && (
               <div className="h-48 bg-gray-200 flex-shrink-0">
@@ -140,16 +140,16 @@ export default function CourseList() {
                 </span>
               </div>
 
-              <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-dark-heading mb-2">
                 {course.title}
               </h3>
 
-              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 flex-grow">
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 line-clamp-3 flex-grow">
                 {course.description}
               </p>
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-auto">
-                <span className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-primary-400">
+                <span className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-dark-heading">
                   ${course.price}
                   <span className="text-sm text-gray-600 dark:text-gray-400 font-normal">/month</span>
                 </span>
@@ -157,7 +157,7 @@ export default function CourseList() {
                 <span className={`w-full sm:w-auto text-center px-4 py-2 text-white rounded transition-colors inline-block ${
                   subscribedCourseIds.has(course.id)
                     ? 'bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600'
-                    : 'bg-primary-600 dark:bg-primary-500 hover:bg-primary-700 dark:hover:bg-primary-600'
+                    : 'bg-primary-600 dark:bg-dark-button hover:bg-primary-700 dark:hover:opacity-90'
                 }`}>
                   {subscribedCourseIds.has(course.id) ? 'View Course' : 'Subscribe Now'}
                 </span>

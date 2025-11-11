@@ -226,11 +226,11 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
 
     return (
       <div key={comment.id} className={`${isReply ? 'ml-12' : ''} mb-4`}>
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg p-4 shadow-sm">
           {/* Comment Header */}
           <div className="flex items-start justify-between mb-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary-600 dark:bg-primary-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <div className="w-8 h-8 bg-primary-600 dark:bg-dark-button rounded-full flex items-center justify-center text-white font-semibold text-sm">
                 {comment.username?.[0]?.toUpperCase() || '?'}
               </div>
               <div>
@@ -288,7 +288,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
                 <button
                   onClick={() => handleEditComment(comment.id)}
                   disabled={submitting}
-                  className="px-3 py-1 bg-primary-600 dark:bg-primary-500 text-white rounded hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 text-sm transition-colors"
+                  className="px-3 py-1 bg-primary-600 dark:bg-dark-button text-white rounded hover:bg-primary-700 dark:hover:opacity-90 disabled:opacity-50 text-sm transition-colors"
                 >
                   Save
                 </button>
@@ -334,7 +334,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
                 <button
                   onClick={() => handleSubmitReply(comment.id)}
                   disabled={submitting || !replyText.trim()}
-                  className="px-3 py-1 bg-primary-600 dark:bg-primary-500 text-white rounded hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 text-sm transition-colors"
+                  className="px-3 py-1 bg-primary-600 dark:bg-dark-button text-white rounded hover:bg-primary-700 dark:hover:opacity-90 disabled:opacity-50 text-sm transition-colors"
                 >
                   Reply
                 </button>
@@ -397,7 +397,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
           <button
             type="submit"
             disabled={submitting || !newComment.trim()}
-            className="px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 disabled:opacity-50 font-semibold transition-colors"
+            className="px-4 py-2 bg-primary-600 dark:bg-dark-button text-white rounded-lg hover:bg-primary-700 dark:hover:opacity-90 disabled:opacity-50 font-semibold transition-colors"
           >
             {submitting ? 'Posting...' : 'Post Comment'}
           </button>

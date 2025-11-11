@@ -126,7 +126,7 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
         <Navigation currentPage="dashboard" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <DashboardSkeleton />
@@ -138,23 +138,23 @@ export default function DashboardPage() {
   const activeSubscriptions = subscriptions.filter(sub => sub.is_active)
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
       <Navigation currentPage="dashboard" />
 
       {/* Dashboard Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">My Dashboard</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your subscriptions and training progress</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-2">My Dashboard</h1>
+          <p className="text-gray-600 dark:text-gray-300">Manage your subscriptions and training progress</p>
         </div>
 
         {/* Active Subscriptions */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+        <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Active Subscriptions</h2>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Active Subscriptions</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {activeSubscriptions.length} active {activeSubscriptions.length === 1 ? 'subscription' : 'subscriptions'}
                 </p>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-heading">
                               {subscription.course_title}
                             </h3>
                             {progress && progress.completion_percentage === 100 && (
@@ -234,11 +234,11 @@ export default function DashboardPage() {
                 <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No Active Subscriptions</h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Start your Muay Thai journey today!</p>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-heading mb-2">No Active Subscriptions</h3>
+                <p className="text-gray-600 dark:text-gray-300 mb-4">Start your Muay Thai journey today!</p>
                 <Link
                   href="/"
-                  className="inline-block px-6 py-3 bg-primary-600 dark:bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
+                  className="inline-block px-6 py-3 bg-primary-600 dark:bg-dark-button text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:opacity-90 transition-colors"
                 >
                   Browse Courses
                 </Link>
@@ -249,10 +249,10 @@ export default function DashboardPage() {
 
         {/* Continue Watching */}
         {recentlyWatched.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+          <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Continue Watching</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Pick up where you left off</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Continue Watching</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Pick up where you left off</p>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -290,7 +290,7 @@ export default function DashboardPage() {
                         {/* Lesson info */}
                         <div className="flex-1 min-w-0">
                           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">{item.course_title}</div>
-                          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1 truncate">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate">
                             Lesson {item.lesson_order}: {item.lesson_title}
                           </h3>
 
@@ -331,10 +331,10 @@ export default function DashboardPage() {
 
         {/* Achievements */}
         {badges.length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+          <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Achievements</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Achievements</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                 {badges.filter(b => b.earned).length} of {badges.length} badges earned
               </p>
             </div>
@@ -365,10 +365,10 @@ export default function DashboardPage() {
 
                       {/* Badge details */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
                           {badge.name}
                         </h3>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                        <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
                           {badge.description}
                         </p>
 
@@ -408,9 +408,9 @@ export default function DashboardPage() {
 
         {/* Inactive Subscriptions */}
         {subscriptions.filter(sub => !sub.is_active).length > 0 && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8">
+          <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Past Subscriptions</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Past Subscriptions</h2>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -421,10 +421,10 @@ export default function DashboardPage() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1">
+                        <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-1">
                           {subscription.course_title}
                         </h3>
-                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                           <span className="inline-flex items-center px-2 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded text-xs font-semibold">
                             {subscription.status.toUpperCase()}
                           </span>
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                       </div>
                       <Link
                         href={`/courses/${subscription.course_slug}`}
-                        className="px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white text-sm font-semibold rounded hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
+                        className="px-4 py-2 bg-primary-600 dark:bg-dark-button text-white text-sm font-semibold rounded hover:bg-primary-700 dark:hover:opacity-90 transition-colors"
                       >
                         Resubscribe
                       </Link>
@@ -450,13 +450,13 @@ export default function DashboardPage() {
 
         {/* Referral Program */}
         {referralStats && (
-          <div className="bg-gradient-to-br from-primary-50 to-orange-50 dark:from-gray-800 dark:to-gray-800 rounded-lg shadow mb-8 overflow-hidden border border-primary-200 dark:border-primary-900">
-            <div className="p-6 border-b border-primary-200 dark:border-primary-900 bg-white/50 dark:bg-gray-800/50">
+          <div className="bg-gradient-to-br from-primary-50 to-orange-50 dark:from-dark-bg dark:to-dark-bg rounded-lg shadow mb-8 overflow-hidden border border-primary-200 dark:border-gray-700">
+            <div className="p-6 border-b border-primary-200 dark:border-gray-700 bg-white/50 dark:bg-transparent">
               <div className="flex items-center gap-3">
                 <div className="text-3xl">🎁</div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Referral Program</h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Referral Program</h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                     Earn $10 credit for every friend who subscribes
                   </p>
                 </div>
@@ -478,7 +478,7 @@ export default function DashboardPage() {
                   />
                   <button
                     onClick={handleCopyLink}
-                    className="px-4 py-2 bg-primary-600 dark:bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors flex items-center gap-2"
+                    className="px-4 py-2 bg-primary-600 dark:bg-dark-button text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:opacity-90 transition-colors flex items-center gap-2"
                   >
                     {copiedCode ? (
                       <>
@@ -560,22 +560,22 @@ export default function DashboardPage() {
 
               {/* How it works */}
               <div className="bg-white dark:bg-gray-900 rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">How It Works</h3>
-                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">How It Works</h3>
+                <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-start gap-2">
-                    <span className="text-primary-600 dark:text-primary-400 font-bold">1.</span>
+                    <span className="text-primary-600 dark:text-dark-heading font-bold">1.</span>
                     <span>Share your referral link with friends</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-primary-600 dark:text-primary-400 font-bold">2.</span>
+                    <span className="text-primary-600 dark:text-dark-heading font-bold">2.</span>
                     <span>They get 20% off their first month</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-primary-600 dark:text-primary-400 font-bold">3.</span>
+                    <span className="text-primary-600 dark:text-dark-heading font-bold">3.</span>
                     <span>You earn $10 credit when they subscribe</span>
                   </div>
                   <div className="flex items-start gap-2">
-                    <span className="text-primary-600 dark:text-primary-400 font-bold">4.</span>
+                    <span className="text-primary-600 dark:text-dark-heading font-bold">4.</span>
                     <span>Credits automatically apply to your next payment</span>
                   </div>
                 </div>
@@ -588,42 +588,42 @@ export default function DashboardPage() {
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link
             href="/"
-            className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow"
+            className="p-6 bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow"
           >
             <div className="flex items-center mb-3">
-              <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-primary-600 dark:text-dark-heading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Browse Courses</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Explore all available training programs</p>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Browse Courses</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">Explore all available training programs</p>
           </Link>
 
           {activeSubscriptions.length > 0 && (
             <button
               onClick={handleManageBilling}
               disabled={redirectingToPortal}
-              className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow text-left disabled:opacity-50"
+              className="p-6 bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow hover:shadow-lg transition-shadow text-left disabled:opacity-50"
             >
               <div className="flex items-center mb-3">
-                <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-8 h-8 text-primary-600 dark:text-dark-heading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Billing & Payments</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Update payment method or view invoices</p>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Billing & Payments</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Update payment method or view invoices</p>
             </button>
           )}
 
-          <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+          <div className="p-6 bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
             <div className="flex items-center mb-3">
-              <svg className="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-8 h-8 text-primary-600 dark:text-dark-heading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Training Progress</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Training Progress</h3>
             {courseProgress.length > 0 ? (
-              <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className="text-sm text-gray-600 dark:text-gray-300">
                 <p className="mb-2">
                   {courseProgress.reduce((sum, p) => sum + p.completed_lessons, 0)} total lessons completed
                 </p>
@@ -632,7 +632,7 @@ export default function DashboardPage() {
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-gray-600 dark:text-gray-400">Start watching lessons to track your progress</p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">Start watching lessons to track your progress</p>
             )}
           </div>
         </div>

@@ -22,11 +22,11 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
   }
 
   return (
-    <nav className="bg-white dark:bg-gray-800 shadow-sm">
+    <nav className="bg-white dark:bg-dark-bg shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-gray-100">
+            <Link href="/" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-dark-heading">
               Dieselnoi Muay Thai
             </Link>
           </div>
@@ -88,7 +88,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                 <span className="text-gray-700 dark:text-gray-300">Welcome, {user.username}</span>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-primary-500 rounded-md hover:bg-primary-700 dark:hover:bg-primary-600"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-dark-button rounded-md hover:bg-primary-700 dark:hover:opacity-90"
                 >
                   Logout
                 </button>
@@ -104,7 +104,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                 </button>
                 <button
                   onClick={() => router.push('/signup')}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-primary-500 rounded-md hover:bg-primary-700 dark:hover:bg-primary-600"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-dark-button rounded-md hover:bg-primary-700 dark:hover:opacity-90"
                 >
                   Sign Up
                 </button>
@@ -143,14 +143,14 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                   </div>
                   <Link
                     href="/"
-                    className={`block px-4 py-2 ${currentPage === 'home' ? 'text-primary-600 dark:text-primary-400 font-semibold' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                    className={`block px-4 py-2 ${currentPage === 'home' ? 'text-primary-600 dark:text-dark-heading font-semibold' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-opacity-10`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Browse Courses
                   </Link>
                   <Link
                     href="/dashboard"
-                    className={`block px-4 py-2 ${currentPage === 'dashboard' ? 'text-primary-600 dark:text-primary-400 font-semibold' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-gray-700`}
+                    className={`block px-4 py-2 ${currentPage === 'dashboard' ? 'text-primary-600 dark:text-dark-heading font-semibold' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-opacity-10`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Dashboard
@@ -160,14 +160,14 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                       <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                       <Link
                         href="/admin/analytics"
-                        className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Analytics
                       </Link>
                       <Link
                         href="/admin/upload-video"
-                        className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         Upload Video
@@ -176,7 +176,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                         href="http://localhost:8000/admin/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
                       >
                         Django Admin
                       </a>
@@ -185,7 +185,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                   <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
                   >
                     Logout
                   </button>
@@ -197,7 +197,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                       setMobileMenuOpen(false)
                       router.push('/login')
                     }}
-                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
                   >
                     Login
                   </button>
@@ -206,7 +206,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                       setMobileMenuOpen(false)
                       router.push('/signup')
                     }}
-                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="block w-full text-left px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
                   >
                     Sign Up
                   </button>

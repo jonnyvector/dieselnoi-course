@@ -146,7 +146,7 @@ export default function CourseDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
         <Navigation currentPage="course" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <LessonListSkeleton count={5} />
@@ -157,7 +157,7 @@ export default function CourseDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
           <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Course</h3>
           <p className="text-red-700 dark:text-red-300">{error}</p>
@@ -188,11 +188,11 @@ export default function CourseDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
       <Navigation currentPage="course" />
 
       {/* Course Header */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Link href="/" className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-4 inline-block">
             ← Back to Courses
@@ -213,10 +213,10 @@ export default function CourseDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-dark-heading mb-4">
                 {course.title}
               </h1>
-              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-3xl">
+              <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl">
                 {course.description}
               </p>
               {course.average_rating && (
@@ -249,9 +249,9 @@ export default function CourseDetailPage() {
             </div>
             <div className="lg:text-right">
               <div className="space-y-3">
-                <div className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-primary-400">
+                <div className="text-2xl sm:text-3xl font-bold text-primary-600 dark:text-dark-heading">
                   ${course.price}
-                  <span className="text-sm text-gray-600 dark:text-gray-400 font-normal">/month</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300 font-normal">/month</span>
                 </div>
 
                 {/* Pricing breakdown for new subscribers */}
@@ -307,7 +307,7 @@ export default function CourseDetailPage() {
                   <button
                     onClick={handleSubscribe}
                     disabled={subscribing}
-                    className="w-full sm:w-auto px-6 py-3 bg-primary-600 dark:bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full sm:w-auto px-6 py-3 bg-primary-600 dark:bg-dark-button text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {subscribing ? 'Redirecting...' : 'Subscribe Now'}
                   </button>
@@ -335,9 +335,9 @@ export default function CourseDetailPage() {
 
       {/* Lessons List */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Course Lessons</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-heading mb-6">Course Lessons</h2>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow overflow-hidden">
           {course.lessons && course.lessons.length > 0 ? (
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {course.lessons.map((lesson, index) => (
@@ -483,8 +483,8 @@ export default function CourseDetailPage() {
         {/* Course Resources Section */}
         {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) && course.resources && course.resources.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Course Resources</h2>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-heading mb-6">Course Resources</h2>
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
               <ResourceList resources={course.resources} />
             </div>
           </div>
@@ -495,7 +495,7 @@ export default function CourseDetailPage() {
           <div className="mt-12">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Student Reviews</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-dark-heading">Student Reviews</h2>
                 {course.average_rating && (
                   <div className="flex items-center gap-2 mt-2">
                     <StarRating rating={parseFloat(course.average_rating.toString())} size="sm" />
@@ -513,7 +513,7 @@ export default function CourseDetailPage() {
               {progress && progress.completion_percentage >= 50 && (
                 <button
                   onClick={() => setShowReviewModal(true)}
-                  className="w-full sm:w-auto px-6 py-2 bg-primary-600 dark:bg-primary-500 text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
+                  className="w-full sm:w-auto px-6 py-2 bg-primary-600 dark:bg-dark-button text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:opacity-90 transition-colors"
                 >
                   {course.user_review ? 'Edit Review' : 'Write a Review'}
                 </button>

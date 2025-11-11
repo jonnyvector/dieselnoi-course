@@ -197,7 +197,7 @@ export default function LessonDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
         <Navigation currentPage="lesson" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <VideoPlayerSkeleton />
@@ -211,7 +211,7 @@ export default function LessonDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
           <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Lesson</h3>
           <p className="text-red-700 dark:text-red-300">{error}</p>
@@ -231,7 +231,7 @@ export default function LessonDetailPage() {
   const isLocked = lesson.is_locked
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
       <Navigation currentPage="lesson" />
 
       {/* Lesson Content */}
@@ -352,7 +352,7 @@ export default function LessonDetailPage() {
         </div>
 
         {/* Lesson Info */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md p-8">
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-3">
@@ -370,17 +370,17 @@ export default function LessonDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-2">
                 {lesson.title}
               </h1>
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-gray-600 dark:text-gray-300">
               {lesson.duration_minutes} minutes
             </div>
           </div>
 
           <div className="prose max-w-none">
-            <p className="text-gray-600 dark:text-gray-400 text-lg">
+            <p className="text-gray-600 dark:text-gray-300 text-lg">
               {lesson.description}
             </p>
           </div>

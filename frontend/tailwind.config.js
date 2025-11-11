@@ -21,6 +21,11 @@ module.exports = {
           800: '#991b1b',
           900: '#7f1d1d',
         },
+        dark: {
+          bg: '#272727',
+          button: '#5f4891',
+          heading: '#D6B84A',
+        },
       },
     },
   },

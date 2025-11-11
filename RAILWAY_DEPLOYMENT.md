@@ -43,7 +43,7 @@ git push origin master
 3. Database credentials are automatically added to backend environment variables
 
 ### 4c. Set Backend Environment Variables
-Click on backend service → "Variables" → Add these:
+Click on backend service → "Variables" → Add these:\
 
 ```
 DEBUG=False
