@@ -134,7 +134,7 @@ export default function AdminUploadVideoPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl text-gray-900 dark:text-dark-heading mb-2">
+          <h1 className="text-3xl mb-2">
             Upload Video to Lesson
           </h1>
           <p className="text-gray-600 dark:text-gray-300">
@@ -158,7 +158,7 @@ export default function AdminUploadVideoPage() {
 
         {/* Course and Lesson Selection */}
         <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-heading mb-4">
+          <h2 className="text-xl font-semibold mb-4">
             Step 1: Select Lesson
           </h2>
 
@@ -226,7 +226,7 @@ export default function AdminUploadVideoPage() {
         {/* Upload Component */}
         {uploadUrl && (
           <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-xl font-semibold mb-4">
               Step 2: Upload Video File
             </h2>
 

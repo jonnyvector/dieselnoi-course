@@ -76,7 +76,7 @@ function SubscriptionSuccessContent() {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl text-gray-900 mb-4">
+          <h1 className="text-4xl mb-4">
             Welcome to Dieselnoi Muay Thai! 🥊
           </h1>
 
@@ -87,7 +87,7 @@ function SubscriptionSuccessContent() {
 
           {/* What's Next Section */}
           <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold mb-4">
               🎯 What&apos;s Next?
             </h2>
             <ul className="space-y-3">

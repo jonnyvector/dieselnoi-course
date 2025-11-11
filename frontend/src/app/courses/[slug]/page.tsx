@@ -159,7 +159,7 @@ export default function CourseDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
-          <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Course</h3>
+          <h3 className="font-semibold mb-2">Error Loading Course</h3>
           <p className="text-red-700 dark:text-red-300">{error}</p>
           <button
             onClick={() => router.push('/')}
@@ -213,7 +213,7 @@ export default function CourseDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl text-gray-900 dark:text-dark-heading mb-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl mb-4">
                 {course.title}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl">
@@ -335,7 +335,7 @@ export default function CourseDetailPage() {
 
       {/* Lessons List */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-2xl text-gray-900 dark:text-dark-heading mb-6">Course Lessons</h2>
+        <h2 className="text-2xl mb-6">Course Lessons</h2>
 
         <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow overflow-hidden">
           {course.lessons && course.lessons.length > 0 ? (
@@ -376,7 +376,7 @@ export default function CourseDetailPage() {
                               {lesson.duration_minutes} min
                             </span>
                           </div>
-                          <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                          <h3 className="text-base font-semibold mb-1">
                             {lesson.title}
                           </h3>
                         </div>
@@ -418,7 +418,7 @@ export default function CourseDetailPage() {
                             </span>
                           )}
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                        <h3 className="text-lg font-semibold mb-2">
                           {lesson.title}
                         </h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -483,7 +483,7 @@ export default function CourseDetailPage() {
         {/* Course Resources Section */}
         {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) && course.resources && course.resources.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl text-gray-900 dark:text-dark-heading mb-6">Course Resources</h2>
+            <h2 className="text-2xl mb-6">Course Resources</h2>
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
               <ResourceList resources={course.resources} />
             </div>
@@ -495,7 +495,7 @@ export default function CourseDetailPage() {
           <div className="mt-12">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-xl sm:text-2xl text-gray-900 dark:text-dark-heading">Student Reviews</h2>
+                <h2 className="text-xl sm:text-2xl">Student Reviews</h2>
                 {course.average_rating && (
                   <div className="flex items-center gap-2 mt-2">
                     <StarRating rating={parseFloat(course.average_rating.toString())} size="sm" />

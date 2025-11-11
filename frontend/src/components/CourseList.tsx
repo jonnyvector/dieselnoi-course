@@ -58,7 +58,7 @@ export default function CourseList() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold text-gray-900">Available Courses</h2>
+        <h2 className="text-2xl font-bold">Available Courses</h2>
         <CourseListSkeleton count={3} />
       </div>
     )
@@ -67,7 +67,7 @@ export default function CourseList() {
   if (error) {
     return (
       <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-        <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Courses</h3>
+        <h3 className="font-semibold mb-2">Error Loading Courses</h3>
         <p className="text-red-700 dark:text-red-300">{error}</p>
         <button
           onClick={() => window.location.reload()}
@@ -102,7 +102,7 @@ export default function CourseList() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl text-gray-900 dark:text-dark-heading">Available Courses</h2>
+      <h2 className="text-2xl">Available Courses</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
@@ -140,7 +140,7 @@ export default function CourseList() {
                 </span>
               </div>
 
-              <h3 className="text-lg sm:text-xl text-gray-900 dark:text-dark-heading mb-2">
+              <h3 className="text-lg sm:text-xl mb-2">
                 {course.title}
               </h3>
 

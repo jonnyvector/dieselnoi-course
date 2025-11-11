@@ -145,7 +145,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl text-gray-900 dark:text-dark-heading mb-2">My Dashboard</h1>
+          <h1 className="text-3xl mb-2">My Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-300">Manage your subscriptions and training progress</p>
         </div>
 
@@ -154,7 +154,7 @@ export default function DashboardPage() {
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl text-gray-900 dark:text-dark-heading">Active Subscriptions</h2>
+                <h2 className="text-xl">Active Subscriptions</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {activeSubscriptions.length} active {activeSubscriptions.length === 1 ? 'subscription' : 'subscriptions'}
                 </p>
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-heading">
+                            <h3 className="text-lg font-semibold">
                               {subscription.course_title}
                             </h3>
                             {progress && progress.completion_percentage === 100 && (
@@ -234,7 +234,7 @@ export default function DashboardPage() {
                 <svg className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-dark-heading mb-2">No Active Subscriptions</h3>
+                <h3 className="text-lg font-semibold mb-2">No Active Subscriptions</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">Start your Muay Thai journey today!</p>
                 <Link
                   href="/"
@@ -251,7 +251,7 @@ export default function DashboardPage() {
         {recentlyWatched.length > 0 && (
           <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl text-gray-900 dark:text-dark-heading">Continue Watching</h2>
+              <h2 className="text-xl">Continue Watching</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Pick up where you left off</p>
             </div>
             <div className="p-6">
@@ -290,7 +290,7 @@ export default function DashboardPage() {
                         {/* Lesson info */}
                         <div className="flex-1 min-w-0">
                           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 truncate">{item.course_title}</div>
-                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1 truncate">
+                          <h3 className="text-sm font-semibold mb-1 truncate">
                             Lesson {item.lesson_order}: {item.lesson_title}
                           </h3>
 
@@ -333,7 +333,7 @@ export default function DashboardPage() {
         {badges.length > 0 && (
           <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl text-gray-900 dark:text-dark-heading">Achievements</h2>
+              <h2 className="text-xl">Achievements</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                 {badges.filter(b => b.earned).length} of {badges.length} badges earned
               </p>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
 
                       {/* Badge details */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                        <h3 className="font-semibold mb-1">
                           {badge.name}
                         </h3>
                         <p className="text-xs text-gray-600 dark:text-gray-300 mb-2">
@@ -410,7 +410,7 @@ export default function DashboardPage() {
         {subscriptions.filter(sub => !sub.is_active).length > 0 && (
           <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl text-gray-900 dark:text-dark-heading">Past Subscriptions</h2>
+              <h2 className="text-xl">Past Subscriptions</h2>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -421,7 +421,7 @@ export default function DashboardPage() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-700 dark:text-white mb-1">
+                        <h3 className="text-lg font-semibold mb-1">
                           {subscription.course_title}
                         </h3>
                         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
@@ -455,7 +455,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <div className="text-3xl">🎁</div>
                 <div>
-                  <h2 className="text-xl text-gray-900 dark:text-dark-heading">Referral Program</h2>
+                  <h2 className="text-xl">Referral Program</h2>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                     Earn $10 credit for every friend who subscribes
                   </p>
@@ -560,7 +560,7 @@ export default function DashboardPage() {
 
               {/* How it works */}
               <div className="bg-white dark:bg-[#5f4891]/10 rounded-lg p-4 border border-gray-200 dark:border-[#5f4891]/40">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">How It Works</h3>
+                <h3 className="text-sm font-semibold mb-3">How It Works</h3>
                 <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-start gap-2">
                     <span className="text-primary-600 dark:text-dark-heading font-bold">1.</span>
@@ -595,7 +595,7 @@ export default function DashboardPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Browse Courses</h3>
+            <h3 className="text-lg font-semibold mb-1">Browse Courses</h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">Explore all available training programs</p>
           </Link>
 
@@ -610,7 +610,7 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Billing & Payments</h3>
+              <h3 className="text-lg font-semibold mb-1">Billing & Payments</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">Update payment method or view invoices</p>
             </button>
           )}
@@ -621,7 +621,7 @@ export default function DashboardPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Training Progress</h3>
+            <h3 className="text-lg font-semibold mb-1">Training Progress</h3>
             {courseProgress.length > 0 ? (
               <div className="text-sm text-gray-600 dark:text-gray-300">
                 <p className="mb-2">

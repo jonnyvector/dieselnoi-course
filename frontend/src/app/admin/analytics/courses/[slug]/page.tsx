@@ -135,7 +135,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
           >
             ← Back to Analytics
           </button>
-          <h1 className="text-3xl text-gray-900 dark:text-dark-heading">
+          <h1 className="text-3xl">
             {data.course.title}
           </h1>
           <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
@@ -177,7 +177,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Subscriber Trend */}
           <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
-            <h2 className="text-xl text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-xl mb-4">
               Active Subscribers (Last 30 Days)
             </h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -218,7 +218,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
 
           {/* Revenue Trend */}
           <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
-            <h2 className="text-xl text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-xl mb-4">
               MRR Trend (Last 30 Days)
             </h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -252,7 +252,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         {/* Lesson Performance Table */}
         <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow mb-8 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl text-gray-900 dark:text-dark-heading">
+            <h2 className="text-xl">
               Lesson Performance
             </h2>
           </div>
@@ -355,7 +355,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         {/* Recent User Activity */}
         <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl text-gray-900 dark:text-dark-heading">
+            <h2 className="text-xl">
               Recent User Activity
             </h2>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">

@@ -151,7 +151,7 @@ export default function Home() {
       <section className="py-16 bg-gray-50 dark:bg-dark-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-3xl sm:text-4xl mb-4">
               What Students Say
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -236,7 +236,7 @@ export default function Home() {
       <section className="py-16 bg-white dark:bg-dark-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-3xl sm:text-4xl mb-4">
               Why Choose Dieselnoi Training
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -251,7 +251,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-xl text-gray-900 dark:text-dark-heading mb-2">Structured Curriculum</h3>
+              <h3 className="text-xl mb-2">Structured Curriculum</h3>
               <p className="text-gray-600 dark:text-gray-400">Beginner to advanced paths with clear progression</p>
             </div>
 
@@ -261,7 +261,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl text-gray-900 dark:text-dark-heading mb-2">HD Video Lessons</h3>
+              <h3 className="text-xl mb-2">HD Video Lessons</h3>
               <p className="text-gray-600 dark:text-gray-400">Crystal clear instruction from every angle</p>
             </div>
 
@@ -271,7 +271,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
               </div>
-              <h3 className="text-xl text-gray-900 dark:text-dark-heading mb-2">Track Progress</h3>
+              <h3 className="text-xl mb-2">Track Progress</h3>
               <p className="text-gray-600 dark:text-gray-400">Earn badges and certificates as you advance</p>
             </div>
 
@@ -281,7 +281,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl text-gray-900 dark:text-dark-heading mb-2">Train Anytime</h3>
+              <h3 className="text-xl mb-2">Train Anytime</h3>
               <p className="text-gray-600 dark:text-gray-400">Learn at your own pace, on your schedule</p>
             </div>
           </div>
@@ -292,7 +292,7 @@ export default function Home() {
       <section id="courses" className="py-16 bg-gray-50 dark:bg-dark-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-3xl sm:text-4xl mb-4">
               Available Courses
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -308,7 +308,7 @@ export default function Home() {
       <section className="py-16 bg-white dark:bg-dark-bg">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl text-gray-900 dark:text-dark-heading mb-4">
+            <h2 className="text-3xl sm:text-4xl mb-4">
               Frequently Asked Questions
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
@@ -483,13 +483,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-white text-lg mb-4">Dieselnoi Muay Thai</h3>
+              <h3 className="text-lg mb-4">Dieselnoi Muay Thai</h3>
               <p className="text-sm">
                 Authentic Golden Era training from the legendary Sky-Piercing Knee Striker
               </p>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Platform</h4>
+              <h4 className="font-semibold mb-4">Platform</h4>
               <ul className="space-y-2 text-sm">
                 <li><Link href="/" className="hover:text-white transition-colors">Browse Courses</Link></li>
                 <li><Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
@@ -497,7 +497,7 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Support</h4>
+              <h4 className="font-semibold mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
                 <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
@@ -505,7 +505,7 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
+              <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>

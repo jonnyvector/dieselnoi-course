@@ -213,7 +213,7 @@ export default function LessonDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
-          <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Error Loading Lesson</h3>
+          <h3 className="font-semibold mb-2">Error Loading Lesson</h3>
           <p className="text-red-700 dark:text-red-300">{error}</p>
           <button
             onClick={() => router.push(`/courses/${params.slug}`)}
@@ -370,7 +370,7 @@ export default function LessonDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl text-gray-900 dark:text-dark-heading mb-2">
+              <h1 className="text-3xl mb-2">
                 {lesson.title}
               </h1>
             </div>
@@ -387,7 +387,7 @@ export default function LessonDetailPage() {
 
           {/* Additional lesson content could go here */}
           <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">About this lesson</h3>
+            <h3 className="text-lg font-semibold mb-4">About this lesson</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-600 dark:text-gray-400">Duration:</span>
@@ -411,7 +411,7 @@ export default function LessonDetailPage() {
               >
                 <div className="flex-1">
                   <p className="text-sm text-primary-600 dark:text-primary-400 font-semibold mb-1">UP NEXT</p>
-                  <h3 className="text-lg text-gray-900 dark:text-gray-100 mb-1">{nextLesson.title}</h3>
+                  <h3 className="text-lg mb-1">{nextLesson.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{nextLesson.duration_minutes} minutes</p>
                 </div>
                 <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300">

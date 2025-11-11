@@ -18,7 +18,7 @@ export default function SubscriptionCancelledPage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl text-gray-900 mb-4">
+          <h1 className="text-4xl mb-4">
             Checkout Cancelled
           </h1>
 
@@ -29,7 +29,7 @@ export default function SubscriptionCancelledPage() {
 
           {/* Reassurance Section */}
           <div className="bg-blue-50 rounded-xl p-6 mb-8 text-left">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold mb-4">
               💡 Still Interested?
             </h2>
             <ul className="space-y-3">

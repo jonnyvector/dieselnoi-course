@@ -35,7 +35,7 @@ export default function ResourceList({ resources }: ResourceListProps) {
                 <FileTextIcon className="w-6 h-6 text-red-600 dark:text-red-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 dark:text-white text-base sm:text-lg mb-1">
+                <h3 className="font-semibold text-base sm:text-lg mb-1">
                   {resource.title}
                 </h3>
                 {resource.description && (

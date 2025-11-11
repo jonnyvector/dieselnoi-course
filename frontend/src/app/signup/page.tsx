@@ -88,7 +88,7 @@ function SignupContent() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl text-gray-900 dark:text-dark-heading">
+          <h2 className="mt-6 text-center text-3xl">
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
@@ -109,7 +109,7 @@ function SignupContent() {
                 </svg>
               </div>
               <div className="ml-3 flex-1">
-                <h3 className="text-sm font-semibold text-green-900">
+                <h3 className="text-sm font-semibold">
                   🎁 Special Referral Discount Applied!
                 </h3>
                 <div className="mt-2 text-sm text-green-800">
