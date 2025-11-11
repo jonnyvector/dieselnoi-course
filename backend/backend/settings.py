@@ -197,13 +197,13 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 ).split(',')
 
 # Session and Cookie Settings (for mobile compatibility)
-SESSION_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'  # None required for cross-origin in production
+SESSION_COOKIE_SECURE = not DEBUG  # True in production (HTTPS required)
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 1209600  # 2 weeks in seconds
 SESSION_SAVE_EVERY_REQUEST = True  # Extend session on every request
-CSRF_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'  # None required for cross-origin in production
+CSRF_COOKIE_SECURE = not DEBUG  # True in production (HTTPS required)
 
 
 # Stripe Configuration

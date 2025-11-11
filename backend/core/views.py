@@ -725,8 +725,20 @@ class GetCSRFToken(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        from django.middleware.csrf import get_token
-        return Response({'csrfToken': get_token(request)})
+        from django.middleware.csrf import get_token, rotate_token
+        # Ensure CSRF cookie is set and get the token
+        csrf_token = get_token(request)
+        response = Response({'csrfToken': csrf_token})
+        # Explicitly set the CSRF cookie in the response
+        response.set_cookie(
+            key='csrftoken',
+            value=csrf_token,
+            max_age=31449600,  # 1 year
+            secure=settings.CSRF_COOKIE_SECURE,
+            httponly=False,  # Must be False so JavaScript can read it
+            samesite=settings.CSRF_COOKIE_SAMESITE
+        )
+        return response
 
 
 class CreateCheckoutSessionView(APIView):
