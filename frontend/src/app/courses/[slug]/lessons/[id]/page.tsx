@@ -286,7 +286,7 @@ export default function LessonDetailPage() {
               <svg className="w-16 h-16 mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
               </svg>
-              <h3 className="text-2xl font-bold mb-2">This lesson is locked</h3>
+              <h3 className="text-2xl mb-2">This lesson is locked</h3>
               {lesson.unlock_date ? (
                 <p className="text-gray-400 mb-6 text-center">
                   This lesson will unlock on{' '}
@@ -370,7 +370,7 @@ export default function LessonDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-2">
+              <h1 className="text-3xl text-gray-900 dark:text-dark-heading mb-2">
                 {lesson.title}
               </h1>
             </div>
@@ -411,7 +411,7 @@ export default function LessonDetailPage() {
               >
                 <div className="flex-1">
                   <p className="text-sm text-primary-600 dark:text-primary-400 font-semibold mb-1">UP NEXT</p>
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-1">{nextLesson.title}</h3>
+                  <h3 className="text-lg text-gray-900 dark:text-gray-100 mb-1">{nextLesson.title}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{nextLesson.duration_minutes} minutes</p>
                 </div>
                 <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400 group-hover:text-primary-700 dark:group-hover:text-primary-300">

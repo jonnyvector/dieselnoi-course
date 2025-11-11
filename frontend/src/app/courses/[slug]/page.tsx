@@ -213,7 +213,7 @@ export default function CourseDetailPage() {
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-dark-heading mb-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl text-gray-900 dark:text-dark-heading mb-4">
                 {course.title}
               </h1>
               <p className="text-base sm:text-lg text-gray-600 dark:text-gray-300 max-w-3xl">
@@ -335,7 +335,7 @@ export default function CourseDetailPage() {
 
       {/* Lessons List */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-heading mb-6">Course Lessons</h2>
+        <h2 className="text-2xl text-gray-900 dark:text-dark-heading mb-6">Course Lessons</h2>
 
         <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow overflow-hidden">
           {course.lessons && course.lessons.length > 0 ? (
@@ -483,7 +483,7 @@ export default function CourseDetailPage() {
         {/* Course Resources Section */}
         {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) && course.resources && course.resources.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-dark-heading mb-6">Course Resources</h2>
+            <h2 className="text-2xl text-gray-900 dark:text-dark-heading mb-6">Course Resources</h2>
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
               <ResourceList resources={course.resources} />
             </div>
@@ -495,7 +495,7 @@ export default function CourseDetailPage() {
           <div className="mt-12">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-dark-heading">Student Reviews</h2>
+                <h2 className="text-xl sm:text-2xl text-gray-900 dark:text-dark-heading">Student Reviews</h2>
                 {course.average_rating && (
                   <div className="flex items-center gap-2 mt-2">
                     <StarRating rating={parseFloat(course.average_rating.toString())} size="sm" />

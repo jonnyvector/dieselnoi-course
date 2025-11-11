@@ -145,7 +145,7 @@ export default function DashboardPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-2">My Dashboard</h1>
+          <h1 className="text-3xl text-gray-900 dark:text-dark-heading mb-2">My Dashboard</h1>
           <p className="text-gray-600 dark:text-gray-300">Manage your subscriptions and training progress</p>
         </div>
 
@@ -154,7 +154,7 @@ export default function DashboardPage() {
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Active Subscriptions</h2>
+                <h2 className="text-xl text-gray-900 dark:text-dark-heading">Active Subscriptions</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {activeSubscriptions.length} active {activeSubscriptions.length === 1 ? 'subscription' : 'subscriptions'}
                 </p>
@@ -251,7 +251,7 @@ export default function DashboardPage() {
         {recentlyWatched.length > 0 && (
           <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Continue Watching</h2>
+              <h2 className="text-xl text-gray-900 dark:text-dark-heading">Continue Watching</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Pick up where you left off</p>
             </div>
             <div className="p-6">
@@ -333,7 +333,7 @@ export default function DashboardPage() {
         {badges.length > 0 && (
           <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Achievements</h2>
+              <h2 className="text-xl text-gray-900 dark:text-dark-heading">Achievements</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                 {badges.filter(b => b.earned).length} of {badges.length} badges earned
               </p>
@@ -410,7 +410,7 @@ export default function DashboardPage() {
         {subscriptions.filter(sub => !sub.is_active).length > 0 && (
           <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Past Subscriptions</h2>
+              <h2 className="text-xl text-gray-900 dark:text-dark-heading">Past Subscriptions</h2>
             </div>
             <div className="p-6">
               <div className="space-y-4">
@@ -455,7 +455,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <div className="text-3xl">🎁</div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">Referral Program</h2>
+                  <h2 className="text-xl text-gray-900 dark:text-dark-heading">Referral Program</h2>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
                     Earn $10 credit for every friend who subscribes
                   </p>

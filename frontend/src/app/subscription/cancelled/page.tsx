@@ -18,7 +18,7 @@ export default function SubscriptionCancelledPage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl text-gray-900 mb-4">
             Checkout Cancelled
           </h1>
 

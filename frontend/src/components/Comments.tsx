@@ -372,7 +372,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
 
   return (
     <div className="mt-8">
-      <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+      <h3 className="text-xl text-gray-900 dark:text-gray-100 mb-6">
         Comments {totalCount > 0 && `(${totalCount})`}
       </h3>
 

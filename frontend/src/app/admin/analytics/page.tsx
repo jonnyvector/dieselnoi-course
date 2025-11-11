@@ -142,7 +142,7 @@ export default function AdminAnalyticsPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-8">
+        <h1 className="text-3xl text-gray-900 dark:text-dark-heading mb-8">
           Analytics Dashboard
         </h1>
 
@@ -211,7 +211,7 @@ export default function AdminAnalyticsPage() {
         {/* Course Performance Table */}
         <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow mb-8 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">
+            <h2 className="text-xl text-gray-900 dark:text-dark-heading">
               Course Performance
             </h2>
           </div>
@@ -307,7 +307,7 @@ export default function AdminAnalyticsPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Daily Signups Chart */}
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading mb-4">
+              <h3 className="text-lg text-gray-900 dark:text-dark-heading mb-4">
                 Daily Signups (Last 30 Days)
               </h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -335,7 +335,7 @@ export default function AdminAnalyticsPage() {
 
             {/* Active Users Trend Chart */}
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading mb-4">
+              <h3 className="text-lg text-gray-900 dark:text-dark-heading mb-4">
                 Active Subscribers Trend (Last 30 Days)
               </h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -389,7 +389,7 @@ export default function AdminAnalyticsPage() {
             {/* Top Lessons by Watch Time */}
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading">
+                <h3 className="text-lg text-gray-900 dark:text-dark-heading">
                   Top Lessons by Watch Time
                 </h3>
               </div>
@@ -429,7 +429,7 @@ export default function AdminAnalyticsPage() {
             {/* Top Lessons by Comments */}
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading">
+                <h3 className="text-lg text-gray-900 dark:text-dark-heading">
                   Most Commented Lessons
                 </h3>
               </div>
@@ -469,7 +469,7 @@ export default function AdminAnalyticsPage() {
             {/* Highest Completion Lessons */}
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-green-600 dark:text-green-400">
+                <h3 className="text-lg text-green-600 dark:text-green-400">
                   Highest Completion Rates
                 </h3>
               </div>
@@ -509,7 +509,7 @@ export default function AdminAnalyticsPage() {
             {/* Highest Dropout Lessons */}
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-red-600 dark:text-red-400">
+                <h3 className="text-lg text-red-600 dark:text-red-400">
                   Highest Drop-off Rates
                 </h3>
               </div>
