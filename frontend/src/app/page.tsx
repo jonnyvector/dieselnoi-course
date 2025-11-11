@@ -15,16 +15,16 @@ export default function Home() {
       <Navigation currentPage="home" />
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-red-700 via-red-600 to-red-800 dark:from-red-900 dark:via-red-800 dark:to-black text-white overflow-hidden">
+      <section className="relative bg-gradient-to-br from-purple-900 via-purple-800 to-black dark:from-[#5f4891] dark:via-purple-900 dark:to-black text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute inset-0" style={{
-          backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23D6B84A\' fill-opacity=\'0.08\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")'
         }}></div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="text-center lg:text-left">
-              <div className="inline-block mb-4 px-4 py-2 bg-yellow-400 text-red-900 rounded-full text-sm font-bold">
+              <div className="inline-block mb-4 px-4 py-2 bg-yellow-400 text-purple-900 rounded-full text-sm font-bold">
                 🏆 Train with a Legend
               </div>
 
@@ -32,11 +32,11 @@ export default function Home() {
                 Master <span className="text-yellow-400">Golden Era</span> Muay Thai
               </h1>
 
-              <p className="text-xl sm:text-2xl mb-4 text-red-100">
+              <p className="text-xl sm:text-2xl mb-4 text-gray-100">
                 Learn from Dieselnoi Yodnayok - The Sky-Piercing Knee Striker
               </p>
 
-              <p className="text-lg mb-8 text-red-50">
+              <p className="text-lg mb-8 text-gray-200">
                 Champion of Lumpinee Stadium. Undefeated lightweight king. Master the techniques that dominated Thailand's golden era of Muay Thai.
               </p>
 
@@ -44,7 +44,7 @@ export default function Home() {
                 {user ? (
                   <Link
                     href="/dashboard"
-                    className="px-8 py-4 bg-yellow-400 text-red-900 font-bold rounded-lg text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg"
+                    className="px-8 py-4 bg-yellow-400 text-purple-900 font-bold rounded-lg text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg"
                   >
                     Go to Dashboard →
                   </Link>
@@ -52,13 +52,13 @@ export default function Home() {
                   <>
                     <Link
                       href="/signup"
-                      className="px-8 py-4 bg-yellow-400 text-red-900 font-bold rounded-lg text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg"
+                      className="px-8 py-4 bg-yellow-400 text-purple-900 font-bold rounded-lg text-lg hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-lg"
                     >
                       Start Training Now →
                     </Link>
                     <a
                       href="#courses"
-                      className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white text-white font-bold rounded-lg text-lg hover:bg-white/20 transition-all"
+                      className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-yellow-400 text-white font-bold rounded-lg text-lg hover:bg-white/20 transition-all"
                     >
                       View Courses
                     </a>
@@ -458,21 +458,21 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-red-600 to-red-800 dark:from-red-900 dark:to-black text-white">
+      <section className="py-20 bg-gradient-to-r from-purple-900 via-purple-800 to-black dark:from-[#5f4891] dark:to-black text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl sm:text-5xl mb-6">
             Ready to Begin Your Journey?
           </h2>
-          <p className="text-xl mb-8 text-red-100">
+          <p className="text-xl mb-8 text-gray-100">
             Join thousands of students learning authentic Muay Thai techniques from a living legend
           </p>
           <Link
             href="/signup"
-            className="inline-block px-10 py-5 bg-yellow-400 text-red-900 font-bold rounded-lg text-xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-2xl"
+            className="inline-block px-10 py-5 bg-yellow-400 text-purple-900 font-bold rounded-lg text-xl hover:bg-yellow-300 transition-all transform hover:scale-105 shadow-2xl"
           >
             Start Training Today →
           </Link>
-          <p className="mt-6 text-red-100">
+          <p className="mt-6 text-gray-100">
             30-day money-back guarantee • Cancel anytime • Secure payment
           </p>
         </div>
