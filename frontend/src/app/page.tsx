@@ -28,7 +28,7 @@ export default function Home() {
                 🏆 Train with a Legend
               </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl mb-6 leading-tight">
                 Master <span className="text-yellow-400">Golden Era</span> Muay Thai
               </h1>
 
@@ -460,7 +460,7 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-red-600 to-red-800 dark:from-red-900 dark:to-black text-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-extrabold mb-6">
+          <h2 className="text-4xl sm:text-5xl mb-6">
             Ready to Begin Your Journey?
           </h2>
           <p className="text-xl mb-8 text-red-100">
