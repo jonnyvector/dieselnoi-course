@@ -71,7 +71,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                       Upload Video
                     </Link>
                     <a
-                      href="http://localhost:8000/admin/"
+                      href={`${process.env.NEXT_PUBLIC_API_URL}/admin/`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1 text-gray-700 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 font-medium"
@@ -173,7 +173,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                         Upload Video
                       </Link>
                       <a
-                        href="http://localhost:8000/admin/"
+                        href={`${process.env.NEXT_PUBLIC_API_URL}/admin/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="block px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-opacity-10"
