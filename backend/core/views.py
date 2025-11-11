@@ -570,6 +570,8 @@ class RegisterView(APIView):
             RegistrationRateLimiter.record_registration(ip_address)
 
             # Log the user in immediately after registration
+            # Set the backend attribute required by login()
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
             login(request, user)
 
             # Track referral signup if code provided
