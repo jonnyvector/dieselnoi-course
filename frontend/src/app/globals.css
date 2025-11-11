@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Master of Reality';
+  src: url('/fonts/masterofreality.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

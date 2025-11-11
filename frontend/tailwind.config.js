@@ -27,6 +27,9 @@ module.exports = {
           heading: '#D6B84A',
         },
       },
+      fontFamily: {
+        'heading': ['"Master of Reality"', 'sans-serif'],
+      },
     },
   },
   plugins: [],
