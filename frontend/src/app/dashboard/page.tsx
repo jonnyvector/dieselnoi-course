@@ -450,8 +450,8 @@ export default function DashboardPage() {
 
         {/* Referral Program */}
         {referralStats && (
-          <div className="bg-gradient-to-br from-primary-50 to-orange-50 dark:from-dark-bg dark:to-dark-bg rounded-lg shadow mb-8 overflow-hidden border border-primary-200 dark:border-gray-700">
-            <div className="p-6 border-b border-primary-200 dark:border-gray-700 bg-white/50 dark:bg-transparent">
+          <div className="bg-gradient-to-br from-purple-50 to-yellow-50 dark:from-dark-bg dark:to-dark-bg rounded-lg shadow mb-8 overflow-hidden border border-[#5f4891]/30 dark:border-gray-700">
+            <div className="p-6 border-b border-[#5f4891]/30 dark:border-gray-700 bg-white/50 dark:bg-transparent">
               <div className="flex items-center gap-3">
                 <div className="text-3xl">🎁</div>
                 <div>
@@ -498,7 +498,7 @@ export default function DashboardPage() {
                   </button>
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
-                  Your referral code: <span className="font-mono font-bold text-primary-600 dark:text-primary-400">{referralStats.code}</span>
+                  Your referral code: <span className="font-mono font-bold text-[#5f4891] dark:text-[#D6B84A]">{referralStats.code}</span>
                 </p>
               </div>
 
@@ -541,11 +541,11 @@ export default function DashboardPage() {
               {/* Stats Grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white dark:bg-gray-900 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-primary-600 dark:text-primary-400">{referralStats.clicks}</div>
+                  <div className="text-2xl font-bold text-[#5f4891] dark:text-purple-400">{referralStats.clicks}</div>
                   <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Clicks</div>
                 </div>
                 <div className="bg-white dark:bg-gray-900 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{referralStats.signups}</div>
+                  <div className="text-2xl font-bold text-[#5f4891] dark:text-purple-400">{referralStats.signups}</div>
                   <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Signups</div>
                 </div>
                 <div className="bg-white dark:bg-gray-900 rounded-lg p-4 text-center">
@@ -553,7 +553,7 @@ export default function DashboardPage() {
                   <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Conversions</div>
                 </div>
                 <div className="bg-white dark:bg-gray-900 rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">${Number(referralStats.credits_available || 0).toFixed(2)}</div>
+                  <div className="text-2xl font-bold text-[#D6B84A] dark:text-[#D6B84A]">${Number(referralStats.credits_available || 0).toFixed(2)}</div>
                   <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">Available Credit</div>
                 </div>
               </div>
