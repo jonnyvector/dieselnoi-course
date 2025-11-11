@@ -29,6 +29,11 @@ const api = axios.create({
 // CSRF token management
 let csrfToken: string | null = null
 
+// Function to clear cached CSRF token (call after login/register)
+export const clearCSRFToken = () => {
+  csrfToken = null
+}
+
 // Function to get CSRF token
 export const getCSRFToken = async (): Promise<string> => {
   if (csrfToken) return csrfToken

@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import api from '@/lib/api'
+import api, { clearCSRFToken } from '@/lib/api'
 
 interface User {
   id: number
@@ -56,16 +56,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     const response = await api.post('/auth/login/', { username, password })
+    // Clear cached CSRF token after login so next request gets a fresh one
+    clearCSRFToken()
     setUser(response.data.user)
   }
 
   const register = async (userData: RegisterData) => {
     const response = await api.post('/auth/register/', userData)
+    // Clear cached CSRF token after register so next request gets a fresh one
+    clearCSRFToken()
     setUser(response.data.user)
   }
 
   const logout = async () => {
     await api.post('/auth/logout/')
+    // Clear cached CSRF token after logout
+    clearCSRFToken()
     setUser(null)
   }
 
