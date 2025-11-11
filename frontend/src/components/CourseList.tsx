@@ -109,7 +109,7 @@ export default function CourseList() {
           <Link
             key={course.id}
             href={`/courses/${course.slug}`}
-            className="bg-white dark:bg-dark-bg rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full"
+            className="bg-white dark:bg-dark-bg rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full dark:border dark:border-gray-700"
           >
             {course.thumbnail_url && (
               <div className="h-48 bg-gray-200 flex-shrink-0">
@@ -149,14 +149,14 @@ export default function CourseList() {
               </p>
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-auto">
-                <span className="text-xl sm:text-2xl font-bold text-primary-600 dark:text-dark-heading">
+                <span className="text-xl sm:text-2xl font-bold text-[#5f4891] dark:text-[#D6B84A]">
                   ${course.price}
                   <span className="text-sm text-gray-600 dark:text-gray-400 font-normal">/month</span>
                 </span>
 
                 <span className={`w-full sm:w-auto text-center px-4 py-2 text-white rounded transition-colors inline-block ${
                   subscribedCourseIds.has(course.id)
-                    ? 'bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-600'
+                    ? 'bg-[#5f4891] dark:bg-dark-button hover:bg-purple-700 dark:hover:opacity-90'
                     : 'bg-primary-600 dark:bg-dark-button hover:bg-primary-700 dark:hover:opacity-90'
                 }`}>
                   {subscribedCourseIds.has(course.id) ? 'View Course' : 'Subscribe Now'}
