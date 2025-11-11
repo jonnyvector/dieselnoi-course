@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/contexts/AuthContext'
 import QueryProvider from '@/providers/QueryProvider'
@@ -7,8 +6,6 @@ import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { ToastContainer } from '@/components/Toast'
 import { ThemeProvider } from '@/contexts/ThemeContext'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Dieselnoi Muay Thai Platform',
@@ -66,7 +63,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body>
         <ErrorBoundary>
           <QueryProvider>
             <ThemeProvider>
