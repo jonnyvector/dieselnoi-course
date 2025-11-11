@@ -569,6 +569,9 @@ class RegisterView(APIView):
             # Record the registration
             RegistrationRateLimiter.record_registration(ip_address)
 
+            # Log the user in immediately after registration
+            login(request, user)
+
             # Track referral signup if code provided
             referral_code = request.data.get('referral_code')
             if referral_code:
