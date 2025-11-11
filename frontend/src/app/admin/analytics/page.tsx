@@ -107,10 +107,10 @@ export default function AdminAnalyticsPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">Loading analytics...</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Loading analytics...</p>
         </div>
       </div>
     )
@@ -122,12 +122,12 @@ export default function AdminAnalyticsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400">{error}</p>
           <button
             onClick={fetchAnalytics}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 dark:bg-dark-button dark:hover:opacity-90"
           >
             Retry
           </button>
@@ -137,12 +137,12 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
       <Navigation currentPage="admin" />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-8">
           Analytics Dashboard
         </h1>
 
@@ -181,26 +181,26 @@ export default function AdminAnalyticsPage() {
         {/* Secondary Stats */}
         {overview && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Total Watch Time</p>
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 p-4 rounded-lg shadow">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Total Watch Time</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {overview.total_watch_time_hours.toLocaleString()}h
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Comments (30d)</p>
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 p-4 rounded-lg shadow">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Comments (30d)</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {overview.comments_last_30_days.toLocaleString()}
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-              <p className="text-sm text-gray-600 dark:text-gray-400">New Users (7d)</p>
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 p-4 rounded-lg shadow">
+              <p className="text-sm text-gray-600 dark:text-gray-300">New Users (7d)</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {overview.new_users_last_7_days}
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-              <p className="text-sm text-gray-600 dark:text-gray-400">Est. MRR</p>
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 p-4 rounded-lg shadow">
+              <p className="text-sm text-gray-600 dark:text-gray-300">Est. MRR</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
                 {formatCurrency(overview.estimated_mrr)}
               </p>
@@ -209,9 +209,9 @@ export default function AdminAnalyticsPage() {
         )}
 
         {/* Course Performance Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8 overflow-hidden">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow mb-8 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">
               Course Performance
             </h2>
           </div>
@@ -255,11 +255,11 @@ export default function AdminAnalyticsPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-white dark:bg-dark-bg divide-y divide-gray-200 dark:divide-gray-700">
                 {sortedCourses.map((course) => (
                   <tr
                     key={course.course_slug}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                    className="hover:bg-gray-50 dark:hover:opacity-90 cursor-pointer"
                     onClick={() => router.push(`/admin/analytics/courses/${course.course_slug}`)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -274,7 +274,7 @@ export default function AdminAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {course.active_subscribers}
-                      <span className="text-gray-500 dark:text-gray-400 text-xs ml-1">
+                      <span className="text-gray-500 dark:text-gray-300 text-xs ml-1">
                         / {course.total_enrollments} total
                       </span>
                     </td>
@@ -288,7 +288,7 @@ export default function AdminAnalyticsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {course.total_watch_time_hours}h
-                      <span className="text-gray-500 dark:text-gray-400 text-xs ml-1 block">
+                      <span className="text-gray-500 dark:text-gray-300 text-xs ml-1 block">
                         {course.avg_watch_time_per_user}h/user
                       </span>
                     </td>
@@ -306,8 +306,8 @@ export default function AdminAnalyticsPage() {
         {userGrowth && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Daily Signups Chart */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading mb-4">
                 Daily Signups (Last 30 Days)
               </h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -334,8 +334,8 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* Active Users Trend Chart */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading mb-4">
                 Active Subscribers Trend (Last 30 Days)
               </h3>
               <ResponsiveContainer width="100%" height={300}>
@@ -361,21 +361,21 @@ export default function AdminAnalyticsPage() {
               </ResponsiveContainer>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Retention Rate</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Retention Rate</p>
                   <p className="text-xl font-bold text-green-600 dark:text-green-400">
                     {userGrowth.retention_rate !== null ? `${userGrowth.retention_rate}%` : 'N/A'}
                   </p>
                   {userGrowth.retention_rate === null && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Need 30+ days of data</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Need 30+ days of data</p>
                   )}
                 </div>
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Churn Rate</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">Churn Rate</p>
                   <p className="text-xl font-bold text-red-600 dark:text-red-400">
                     {userGrowth.churn_rate !== null ? `${userGrowth.churn_rate}%` : 'N/A'}
                   </p>
                   {userGrowth.churn_rate === null && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Need 30+ days of data</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">Need 30+ days of data</p>
                   )}
                 </div>
               </div>
@@ -387,9 +387,9 @@ export default function AdminAnalyticsPage() {
         {engagement && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Top Lessons by Watch Time */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading">
                   Top Lessons by Watch Time
                 </h3>
               </div>
@@ -427,9 +427,9 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* Top Lessons by Comments */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-dark-heading">
                   Most Commented Lessons
                 </h3>
               </div>
@@ -467,10 +467,10 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* Highest Completion Lessons */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-bold text-green-600 dark:text-green-400">
-                  🏆 Highest Completion Rates
+                  Highest Completion Rates
                 </h3>
               </div>
               <div className="p-6">
@@ -507,10 +507,10 @@ export default function AdminAnalyticsPage() {
             </div>
 
             {/* Highest Dropout Lessons */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+            <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
                 <h3 className="text-lg font-bold text-red-600 dark:text-red-400">
-                  ⚠️ Highest Drop-off Rates
+                  Highest Drop-off Rates
                 </h3>
               </div>
               <div className="p-6">
@@ -562,19 +562,19 @@ interface StatCardProps {
 }
 
 function StatCard({ title, value, subtitle, icon, trend, trendLabel }: StatCardProps) {
-  const trendColor = trend && trend > 0 ? 'text-green-600 dark:text-green-400' : trend && trend < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+  const trendColor = trend && trend > 0 ? 'text-green-600 dark:text-green-400' : trend && trend < 0 ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'
   const trendIcon = trend && trend > 0 ? '↗' : trend && trend < 0 ? '↘' : ''
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{title}</p>
         {icon && <span className="text-2xl">{icon}</span>}
       </div>
       <div>
         <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
         {subtitle && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">{subtitle}</p>
         )}
         {trend !== undefined && trendLabel && (
           <p className={`text-sm mt-1 ${trendColor}`}>

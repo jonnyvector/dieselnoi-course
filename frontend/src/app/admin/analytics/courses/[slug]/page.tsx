@@ -93,10 +93,10 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">Loading course analytics...</p>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Loading course analytics...</p>
         </div>
       </div>
     )
@@ -108,12 +108,12 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400">{error || 'Course not found'}</p>
           <button
             onClick={() => router.push('/admin/analytics')}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 dark:bg-dark-button dark:hover:opacity-90"
           >
             Back to Analytics
           </button>
@@ -123,7 +123,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
       <Navigation currentPage="admin" />
 
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -131,14 +131,14 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         <div className="mb-8">
           <button
             onClick={() => router.push('/admin/analytics')}
-            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-4"
+            className="text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-4"
           >
             ← Back to Analytics
           </button>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading">
             {data.course.title}
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
             {data.course.difficulty} • ${data.course.price}/month • {data.course.lesson_count} lessons • {data.course.total_duration_minutes} min
           </p>
         </div>
@@ -176,8 +176,8 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         {/* Subscriber & Revenue Trends */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Subscriber Trend */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading mb-4">
               Active Subscribers (Last 30 Days)
             </h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -202,23 +202,23 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">New (7d)</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">New (7d)</p>
                 <p className="text-lg font-bold text-green-600 dark:text-green-400">+{data.subscribers.new_7d}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">New (30d)</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">New (30d)</p>
                 <p className="text-lg font-bold text-green-600 dark:text-green-400">+{data.subscribers.new_30d}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Cancelled (30d)</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">Cancelled (30d)</p>
                 <p className="text-lg font-bold text-red-600 dark:text-red-400">{data.subscribers.cancelled_30d}</p>
               </div>
             </div>
           </div>
 
           {/* Revenue Trend */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading mb-4">
               MRR Trend (Last 30 Days)
             </h2>
             <ResponsiveContainer width="100%" height={300}>
@@ -250,9 +250,9 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         </div>
 
         {/* Lesson Performance Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow mb-8 overflow-hidden">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow mb-8 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">
               Lesson Performance
             </h2>
           </div>
@@ -304,9 +304,9 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-white dark:bg-dark-bg divide-y divide-gray-200 dark:divide-gray-700">
                 {sortedLessons.map((lesson) => (
-                  <tr key={lesson.lesson_id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={lesson.lesson_id} className="hover:bg-gray-50 dark:hover:opacity-90">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {lesson.order}
                     </td>
@@ -353,12 +353,12 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
         </div>
 
         {/* Recent User Activity */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-heading">
               Recent User Activity
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
               Showing {data.recent_activity.length} most recently active subscribers
             </p>
           </div>
@@ -383,9 +383,9 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="bg-white dark:bg-dark-bg divide-y divide-gray-200 dark:divide-gray-700">
                 {data.recent_activity.map((activity) => (
-                  <tr key={activity.user_id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <tr key={activity.user_id} className="hover:bg-gray-50 dark:hover:opacity-90">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {activity.username}
@@ -397,7 +397,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="w-full max-w-xs">
-                          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
+                          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-300 mb-1">
                             <span>{activity.progress_percentage}%</span>
                           </div>
                           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
@@ -453,18 +453,18 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, subtitle, icon, trend, trendLabel }: MetricCardProps) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+    <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{title}</p>
         {icon && <span className="text-2xl">{icon}</span>}
       </div>
       <div>
         <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
         {subtitle && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{subtitle}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mt-1">{subtitle}</p>
         )}
         {trend !== undefined && trendLabel && (
-          <p className={`text-sm mt-1 ${trend > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-400'}`}>
+          <p className={`text-sm mt-1 ${trend > 0 ? 'text-green-600 dark:text-green-400' : 'text-gray-600 dark:text-gray-300'}`}>
             {trend > 0 && '+'}{trend} {trendLabel}
           </p>
         )}

@@ -118,26 +118,26 @@ export default function AdminUploadVideoPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
       <Navigation currentPage="admin" />
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-dark-heading mb-2">
             Upload Video to Lesson
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-600 dark:text-gray-300">
             Select a lesson and upload a video file. The video will be processed by Mux and automatically attached to the lesson.
           </p>
         </div>
@@ -157,8 +157,8 @@ export default function AdminUploadVideoPage() {
         )}
 
         {/* Course and Lesson Selection */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+        <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md p-6 mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-heading mb-4">
             Step 1: Select Lesson
           </h2>
 
@@ -175,7 +175,7 @@ export default function AdminUploadVideoPage() {
                 setSelectedLesson(null)
                 setUploadUrl(null)
               }}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-bg text-gray-900 dark:text-white"
             >
               <option value="">Select a course...</option>
               {courses.map((course) => (
@@ -199,7 +199,7 @@ export default function AdminUploadVideoPage() {
                   setSelectedLesson(Number(e.target.value))
                   setUploadUrl(null)
                 }}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white dark:bg-dark-bg text-gray-900 dark:text-white"
               >
                 <option value="">Select a lesson...</option>
                 {lessons.map((lesson) => (
@@ -216,7 +216,7 @@ export default function AdminUploadVideoPage() {
             <button
               onClick={handleCreateUpload}
               disabled={creating}
-              className="w-full px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 dark:bg-dark-button dark:hover:opacity-90 font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {creating ? 'Preparing Upload...' : 'Prepare Video Upload'}
             </button>
@@ -225,8 +225,8 @@ export default function AdminUploadVideoPage() {
 
         {/* Upload Component */}
         {uploadUrl && (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-dark-heading mb-4">
               Step 2: Upload Video File
             </h2>
 
@@ -240,7 +240,7 @@ export default function AdminUploadVideoPage() {
               </Suspense>
             </div>
 
-            <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-4 text-sm text-gray-600 dark:text-gray-300">
               <p className="mb-2"><strong>Tips:</strong></p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Supported formats: MP4, MOV, AVI, and more</li>
