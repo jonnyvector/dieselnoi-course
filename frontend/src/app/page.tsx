@@ -173,7 +173,7 @@ export default function Home() {
                 "Dieselnoi's knee technique is legendary. This course breaks down the mechanics in ways I never understood before. My training has improved dramatically."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple to-purple-dark rounded-full flex items-center justify-center text-white font-bold text-lg">
                   M
                 </div>
                 <div>
@@ -196,7 +196,7 @@ export default function Home() {
                 "As a beginner, I was intimidated by Muay Thai. Dieselnoi's teaching style is clear and encouraging. I'm now sparring confidently after just 3 months!"
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple to-purple-dark rounded-full flex items-center justify-center text-white font-bold text-lg">
                   S
                 </div>
                 <div>
@@ -219,7 +219,7 @@ export default function Home() {
                 "I've trained at gyms in Thailand, but having access to Dieselnoi's knowledge anywhere, anytime is invaluable. The detail in these courses is incredible."
               </p>
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple to-purple-dark rounded-full flex items-center justify-center text-white font-bold text-lg">
                   J
                 </div>
                 <div>
