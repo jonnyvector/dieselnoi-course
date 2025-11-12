@@ -85,7 +85,7 @@ export default function ReviewList({ courseId }: ReviewListProps) {
             key={review.id}
             className={`border rounded-lg p-4 ${
               review.is_featured
-                ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-600'
+                ? 'border-gold bg-gold/10 dark:bg-gold/20 dark:border-gold'
                 : 'border-gray-200 dark:border-gray-700'
             }`}
           >
@@ -95,7 +95,7 @@ export default function ReviewList({ courseId }: ReviewListProps) {
                   <StarRating rating={review.rating} size="sm" />
                   <span className="font-semibold text-gray-900 dark:text-white">{review.user_name}</span>
                   {review.is_featured && (
-                    <span className="text-xs bg-yellow-200 dark:bg-yellow-700 text-gray-900 dark:text-yellow-100 px-2 py-1 rounded">Featured</span>
+                    <span className="text-xs bg-gold/30 dark:bg-gold/50 text-gray-900 dark:text-white px-2 py-1 rounded">Featured</span>
                   )}
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">

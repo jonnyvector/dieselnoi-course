@@ -33,11 +33,11 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    color: #5f4891;
+    @apply text-purple;
   }
 
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: #D6B84A;
+    @apply text-gold;
   }
 
   h1, h2, h3 {
@@ -66,6 +66,36 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-start-rgb));
+}
+
+@layer components {
+  .card {
+    @apply bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow;
+  }
+
+  .btn {
+    @apply px-6 py-3 font-semibold rounded-lg transition-all;
+  }
+
+  .btn-primary {
+    @apply btn bg-gold text-purple-900 hover:bg-gold/90 transform hover:scale-105 shadow-lg;
+  }
+
+  .btn-secondary {
+    @apply btn bg-purple text-white hover:bg-purple-700 dark:bg-dark-button dark:hover:opacity-90;
+  }
+
+  .btn-outline {
+    @apply btn bg-white/10 backdrop-blur-sm border-2 border-gold text-white hover:bg-white/20;
+  }
+
+  .progress-bar {
+    @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2;
+  }
+
+  .progress-bar-fill {
+    @apply bg-gold h-2 rounded-full transition-all duration-300;
+  }
 }
 
 @layer utilities {

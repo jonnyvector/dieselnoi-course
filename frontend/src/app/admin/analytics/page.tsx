@@ -101,7 +101,7 @@ export default function AdminAnalyticsPage() {
 
   const getCompletionColor = (rate: number) => {
     if (rate >= 70) return 'text-green-600 dark:text-green-400'
-    if (rate >= 30) return 'text-yellow-600 dark:text-yellow-400'
+    if (rate >= 30) return 'text-gold dark:text-gold'
     return 'text-red-600 dark:text-red-400'
   }
 

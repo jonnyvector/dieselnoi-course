@@ -41,10 +41,10 @@ function Toast({ toast }: { toast: ToastType }) {
       icon: 'text-red-400',
     },
     warning: {
-      bg: 'bg-yellow-50 dark:bg-yellow-900/20',
-      border: 'border-yellow-200 dark:border-yellow-800',
-      text: 'text-yellow-800 dark:text-yellow-300',
-      icon: 'text-yellow-400',
+      bg: 'bg-gold/10 dark:bg-gold/20',
+      border: 'border-gold/40 dark:border-gold/60',
+      text: 'text-gold-dark dark:text-gold',
+      icon: 'text-gold',
     },
     info: {
       bg: 'bg-blue-50 dark:bg-blue-900/20',

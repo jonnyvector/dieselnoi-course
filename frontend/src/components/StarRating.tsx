@@ -32,7 +32,7 @@ export default function StarRating({ rating, onRatingChange, readonly = true, si
           aria-label={`Rate ${star} stars`}
         >
           <svg
-            className={star <= rating ? 'text-yellow-400' : 'text-gray-300'}
+            className={star <= rating ? 'text-gold' : 'text-gray-300'}
             fill="currentColor"
             viewBox="0 0 20 20"
           >

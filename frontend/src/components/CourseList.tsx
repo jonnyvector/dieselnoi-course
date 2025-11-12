@@ -92,7 +92,7 @@ export default function CourseList() {
       case 'beginner':
         return 'bg-green-100 text-green-800'
       case 'intermediate':
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-gold/20 text-gold-dark'
       case 'advanced':
         return 'bg-red-100 text-red-800'
       default:
@@ -149,14 +149,14 @@ export default function CourseList() {
               </p>
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-auto">
-                <span className="text-xl sm:text-2xl font-bold text-[#5f4891] dark:text-[#D6B84A]">
+                <span className="text-xl sm:text-2xl font-bold text-purple dark:text-gold">
                   ${course.price}
                   <span className="text-sm text-gray-600 dark:text-gray-400 font-normal">/month</span>
                 </span>
 
                 <span className={`w-full sm:w-auto text-center px-4 py-2 text-white rounded transition-colors inline-block ${
                   subscribedCourseIds.has(course.id)
-                    ? 'bg-[#5f4891] dark:bg-dark-button hover:bg-purple-700 dark:hover:opacity-90'
+                    ? 'bg-purple dark:bg-dark-button hover:bg-purple-700 dark:hover:opacity-90'
                     : 'bg-primary-600 dark:bg-dark-button hover:bg-primary-700 dark:hover:opacity-90'
                 }`}>
                   {subscribedCourseIds.has(course.id) ? 'View Course' : 'Subscribe Now'}
