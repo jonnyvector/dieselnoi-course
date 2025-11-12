@@ -26,6 +26,11 @@ from .views import (
     AnalyticsEngagementView,
     AnalyticsUserGrowthView,
     GenerateCertificateView,
+    TwoFactorStatusView,
+    TwoFactorSetupView,
+    TwoFactorVerifyView,
+    TwoFactorDisableView,
+    TwoFactorBackupCodesView,
 )
 
 router = DefaultRouter()
@@ -57,4 +62,9 @@ urlpatterns = [
     path('admin/analytics/courses/<slug:course_slug>/', AnalyticsCourseDetailView.as_view(), name='analytics-course-detail'),
     path('admin/analytics/engagement/', AnalyticsEngagementView.as_view(), name='analytics-engagement'),
     path('admin/analytics/user-growth/', AnalyticsUserGrowthView.as_view(), name='analytics-user-growth'),
+    path('auth/2fa/status/', TwoFactorStatusView.as_view(), name='2fa-status'),
+    path('auth/2fa/setup/', TwoFactorSetupView.as_view(), name='2fa-setup'),
+    path('auth/2fa/verify/', TwoFactorVerifyView.as_view(), name='2fa-verify'),
+    path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='2fa-disable'),
+    path('auth/2fa/backup-codes/', TwoFactorBackupCodesView.as_view(), name='2fa-backup-codes'),
 ]

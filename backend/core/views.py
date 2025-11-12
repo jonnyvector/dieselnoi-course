@@ -13,6 +13,12 @@ import mux_python
 from mux_python.rest import ApiException
 from django.db.models import Count, Q, Max
 from django.utils import timezone
+from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp.plugins.otp_static.models import StaticDevice, StaticToken
+import qrcode
+import qrcode.image.svg
+from io import BytesIO
+import base64
 from .models import Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge, Referral, ReferralCode, ReferralCredit, ReferralFraudCheck
 from .serializers import (
     CourseSerializer,
@@ -1527,4 +1533,196 @@ class GenerateCertificateView(APIView):
             'success': True,
             'download_url': download_url,
             'filename': filename
+        })
+
+
+# ============================================
+# Two-Factor Authentication Views
+# ============================================
+
+class TwoFactorStatusView(APIView):
+    """Check if user has 2FA enabled."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            device = TOTPDevice.objects.get(user=request.user, confirmed=True)
+            return Response({
+                'enabled': True,
+                'device_name': device.name
+            })
+        except TOTPDevice.DoesNotExist:
+            return Response({'enabled': False})
+
+
+class TwoFactorSetupView(APIView):
+    """Generate QR code for 2FA setup."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # Check if user already has 2FA enabled
+        existing_device = TOTPDevice.objects.filter(user=request.user, confirmed=True).first()
+        if existing_device:
+            return Response(
+                {'error': '2FA is already enabled. Disable it first to set up a new device.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Delete any unconfirmed devices
+        TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()
+
+        # Create new TOTP device
+        device = TOTPDevice.objects.create(
+            user=request.user,
+            name=f"{request.user.email}'s Authenticator",
+            confirmed=False
+        )
+
+        # Generate QR code
+        url = device.config_url
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(url)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        qr_code_base64 = base64.b64encode(buffer.getvalue()).decode()
+
+        return Response({
+            'qr_code': f'data:image/png;base64,{qr_code_base64}',
+            'secret': device.key,
+            'device_id': device.id
+        })
+
+
+class TwoFactorVerifyView(APIView):
+    """Verify and enable 2FA."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response(
+                {'error': 'Token is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get unconfirmed device
+        try:
+            device = TOTPDevice.objects.get(user=request.user, confirmed=False)
+        except TOTPDevice.DoesNotExist:
+            return Response(
+                {'error': 'No setup in progress. Please start 2FA setup first.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify token
+        if device.verify_token(token):
+            device.confirmed = True
+            device.save()
+
+            # Generate backup codes
+            static_device = StaticDevice.objects.create(
+                user=request.user,
+                name='Backup Codes',
+                confirmed=True
+            )
+
+            backup_codes = []
+            for _ in range(10):
+                token_obj = StaticToken.random_token()
+                token_obj.device = static_device
+                token_obj.save()
+                backup_codes.append(token_obj.token)
+
+            return Response({
+                'success': True,
+                'message': '2FA enabled successfully',
+                'backup_codes': backup_codes
+            })
+        else:
+            return Response(
+                {'error': 'Invalid token. Please try again.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class TwoFactorDisableView(APIView):
+    """Disable 2FA."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        password = request.data.get('password')
+        if not password:
+            return Response(
+                {'error': 'Password is required to disable 2FA'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify password
+        if not request.user.check_password(password):
+            return Response(
+                {'error': 'Invalid password'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Delete all TOTP and static devices
+        TOTPDevice.objects.filter(user=request.user).delete()
+        StaticDevice.objects.filter(user=request.user).delete()
+
+        return Response({
+            'success': True,
+            'message': '2FA disabled successfully'
+        })
+
+
+class TwoFactorBackupCodesView(APIView):
+    """Regenerate backup codes."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # Check if 2FA is enabled
+        try:
+            TOTPDevice.objects.get(user=request.user, confirmed=True)
+        except TOTPDevice.DoesNotExist:
+            return Response(
+                {'error': '2FA is not enabled'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        password = request.data.get('password')
+        if not password:
+            return Response(
+                {'error': 'Password is required to regenerate backup codes'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Verify password
+        if not request.user.check_password(password):
+            return Response(
+                {'error': 'Invalid password'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        # Delete old backup codes
+        StaticDevice.objects.filter(user=request.user).delete()
+
+        # Generate new backup codes
+        static_device = StaticDevice.objects.create(
+            user=request.user,
+            name='Backup Codes',
+            confirmed=True
+        )
+
+        backup_codes = []
+        for _ in range(10):
+            token_obj = StaticToken.random_token()
+            token_obj.device = static_device
+            token_obj.save()
+            backup_codes.append(token_obj.token)
+
+        return Response({
+            'success': True,
+            'backup_codes': backup_codes
         })

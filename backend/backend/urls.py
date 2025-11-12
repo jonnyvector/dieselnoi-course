@@ -14,7 +14,7 @@ urlpatterns = [
     path('', RedirectView.as_view(url=get_frontend_url(), permanent=False)),  # Redirect root to frontend
     path('admin/', admin.site.urls),
     path('api/', include('core.urls')),
-    path('accounts/', include('allauth.urls')),  # Allauth URLs for email verification and social auth
+    path('accounts/', include('allauth_2fa.urls')),  # Allauth 2FA URLs (includes allauth.urls)
 ]
 
 # Serve media files in development

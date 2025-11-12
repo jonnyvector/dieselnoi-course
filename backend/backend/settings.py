@@ -44,6 +44,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
+    # 2FA
+    'django_otp',
+    'django_otp.plugins.otp_totp',
+    'django_otp.plugins.otp_static',
+    'allauth_2fa',
+
     # Local apps
     'core',
 ]
@@ -58,9 +64,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',  # 2FA OTP middleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',  # Allauth middleware
+    'allauth_2fa.middleware.AllauthTwoFactorMiddleware',  # 2FA middleware
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -346,3 +354,7 @@ if not DEBUG:
 
     # WhiteNoise without compression to avoid missing file errors
     STATICFILES_STORAGE = 'whitenoise.storage.StaticFilesStorage'
+
+
+# Two-Factor Authentication Settings
+ALLAUTH_2FA_ALWAYS_REVEAL_BACKUP_TOKENS = False  # Only show backup tokens once during setup
