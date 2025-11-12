@@ -145,7 +145,6 @@ class CourseResourceSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     """Serializer for Course model (list view)."""
     lesson_count = serializers.SerializerMethodField()
-    thumbnail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -165,21 +164,12 @@ class CourseSerializer(serializers.ModelSerializer):
     def get_lesson_count(self, obj):
         return obj.lessons.count()
 
-    def get_thumbnail_url(self, obj):
-        if obj.thumbnail:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.thumbnail.url)
-            return obj.thumbnail.url
-        return None
-
 
 class CourseDetailSerializer(serializers.ModelSerializer):
     """Serializer for Course model (detail view with lessons)."""
     lessons = LessonSerializer(many=True, read_only=True)
     resources = CourseResourceSerializer(many=True, read_only=True)
     lesson_count = serializers.SerializerMethodField()
-    thumbnail_url = serializers.SerializerMethodField()
     average_rating = serializers.DecimalField(max_digits=3, decimal_places=2, read_only=True)
     total_reviews = serializers.IntegerField(read_only=True)
     user_review = serializers.SerializerMethodField()
@@ -206,14 +196,6 @@ class CourseDetailSerializer(serializers.ModelSerializer):
 
     def get_lesson_count(self, obj):
         return obj.lessons.count()
-
-    def get_thumbnail_url(self, obj):
-        if obj.thumbnail:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.thumbnail.url)
-            return obj.thumbnail.url
-        return None
 
     def get_user_review(self, obj):
         """Return current user's review if exists."""

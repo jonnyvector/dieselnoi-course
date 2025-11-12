@@ -29,7 +29,7 @@ class Course(models.Model):
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='beginner')
     price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Monthly subscription price in USD")
-    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True, help_text="Course thumbnail image")
+    thumbnail_url = models.URLField(blank=True, null=True, help_text="Thumbnail image URL (upload to Cloudinary/Imgur)")
     is_published = models.BooleanField(default=False)
 
     # Cached rating data (updated via signals)
