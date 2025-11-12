@@ -6,9 +6,12 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+from django.utils.functional import lazy
+
+get_frontend_url = lazy(lambda: settings.FRONTEND_URL, str)
 
 urlpatterns = [
-    path('', RedirectView.as_view(url=settings.FRONTEND_URL, permanent=False)),  # Redirect root to frontend
+    path('', RedirectView.as_view(url=get_frontend_url(), permanent=False)),  # Redirect root to frontend
     path('admin/', admin.site.urls),
     path('api/', include('core.urls')),
     path('accounts/', include('allauth.urls')),  # Allauth URLs for email verification and social auth

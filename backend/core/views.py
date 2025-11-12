@@ -32,9 +32,6 @@ from .serializers import (
 from .analytics import AnalyticsService
 from .badge_checker import check_and_award_badges, get_user_badge_progress
 
-# Initialize Stripe
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 class IsSubscriberOrReadOnly(permissions.BasePermission):
     """
@@ -754,6 +751,7 @@ class CreateCheckoutSessionView(APIView):
 
     @method_decorator(ratelimit(key='user', rate='20/h', method='POST', block=True))
     def post(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
             user = request.user
             course_slug = request.data.get('course_slug')
@@ -870,6 +868,7 @@ class CreateCustomerPortalSessionView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
             user = request.user
 
@@ -976,6 +975,7 @@ class StripeWebhookView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         payload = request.body
         sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
 
