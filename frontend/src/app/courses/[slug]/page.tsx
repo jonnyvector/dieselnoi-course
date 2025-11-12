@@ -522,7 +522,7 @@ export default function CourseDetailPage() {
 
             {/* User's Review */}
             {course.user_review && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <div className="bg-purple/10 dark:bg-purple/20 border-2 border-purple dark:border-purple rounded-lg p-4 mb-6">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Your Review</p>
