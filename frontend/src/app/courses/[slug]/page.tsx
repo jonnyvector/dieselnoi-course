@@ -545,7 +545,7 @@ export default function CourseDetailPage() {
             )}
 
             {/* All Reviews */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+            <div className="card p-6">
               <ReviewList key={refreshReviews} courseId={course.id} />
             </div>
           </div>

@@ -26,7 +26,7 @@ export default function ResourceList({ resources }: ResourceListProps) {
       {resources.map((resource) => (
         <div
           key={resource.id}
-          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800 hover:border-red-300 dark:hover:border-red-700 transition-colors"
+          className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-dark-bg hover:border-red-300 dark:hover:border-red-700 transition-colors"
         >
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             {/* Icon and content */}
