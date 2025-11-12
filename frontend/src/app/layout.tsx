@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: 'Dieselnoi Muay Thai Platform',
   description: 'Authentic Golden Era Muay Thai training with legendary fighter Dieselnoi',
   manifest: '/manifest.json',
-  themeColor: '#dc2626',
+  themeColor: '#5f4891',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

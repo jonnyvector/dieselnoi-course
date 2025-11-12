@@ -197,7 +197,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
                     borderRadius: '4px'
                   }}
                 />
-                <Line type="monotone" dataKey="active_count" stroke="#dc2626" strokeWidth={2} name="Active Subscribers" />
+                <Line type="monotone" dataKey="active_count" stroke="#5f4891" strokeWidth={2} name="Active Subscribers" />
               </LineChart>
             </ResponsiveContainer>
             <div className="mt-4 grid grid-cols-3 gap-4 text-center">

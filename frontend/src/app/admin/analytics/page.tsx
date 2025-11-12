@@ -328,7 +328,7 @@ export default function AdminAnalyticsPage() {
                     }}
                     labelFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   />
-                  <Bar dataKey="count" fill="#dc2626" name="Signups" />
+                  <Bar dataKey="count" fill="#D6B84A" name="Signups" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -356,7 +356,7 @@ export default function AdminAnalyticsPage() {
                     }}
                     labelFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                   />
-                  <Line type="monotone" dataKey="count" stroke="#dc2626" strokeWidth={2} name="Active Subscribers" />
+                  <Line type="monotone" dataKey="count" stroke="#5f4891" strokeWidth={2} name="Active Subscribers" />
                 </LineChart>
               </ResponsiveContainer>
               <div className="mt-4 grid grid-cols-2 gap-4">
