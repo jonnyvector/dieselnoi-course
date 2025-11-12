@@ -245,7 +245,7 @@ export default function LessonDetailPage() {
 
         {/* Resume notification */}
         {savedWatchTime > 5 && !hasResumed && !isLocked && lesson.mux_playback_id && (
-          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
+          <div className="mb-4 p-3 bg-purple/10 dark:bg-purple/20 border border-purple dark:border-purple rounded-lg flex items-center justify-between">
             <button
               onClick={() => {
                 if (playerRef.current) {
@@ -256,10 +256,10 @@ export default function LessonDetailPage() {
               }}
               className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-5 h-5 text-purple dark:text-purple" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
               </svg>
-              <span className="text-sm text-blue-900 dark:text-blue-100 font-medium">
+              <span className="text-sm text-gray-900 dark:text-white font-medium">
                 Resume from {Math.floor(savedWatchTime / 60)}:{String(Math.floor(savedWatchTime % 60)).padStart(2, '0')}
               </span>
             </button>
@@ -272,7 +272,7 @@ export default function LessonDetailPage() {
                 setSavedWatchTime(0)
                 setHasResumed(true)
               }}
-              className="text-xs text-blue-700 dark:text-blue-300 hover:text-blue-900 dark:hover:text-blue-100 font-semibold"
+              className="text-xs text-gold dark:text-gold hover:text-gold-dark dark:hover:text-gold/80 font-semibold"
             >
               Start from beginning
             </button>
