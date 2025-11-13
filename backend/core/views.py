@@ -1568,17 +1568,20 @@ class TwoFactorSetupView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Delete any unconfirmed devices
-        deleted_count = TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()[0]
-        print(f"DEBUG: Deleted {deleted_count} unconfirmed devices for user {request.user.id}")
+        # Check if there's already an unconfirmed device - reuse it instead of creating a new one
+        # This handles the case where user closes modal and reopens it
+        device = TOTPDevice.objects.filter(user=request.user, confirmed=False).first()
 
-        # Create new TOTP device
-        device = TOTPDevice.objects.create(
-            user=request.user,
-            name=f"{request.user.email}'s Authenticator",
-            confirmed=False
-        )
-        print(f"DEBUG: Created TOTP device {device.id} for user {request.user.id}, confirmed={device.confirmed}")
+        if device:
+            print(f"DEBUG: Reusing existing unconfirmed TOTP device {device.id} for user {request.user.id}")
+        else:
+            # Create new TOTP device
+            device = TOTPDevice.objects.create(
+                user=request.user,
+                name=f"{request.user.email}'s Authenticator",
+                confirmed=False
+            )
+            print(f"DEBUG: Created new TOTP device {device.id} for user {request.user.id}, confirmed={device.confirmed}")
 
         # Generate QR code
         url = device.config_url
