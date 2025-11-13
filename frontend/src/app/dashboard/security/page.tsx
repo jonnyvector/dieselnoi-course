@@ -197,10 +197,13 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
     setLoading(true)
     try {
       const response = await twoFactorAPI.setup()
+      console.log('2FA Setup response:', response)
       setQrCode(response.qr_code)
       setSecret(response.secret)
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Failed to generate QR code')
+      console.error('2FA Setup error:', error)
+      console.error('Error response:', error.response)
+      setError(error.response?.data?.error || error.message || 'Failed to generate QR code')
     } finally {
       setLoading(false)
     }
@@ -270,6 +273,18 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
               <div className="flex justify-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 dark:border-gold-400"></div>
               </div>
+            ) : error ? (
+              <>
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+                </div>
+                <button
+                  onClick={loadQRCode}
+                  className="w-full px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium"
+                >
+                  Retry
+                </button>
+              </>
             ) : (
               <>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -282,18 +297,25 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
                   </div>
                 )}
 
+                {!qrCode && (
+                  <div className="p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                    <p className="text-sm text-yellow-800 dark:text-yellow-400">QR code not loaded. Please refresh.</p>
+                  </div>
+                )}
+
                 <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded">
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
                     Or enter this key manually:
                   </p>
                   <code className="text-sm font-mono text-gray-900 dark:text-white break-all">
-                    {secret}
+                    {secret || 'Loading...'}
                   </code>
                 </div>
 
                 <button
                   onClick={() => setStep('verify')}
-                  className="w-full px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium"
+                  disabled={!qrCode || !secret}
+                  className="w-full px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                 </button>
