@@ -785,6 +785,12 @@ export const twoFactorAPI = {
     return response.data
   },
 
+  // Cancel 2FA setup in progress
+  cancelSetup: async (): Promise<{ success: boolean; message: string }> => {
+    const response = await api.post('/auth/2fa/cancel-setup/')
+    return response.data
+  },
+
   // Disable 2FA
   disable: async (password: string): Promise<TwoFactorDisableResponse> => {
     const response = await api.post('/auth/2fa/disable/', { password })

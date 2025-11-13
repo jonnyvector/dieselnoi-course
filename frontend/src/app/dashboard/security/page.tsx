@@ -345,9 +345,29 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
-              </div>
+              <>
+                <div className="p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+                </div>
+                {error.includes('No setup in progress') && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await twoFactorAPI.cancelSetup()
+                        setError('')
+                        setToken('')
+                        setStep('qr')
+                        await loadQRCode()
+                      } catch (err) {
+                        console.error('Failed to reset setup:', err)
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-yellow-600 dark:bg-yellow-500 text-white rounded-lg hover:bg-yellow-700 dark:hover:bg-yellow-600 transition-colors font-medium"
+                  >
+                    Start Fresh (Remove Old QR Code from Google Auth First!)
+                  </button>
+                )}
+              </>
             )}
 
             <div className="flex gap-3">

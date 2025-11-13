@@ -30,6 +30,7 @@ from .views import (
     TwoFactorSetupView,
     TwoFactorVerifyView,
     TwoFactorDisableView,
+    TwoFactorCancelSetupView,
     TwoFactorBackupCodesView,
 )
 
@@ -65,6 +66,7 @@ urlpatterns = [
     path('auth/2fa/status/', TwoFactorStatusView.as_view(), name='2fa-status'),
     path('auth/2fa/setup/', TwoFactorSetupView.as_view(), name='2fa-setup'),
     path('auth/2fa/verify/', TwoFactorVerifyView.as_view(), name='2fa-verify'),
+    path('auth/2fa/cancel-setup/', TwoFactorCancelSetupView.as_view(), name='2fa-cancel-setup'),
     path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='2fa-disable'),
     path('auth/2fa/backup-codes/', TwoFactorBackupCodesView.as_view(), name='2fa-backup-codes'),
 ]

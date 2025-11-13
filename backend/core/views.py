@@ -1688,6 +1688,21 @@ class TwoFactorDisableView(APIView):
         })
 
 
+class TwoFactorCancelSetupView(APIView):
+    """Cancel 2FA setup in progress."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        # Delete any unconfirmed devices
+        deleted_count = TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()[0]
+        print(f"DEBUG: Cancelled setup - deleted {deleted_count} unconfirmed devices for user {request.user.id}")
+
+        return Response({
+            'success': True,
+            'message': 'Setup cancelled successfully'
+        })
+
+
 class TwoFactorBackupCodesView(APIView):
     """Regenerate backup codes."""
     permission_classes = [permissions.IsAuthenticated]
