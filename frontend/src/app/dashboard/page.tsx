@@ -159,15 +159,23 @@ export default function DashboardPage() {
                   {activeSubscriptions.length} active {activeSubscriptions.length === 1 ? 'subscription' : 'subscriptions'}
                 </p>
               </div>
-              {activeSubscriptions.length > 0 && (
-                <button
-                  onClick={handleManageBilling}
-                  disabled={redirectingToPortal}
-                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              <div className="flex gap-3">
+                <Link
+                  href="/dashboard/security"
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
-                  {redirectingToPortal ? 'Opening...' : 'Manage Billing'}
-                </button>
-              )}
+                  Security Settings
+                </Link>
+                {activeSubscriptions.length > 0 && (
+                  <button
+                    onClick={handleManageBilling}
+                    disabled={redirectingToPortal}
+                    className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {redirectingToPortal ? 'Opening...' : 'Manage Billing'}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

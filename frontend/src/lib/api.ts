@@ -735,4 +735,67 @@ export const certificateAPI = {
   },
 }
 
+// ============================================
+// Two-Factor Authentication API
+// ============================================
+
+export interface TwoFactorStatus {
+  enabled: boolean
+  device_name?: string
+}
+
+export interface TwoFactorSetupResponse {
+  qr_code: string // base64 encoded QR code image
+  secret: string
+  device_id: number
+}
+
+export interface TwoFactorVerifyResponse {
+  success: boolean
+  message: string
+  backup_codes: string[]
+}
+
+export interface TwoFactorDisableResponse {
+  success: boolean
+  message: string
+}
+
+export interface TwoFactorBackupCodesResponse {
+  success: boolean
+  backup_codes: string[]
+}
+
+export const twoFactorAPI = {
+  // Check if user has 2FA enabled
+  getStatus: async (): Promise<TwoFactorStatus> => {
+    const response = await api.get('/auth/2fa/status/')
+    return response.data
+  },
+
+  // Start 2FA setup (get QR code)
+  setup: async (): Promise<TwoFactorSetupResponse> => {
+    const response = await api.post('/auth/2fa/setup/')
+    return response.data
+  },
+
+  // Verify token and enable 2FA
+  verify: async (token: string): Promise<TwoFactorVerifyResponse> => {
+    const response = await api.post('/auth/2fa/verify/', { token })
+    return response.data
+  },
+
+  // Disable 2FA
+  disable: async (password: string): Promise<TwoFactorDisableResponse> => {
+    const response = await api.post('/auth/2fa/disable/', { password })
+    return response.data
+  },
+
+  // Regenerate backup codes
+  regenerateBackupCodes: async (password: string): Promise<TwoFactorBackupCodesResponse> => {
+    const response = await api.post('/auth/2fa/backup-codes/', { password })
+    return response.data
+  },
+}
+
 export default api
