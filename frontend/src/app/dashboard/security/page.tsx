@@ -195,6 +195,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
 
   const loadQRCode = async () => {
     setLoading(true)
+    setError('')
     try {
       const response = await twoFactorAPI.setup()
       console.log('2FA Setup response:', response)
@@ -203,6 +204,13 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
     } catch (error: any) {
       console.error('2FA Setup error:', error)
       console.error('Error response:', error.response)
+
+      // If 2FA is already enabled, close modal and refresh status
+      if (error.response?.data?.error?.includes('already enabled')) {
+        onSuccess() // This will refresh the status and close the modal
+        return
+      }
+
       setError(error.response?.data?.error || error.message || 'Failed to generate QR code')
     } finally {
       setLoading(false)
@@ -220,10 +228,32 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
 
     try {
       const response = await twoFactorAPI.verify(token)
+      console.log('2FA Verify response:', response)
       setBackupCodes(response.backup_codes)
       setStep('backup')
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Invalid code. Please try again.')
+      console.error('2FA Verify error:', error)
+      const errorMessage = error.response?.data?.error || 'Invalid code. Please try again.'
+
+      // If error says no setup in progress, the device might have been confirmed already
+      if (errorMessage.includes('No setup in progress')) {
+        // Check if 2FA was actually enabled
+        try {
+          const status = await twoFactorAPI.getStatus()
+          if (status.enabled) {
+            // 2FA was enabled successfully, just missing backup codes
+            setError('2FA was enabled but backup codes were not saved. Please regenerate backup codes from the main page.')
+            setTimeout(() => {
+              onSuccess() // Close modal and refresh
+            }, 3000)
+            return
+          }
+        } catch (statusError) {
+          console.error('Failed to check 2FA status:', statusError)
+        }
+      }
+
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
