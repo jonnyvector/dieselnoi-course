@@ -35,6 +35,8 @@ from .views import (
     TwoFactorBackupCodesView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
+    UpdateProfileView,
+    ChangePasswordView,
 )
 
 router = DefaultRouter()
@@ -75,4 +77,6 @@ urlpatterns = [
     path('auth/2fa/backup-codes/', TwoFactorBackupCodesView.as_view(), name='2fa-backup-codes'),
     path('auth/password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
     path('auth/password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path('auth/profile/update/', UpdateProfileView.as_view(), name='profile-update'),
+    path('auth/change-password/', ChangePasswordView.as_view(), name='change-password'),
 ]

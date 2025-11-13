@@ -746,6 +746,78 @@ class CurrentUserView(APIView):
         return Response(serializer.data)
 
 
+class UpdateProfileView(APIView):
+    """Update user profile (name, email)."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        user = request.user
+        email = request.data.get('email')
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+
+        # Check if email is already taken by another user
+        if email and email != user.email:
+            if User.objects.filter(email=email).exclude(pk=user.pk).exists():
+                return Response(
+                    {'error': 'This email is already in use'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            user.email = email
+
+        if first_name is not None:
+            user.first_name = first_name
+
+        if last_name is not None:
+            user.last_name = last_name
+
+        user.save()
+
+        return Response({
+            'success': True,
+            'message': 'Profile updated successfully',
+            'user': UserSerializer(user).data
+        })
+
+
+class ChangePasswordView(APIView):
+    """Change user password."""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        if not all([current_password, new_password]):
+            return Response(
+                {'error': 'Both current and new password are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not request.user.check_password(current_password):
+            return Response(
+                {'error': 'Current password is incorrect'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'error': 'New password must be at least 8 characters long'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        return Response({
+            'success': True,
+            'message': 'Password changed successfully'
+        })
+
+
 class GetCSRFToken(APIView):
     """
     Get CSRF token for frontend requests.
