@@ -4,14 +4,17 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
+import { twoFactorAPI } from '@/lib/api'
 
 export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [twoFactorCode, setTwoFactorCode] = useState('')
+  const [showTwoFactor, setShowTwoFactor] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, checkAuth } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -19,10 +22,49 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      await login(username, password)
-      router.push('/')
+      const result = await login(username, password)
+
+      if (result.requires2FA) {
+        // Show 2FA input
+        setShowTwoFactor(true)
+        setLoading(false)
+      } else {
+        // Login successful
+        router.push('/')
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed. Please check your credentials.')
+      setLoading(false)
+    }
+  }
+
+  const handleTwoFactorSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      const response = await twoFactorAPI.verifyLogin(twoFactorCode)
+
+      // Show warning if backup code was used
+      if (response.warning) {
+        // TODO: Show toast/notification with warning
+        console.warn(response.warning)
+      }
+
+      // Refresh auth state and redirect
+      await checkAuth()
+      router.push('/')
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.error || 'Invalid 2FA code. Please try again.'
+      setError(errorMsg)
+
+      // If session expired, go back to login
+      if (errorMsg.includes('Please log in')) {
+        setShowTwoFactor(false)
+        setTwoFactorCode('')
+        setPassword('')
+      }
     } finally {
       setLoading(false)
     }
@@ -33,64 +75,125 @@ export default function LoginPage() {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl">
-            Sign in to your account
+            {showTwoFactor ? 'Enter 2FA Code' : 'Sign in to your account'}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-            Or{' '}
-            <Link href="/signup" className="font-medium text-primary-600 hover:text-primary-500">
-              create a new account
-            </Link>
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
+          {!showTwoFactor && (
+            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
+              Or{' '}
+              <Link href="/signup" className="font-medium text-primary-600 hover:text-primary-500">
+                create a new account
+              </Link>
+            </p>
           )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="username" className="sr-only">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-dark-bg rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-dark-bg rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+          {showTwoFactor && (
+            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
+              Enter the 6-digit code from your authenticator app or use a backup code
+            </p>
+          )}
+        </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 dark:bg-dark-button dark:hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-        </form>
+        {/* Username/Password Form */}
+        {!showTwoFactor && (
+          <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
+                <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+              </div>
+            )}
+            <div className="rounded-md shadow-sm -space-y-px">
+              <div>
+                <label htmlFor="username" className="sr-only">
+                  Username
+                </label>
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-dark-bg rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="sr-only">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-dark-bg rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 dark:bg-dark-button dark:hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              >
+                {loading ? 'Signing in...' : 'Sign in'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* 2FA Form */}
+        {showTwoFactor && (
+          <form className="mt-8 space-y-6" onSubmit={handleTwoFactorSubmit}>
+            {error && (
+              <div className="rounded-md bg-red-50 dark:bg-red-900/30 p-4">
+                <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
+              </div>
+            )}
+            <div>
+              <label htmlFor="twoFactorCode" className="sr-only">
+                2FA Code
+              </label>
+              <input
+                id="twoFactorCode"
+                name="twoFactorCode"
+                type="text"
+                inputMode="numeric"
+                required
+                maxLength={10}
+                autoFocus
+                className="appearance-none relative block w-full px-3 py-3 text-center text-2xl font-mono border border-gray-300 dark:border-gray-700 placeholder-gray-500 text-gray-900 dark:text-white dark:bg-dark-bg rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-2xl"
+                placeholder="000000"
+                value={twoFactorCode}
+                onChange={(e) => setTwoFactorCode(e.target.value)}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowTwoFactor(false)
+                  setTwoFactorCode('')
+                  setError('')
+                }}
+                className="flex-1 py-2 px-4 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-dark-bg hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 dark:bg-dark-button dark:hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              >
+                {loading ? 'Verifying...' : 'Verify'}
+              </button>
+            </div>
+          </form>
+        )}
 
         {/* Divider */}
         <div className="mt-6">
