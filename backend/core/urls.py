@@ -33,6 +33,8 @@ from .views import (
     TwoFactorDisableView,
     TwoFactorCancelSetupView,
     TwoFactorBackupCodesView,
+    PasswordResetRequestView,
+    PasswordResetConfirmView,
 )
 
 router = DefaultRouter()
@@ -71,4 +73,6 @@ urlpatterns = [
     path('auth/2fa/cancel-setup/', TwoFactorCancelSetupView.as_view(), name='2fa-cancel-setup'),
     path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='2fa-disable'),
     path('auth/2fa/backup-codes/', TwoFactorBackupCodesView.as_view(), name='2fa-backup-codes'),
+    path('auth/password-reset/', PasswordResetRequestView.as_view(), name='password-reset-request'),
+    path('auth/password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
 ]

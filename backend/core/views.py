@@ -1866,3 +1866,134 @@ class TwoFactorBackupCodesView(APIView):
             'success': True,
             'backup_codes': backup_codes
         })
+
+
+class PasswordResetRequestView(APIView):
+    """Request a password reset email."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        from django.contrib.auth.tokens import default_token_generator
+        from django.core.mail import send_mail
+        from django.contrib.auth import get_user_model
+        from django.template.loader import render_to_string
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+
+        User = get_user_model()
+        email = request.data.get('email')
+
+        if not email:
+            return Response(
+                {'error': 'Email is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(email=email)
+
+            # Generate password reset token
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            # Build reset URL (frontend URL)
+            frontend_url = settings.FRONTEND_URL if hasattr(settings, 'FRONTEND_URL') else 'http://localhost:3000'
+            reset_url = f"{frontend_url}/reset-password/{uid}/{token}"
+
+            # Send email
+            subject = 'Reset Your Password - Dieselnoi Muay Thai'
+            message = f"""
+Hi {user.username},
+
+You requested to reset your password. Click the link below to reset it:
+
+{reset_url}
+
+This link will expire in 24 hours.
+
+If you didn't request this, please ignore this email.
+
+Best regards,
+Dieselnoi Muay Thai Team
+            """
+
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@dieselnoi.com',
+                [email],
+                fail_silently=False,
+            )
+
+            return Response({
+                'success': True,
+                'message': 'Password reset email sent. Please check your inbox.'
+            })
+
+        except User.DoesNotExist:
+            # Don't reveal if email exists or not (security best practice)
+            return Response({
+                'success': True,
+                'message': 'Password reset email sent. Please check your inbox.'
+            })
+        except Exception as e:
+            return Response(
+                {'error': 'Failed to send reset email. Please try again later.'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class PasswordResetConfirmView(APIView):
+    """Confirm password reset with token."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        from django.contrib.auth.tokens import default_token_generator
+        from django.contrib.auth import get_user_model
+        from django.utils.http import urlsafe_base64_decode
+        from django.utils.encoding import force_str
+
+        User = get_user_model()
+
+        uid = request.data.get('uid')
+        token = request.data.get('token')
+        new_password = request.data.get('new_password')
+
+        if not all([uid, token, new_password]):
+            return Response(
+                {'error': 'Missing required fields'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if len(new_password) < 8:
+            return Response(
+                {'error': 'Password must be at least 8 characters long'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            # Decode user ID
+            user_id = force_str(urlsafe_base64_decode(uid))
+            user = User.objects.get(pk=user_id)
+
+            # Verify token
+            if not default_token_generator.check_token(user, token):
+                return Response(
+                    {'error': 'Invalid or expired reset link'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+
+            return Response({
+                'success': True,
+                'message': 'Password reset successful. You can now log in with your new password.'
+            })
+
+        except (User.DoesNotExist, ValueError, TypeError):
+            return Response(
+                {'error': 'Invalid reset link'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
