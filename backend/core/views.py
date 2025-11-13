@@ -1734,6 +1734,12 @@ class TwoFactorVerifyLoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        # Debug: Check server time
+        import datetime
+        server_time = datetime.datetime.now()
+        print(f"DEBUG 2FA Login: Server time: {server_time}")
+        print(f"DEBUG 2FA Login: Server timezone: {datetime.datetime.now().astimezone().tzinfo}")
+
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -1747,8 +1753,15 @@ class TwoFactorVerifyLoginView(APIView):
 
         # Try TOTP device first
         totp_devices = TOTPDevice.objects.filter(user=user, confirmed=True)
+        print(f"DEBUG 2FA Login: Found {totp_devices.count()} confirmed TOTP devices for user {user.username}")
+        print(f"DEBUG 2FA Login: Received token: {token}")
+
         for device in totp_devices:
+            print(f"DEBUG 2FA Login: Trying device {device.id} - {device.name}")
+            print(f"DEBUG 2FA Login: Device confirmed: {device.confirmed}")
+
             if device.verify_token(token):
+                print(f"DEBUG 2FA Login: Token verified successfully!")
                 # Valid TOTP token - complete login
                 request.session.pop('pending_2fa_user_id', None)
                 request.session.pop('pending_2fa_username', None)
@@ -1761,10 +1774,15 @@ class TwoFactorVerifyLoginView(APIView):
                     },
                     status=status.HTTP_200_OK
                 )
+            else:
+                print(f"DEBUG 2FA Login: Token verification failed for device {device.id}")
 
         # Try static backup codes
         static_devices = StaticDevice.objects.filter(user=user, confirmed=True)
+        print(f"DEBUG 2FA Login: Found {static_devices.count()} static devices for backup codes")
+
         for device in static_devices:
+            print(f"DEBUG 2FA Login: Trying backup code verification")
             if device.verify_token(token):
                 # Valid backup code - complete login and warn user
                 request.session.pop('pending_2fa_user_id', None)
