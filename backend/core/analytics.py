@@ -15,7 +15,7 @@ METRIC DEFINITIONS:
 
 from django.db.models import Count, Sum, Avg, Q, F
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 from decimal import Decimal
 from .models import User, Course, Subscription, Lesson, LessonProgress, Comment
 
@@ -322,13 +322,15 @@ class AnalyticsService:
         subscriber_trend = []
         for i in range(30):
             date = (thirty_days_ago + timedelta(days=i)).date()
+            # Convert date to timezone-aware datetime for comparison
+            date_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
 
             # Count active subscriptions on that date
             active_on_date = course.subscriptions.filter(
-                created_at__lte=date,
+                created_at__lte=date_end,
                 status__in=ACTIVE_SUBSCRIPTION_STATUSES
             ).filter(
-                Q(updated_at__gt=date) | Q(status__in=ACTIVE_SUBSCRIPTION_STATUSES)
+                Q(updated_at__gt=date_end) | Q(status__in=ACTIVE_SUBSCRIPTION_STATUSES)
             ).count()
 
             subscriber_trend.append({
@@ -623,10 +625,13 @@ class AnalyticsService:
             date = (thirty_days_ago + timedelta(days=i)).date()
             next_date = date + timedelta(days=1)
 
+            # Convert date to timezone-aware datetime for comparison
+            date_end = timezone.make_aware(datetime.combine(date, datetime.max.time()))
+
             # Count users with active subs on that date
             active_count = User.objects.filter(
                 subscriptions__status__in=['active', 'trialing'],
-                subscriptions__created_at__lte=date
+                subscriptions__created_at__lte=date_end
             ).distinct().count()
 
             active_users_trend.append({
