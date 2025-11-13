@@ -663,15 +663,35 @@ class LoginView(APIView):
         if user is not None:
             # Successful login - clear failed attempts
             LoginAttemptTracker.clear_attempts(username, ip_address)
-            login(request, user)
 
-            return Response(
-                {
-                    'user': UserSerializer(user).data,
-                    'message': 'Login successful'
-                },
-                status=status.HTTP_200_OK
-            )
+            # Check if user has 2FA enabled
+            has_2fa = TOTPDevice.objects.filter(user=user, confirmed=True).exists()
+
+            if has_2fa:
+                # Don't fully log in yet - require 2FA verification
+                # Store user ID in session temporarily
+                request.session['pending_2fa_user_id'] = user.id
+                request.session['pending_2fa_username'] = username
+                request.session.save()
+
+                return Response(
+                    {
+                        'requires_2fa': True,
+                        'message': 'Please enter your 2FA code'
+                    },
+                    status=status.HTTP_200_OK
+                )
+            else:
+                # No 2FA - proceed with normal login
+                login(request, user)
+
+                return Response(
+                    {
+                        'user': UserSerializer(user).data,
+                        'message': 'Login successful'
+                    },
+                    status=status.HTTP_200_OK
+                )
         else:
             # Failed login - record attempt first
             LoginAttemptTracker.record_failed_attempt(username, ip_address)
@@ -1685,6 +1705,106 @@ class TwoFactorDisableView(APIView):
             'success': True,
             'message': '2FA disabled successfully'
         })
+
+
+class TwoFactorVerifyLoginView(APIView):
+    """Verify 2FA token during login."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        from .auth_security import LoginAttemptTracker, get_client_ip
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        # Check if there's a pending 2FA verification
+        user_id = request.session.get('pending_2fa_user_id')
+        username = request.session.get('pending_2fa_username')
+
+        if not user_id:
+            return Response(
+                {'error': 'No pending 2FA verification. Please log in first.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        token = request.data.get('token')
+        if not token:
+            return Response(
+                {'error': 'Token is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            # Clear invalid session data
+            request.session.pop('pending_2fa_user_id', None)
+            request.session.pop('pending_2fa_username', None)
+            return Response(
+                {'error': 'Invalid session. Please log in again.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Try TOTP device first
+        totp_devices = TOTPDevice.objects.filter(user=user, confirmed=True)
+        for device in totp_devices:
+            if device.verify_token(token):
+                # Valid TOTP token - complete login
+                request.session.pop('pending_2fa_user_id', None)
+                request.session.pop('pending_2fa_username', None)
+                login(request, user)
+
+                return Response(
+                    {
+                        'user': UserSerializer(user).data,
+                        'message': 'Login successful'
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+        # Try static backup codes
+        static_devices = StaticDevice.objects.filter(user=user, confirmed=True)
+        for device in static_devices:
+            if device.verify_token(token):
+                # Valid backup code - complete login and warn user
+                request.session.pop('pending_2fa_user_id', None)
+                request.session.pop('pending_2fa_username', None)
+                login(request, user)
+
+                return Response(
+                    {
+                        'user': UserSerializer(user).data,
+                        'message': 'Login successful',
+                        'warning': 'You used a backup code. Consider regenerating backup codes.'
+                    },
+                    status=status.HTTP_200_OK
+                )
+
+        # Invalid token - record failed attempt
+        ip_address = get_client_ip(request)
+        LoginAttemptTracker.record_failed_attempt(username, ip_address)
+
+        # Get remaining attempts
+        user_attempts, ip_attempts = LoginAttemptTracker.get_attempt_count(username, ip_address)
+        max_attempts = max(user_attempts, ip_attempts)
+        attempts_remaining = LoginAttemptTracker.MAX_ATTEMPTS - max_attempts
+
+        if attempts_remaining <= 0:
+            # Clear pending 2FA session
+            request.session.pop('pending_2fa_user_id', None)
+            request.session.pop('pending_2fa_username', None)
+            return Response(
+                {'error': 'Too many failed attempts. Please log in again.'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        return Response(
+            {
+                'error': 'Invalid 2FA code. Please try again.',
+                'attempts_remaining': attempts_remaining
+            },
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class TwoFactorCancelSetupView(APIView):

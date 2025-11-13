@@ -12,10 +12,15 @@ interface User {
   is_staff: boolean
 }
 
+interface LoginResult {
+  requires2FA?: boolean
+  user?: User
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
-  login: (username: string, password: string) => Promise<void>
+  login: (username: string, password: string) => Promise<LoginResult>
   register: (userData: RegisterData) => Promise<void>
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
@@ -54,11 +59,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [])
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<LoginResult> => {
     const response = await api.post('/auth/login/', { username, password })
     // Clear cached CSRF token after login so next request gets a fresh one
     clearCSRFToken()
+
+    // Check if 2FA is required
+    if (response.data.requires_2fa) {
+      return { requires2FA: true }
+    }
+
     setUser(response.data.user)
+    return { requires2FA: false, user: response.data.user }
   }
 
   const register = async (userData: RegisterData) => {

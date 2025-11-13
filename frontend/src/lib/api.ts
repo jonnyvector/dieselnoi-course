@@ -785,6 +785,12 @@ export const twoFactorAPI = {
     return response.data
   },
 
+  // Verify 2FA token during login
+  verifyLogin: async (token: string): Promise<LoginResponse> => {
+    const response = await api.post('/auth/2fa/verify-login/', { token })
+    return response.data
+  },
+
   // Cancel 2FA setup in progress
   cancelSetup: async (): Promise<{ success: boolean; message: string }> => {
     const response = await api.post('/auth/2fa/cancel-setup/')
