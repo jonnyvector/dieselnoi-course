@@ -1592,16 +1592,13 @@ class TwoFactorSetupView(APIView):
         # This handles the case where user closes modal and reopens it
         device = TOTPDevice.objects.filter(user=request.user, confirmed=False).first()
 
-        if device:
-            print(f"DEBUG: Reusing existing unconfirmed TOTP device {device.id} for user {request.user.id}")
-        else:
+        if not device:
             # Create new TOTP device
             device = TOTPDevice.objects.create(
                 user=request.user,
                 name=f"{request.user.email}'s Authenticator",
                 confirmed=False
             )
-            print(f"DEBUG: Created new TOTP device {device.id} for user {request.user.id}, confirmed={device.confirmed}")
 
         # Generate QR code
         url = device.config_url
@@ -1637,12 +1634,6 @@ class TwoFactorVerifyView(APIView):
         try:
             device = TOTPDevice.objects.get(user=request.user, confirmed=False)
         except TOTPDevice.DoesNotExist:
-            # Debug: Check if any devices exist for this user
-            all_devices = TOTPDevice.objects.filter(user=request.user)
-            print(f"DEBUG: User {request.user.id} has {all_devices.count()} TOTP devices")
-            for d in all_devices:
-                print(f"  - Device {d.id}: confirmed={d.confirmed}, name={d.name}")
-
             return Response(
                 {'error': 'No setup in progress. Please start 2FA setup first.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -1734,12 +1725,6 @@ class TwoFactorVerifyLoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Debug: Check server time
-        import datetime
-        server_time = datetime.datetime.now()
-        print(f"DEBUG 2FA Login: Server time: {server_time}")
-        print(f"DEBUG 2FA Login: Server timezone: {datetime.datetime.now().astimezone().tzinfo}")
-
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -1753,24 +1738,9 @@ class TwoFactorVerifyLoginView(APIView):
 
         # Try TOTP device first
         totp_devices = TOTPDevice.objects.filter(user=user, confirmed=True)
-        print(f"DEBUG 2FA Login: Found {totp_devices.count()} confirmed TOTP devices for user {user.username}")
-        print(f"DEBUG 2FA Login: Received token: {token}")
 
         for device in totp_devices:
-            print(f"DEBUG 2FA Login: Trying device {device.id} - {device.name}")
-            print(f"DEBUG 2FA Login: Device confirmed: {device.confirmed}")
-            print(f"DEBUG 2FA Login: Device drift: {device.drift}")
-            print(f"DEBUG 2FA Login: Device last_t: {device.last_t}")
-
-            # Verify the token (django-otp handles tolerance internally)
-            verified = device.verify_token(token)
-            print(f"DEBUG 2FA Login: verify_token returned: {verified}")
-
-            if verified:
-                print(f"DEBUG 2FA Login: Token verified successfully!")
-                print(f"DEBUG 2FA Login: Device drift after verification: {device.drift}")
-                print(f"DEBUG 2FA Login: Device last_t after verification: {device.last_t}")
-
+            if device.verify_token(token):
                 # Valid TOTP token - complete login
                 request.session.pop('pending_2fa_user_id', None)
                 request.session.pop('pending_2fa_username', None)
@@ -1786,15 +1756,11 @@ class TwoFactorVerifyLoginView(APIView):
                     },
                     status=status.HTTP_200_OK
                 )
-            else:
-                print(f"DEBUG 2FA Login: Token verification failed for device {device.id}")
 
         # Try static backup codes
         static_devices = StaticDevice.objects.filter(user=user, confirmed=True)
-        print(f"DEBUG 2FA Login: Found {static_devices.count()} static devices for backup codes")
 
         for device in static_devices:
-            print(f"DEBUG 2FA Login: Trying backup code verification")
             if device.verify_token(token):
                 # Valid backup code - complete login and warn user
                 request.session.pop('pending_2fa_user_id', None)
@@ -1846,8 +1812,7 @@ class TwoFactorCancelSetupView(APIView):
 
     def post(self, request):
         # Delete any unconfirmed devices
-        deleted_count = TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()[0]
-        print(f"DEBUG: Cancelled setup - deleted {deleted_count} unconfirmed devices for user {request.user.id}")
+        TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()
 
         return Response({
             'success': True,
@@ -1861,14 +1826,7 @@ class TwoFactorBackupCodesView(APIView):
 
     def post(self, request):
         # Check if 2FA is enabled
-        try:
-            device = TOTPDevice.objects.get(user=request.user, confirmed=True)
-            print(f"DEBUG: Found confirmed TOTP device {device.id} for user {request.user.id}")
-        except TOTPDevice.DoesNotExist:
-            all_devices = TOTPDevice.objects.filter(user=request.user)
-            print(f"DEBUG: User {request.user.id} has {all_devices.count()} TOTP devices (none confirmed)")
-            for d in all_devices:
-                print(f"  - Device {d.id}: confirmed={d.confirmed}")
+        if not TOTPDevice.objects.filter(user=request.user, confirmed=True).exists():
             return Response(
                 {'error': '2FA is not enabled'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -1876,7 +1834,6 @@ class TwoFactorBackupCodesView(APIView):
 
         password = request.data.get('password')
         if not password:
-            print(f"DEBUG: No password provided for user {request.user.id}")
             return Response(
                 {'error': 'Password is required to regenerate backup codes'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -1884,7 +1841,6 @@ class TwoFactorBackupCodesView(APIView):
 
         # Verify password
         if not request.user.check_password(password):
-            print(f"DEBUG: Invalid password for user {request.user.id}")
             return Response(
                 {'error': 'Invalid password'},
                 status=status.HTTP_401_UNAUTHORIZED
