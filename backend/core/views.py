@@ -1765,6 +1765,9 @@ class TwoFactorVerifyLoginView(APIView):
                 # Valid TOTP token - complete login
                 request.session.pop('pending_2fa_user_id', None)
                 request.session.pop('pending_2fa_username', None)
+
+                # Set the backend explicitly (required when multiple backends are configured)
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)
 
                 return Response(
@@ -1787,6 +1790,9 @@ class TwoFactorVerifyLoginView(APIView):
                 # Valid backup code - complete login and warn user
                 request.session.pop('pending_2fa_user_id', None)
                 request.session.pop('pending_2fa_username', None)
+
+                # Set the backend explicitly (required when multiple backends are configured)
+                user.backend = 'django.contrib.auth.backends.ModelBackend'
                 login(request, user)
 
                 return Response(
