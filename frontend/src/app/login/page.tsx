@@ -86,9 +86,12 @@ export default function LoginPage() {
             </p>
           )}
           {showTwoFactor && (
-            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
-              Enter the 6-digit code from your authenticator app or use a backup code
-            </p>
+            <div className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
+              <p>Enter the 6-digit code from your authenticator app or use a backup code</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Note: Each code can only be used once. Wait for a new code if you've already used the current one.
+              </p>
+            </div>
           )}
         </div>
 

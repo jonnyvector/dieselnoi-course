@@ -357,9 +357,14 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
         {/* Verify Step */}
         {step === 'verify' && (
           <div className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Enter the 6-digit code from your authenticator app to verify the setup.
-            </p>
+            <div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Enter the 6-digit code from your authenticator app to verify the setup.
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                Note: Authentication codes change every 30 seconds and can only be used once.
+              </p>
+            </div>
 
             <div>
               <input
