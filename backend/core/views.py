@@ -1642,10 +1642,9 @@ class TwoFactorVerifyView(APIView):
 
             backup_codes = []
             for _ in range(10):
-                token_obj = StaticToken.random_token()
-                token_obj.device = static_device
-                token_obj.save()
-                backup_codes.append(token_obj.token)
+                token = StaticToken.random_token()
+                StaticToken.objects.create(device=static_device, token=token)
+                backup_codes.append(token)
 
             return Response({
                 'success': True,
@@ -1750,10 +1749,9 @@ class TwoFactorBackupCodesView(APIView):
 
         backup_codes = []
         for _ in range(10):
-            token_obj = StaticToken.random_token()
-            token_obj.device = static_device
-            token_obj.save()
-            backup_codes.append(token_obj.token)
+            token = StaticToken.random_token()
+            StaticToken.objects.create(device=static_device, token=token)
+            backup_codes.append(token)
 
         return Response({
             'success': True,
