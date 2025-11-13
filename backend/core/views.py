@@ -2009,6 +2009,11 @@ Dieselnoi Muay Thai Team
                 'message': 'Password reset email sent. Please check your inbox.'
             })
         except Exception as e:
+            # Log the actual error for debugging
+            import traceback
+            print(f"Password reset email error: {str(e)}")
+            print(traceback.format_exc())
+
             return Response(
                 {'error': 'Failed to send reset email. Please try again later.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
