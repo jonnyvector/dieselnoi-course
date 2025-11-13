@@ -1710,8 +1710,13 @@ class TwoFactorBackupCodesView(APIView):
     def post(self, request):
         # Check if 2FA is enabled
         try:
-            TOTPDevice.objects.get(user=request.user, confirmed=True)
+            device = TOTPDevice.objects.get(user=request.user, confirmed=True)
+            print(f"DEBUG: Found confirmed TOTP device {device.id} for user {request.user.id}")
         except TOTPDevice.DoesNotExist:
+            all_devices = TOTPDevice.objects.filter(user=request.user)
+            print(f"DEBUG: User {request.user.id} has {all_devices.count()} TOTP devices (none confirmed)")
+            for d in all_devices:
+                print(f"  - Device {d.id}: confirmed={d.confirmed}")
             return Response(
                 {'error': '2FA is not enabled'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -1719,6 +1724,7 @@ class TwoFactorBackupCodesView(APIView):
 
         password = request.data.get('password')
         if not password:
+            print(f"DEBUG: No password provided for user {request.user.id}")
             return Response(
                 {'error': 'Password is required to regenerate backup codes'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -1726,6 +1732,7 @@ class TwoFactorBackupCodesView(APIView):
 
         # Verify password
         if not request.user.check_password(password):
+            print(f"DEBUG: Invalid password for user {request.user.id}")
             return Response(
                 {'error': 'Invalid password'},
                 status=status.HTTP_401_UNAUTHORIZED

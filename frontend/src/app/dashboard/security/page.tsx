@@ -589,7 +589,11 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
       setBackupCodes(response.backup_codes)
       setShowCodes(true)
     } catch (error: any) {
-      setError(error.response?.data?.error || 'Failed to regenerate backup codes')
+      console.error('Regenerate backup codes error:', error)
+      console.error('Error response:', error.response)
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to regenerate backup codes'
+      console.error('Error message:', errorMsg)
+      setError(errorMsg)
     } finally {
       setLoading(false)
     }
