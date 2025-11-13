@@ -1762,9 +1762,8 @@ class TwoFactorVerifyLoginView(APIView):
             print(f"DEBUG 2FA Login: Device drift: {device.drift}")
             print(f"DEBUG 2FA Login: Device last_t: {device.last_t}")
 
-            # Use tolerance=1 to allow for clock drift and accept codes from the previous/next time window
-            # This gives a ~90 second window instead of 30 seconds
-            verified = device.verify_token(token, tolerance=1)
+            # Verify the token (django-otp handles tolerance internally)
+            verified = device.verify_token(token)
             print(f"DEBUG 2FA Login: verify_token returned: {verified}")
 
             if verified:
