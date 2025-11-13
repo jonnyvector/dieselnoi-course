@@ -739,6 +739,21 @@ export const certificateAPI = {
 // Two-Factor Authentication API
 // ============================================
 
+export interface User {
+  id: number
+  username: string
+  email: string
+  first_name: string
+  last_name: string
+  is_staff: boolean
+}
+
+export interface LoginResponse {
+  user: User
+  message: string
+  warning?: string
+}
+
 export interface TwoFactorStatus {
   enabled: boolean
   device_name?: string
