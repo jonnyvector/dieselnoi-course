@@ -1759,9 +1759,19 @@ class TwoFactorVerifyLoginView(APIView):
         for device in totp_devices:
             print(f"DEBUG 2FA Login: Trying device {device.id} - {device.name}")
             print(f"DEBUG 2FA Login: Device confirmed: {device.confirmed}")
+            print(f"DEBUG 2FA Login: Device drift: {device.drift}")
+            print(f"DEBUG 2FA Login: Device last_t: {device.last_t}")
 
-            if device.verify_token(token):
+            # Use tolerance=1 to allow for clock drift and accept codes from the previous/next time window
+            # This gives a ~90 second window instead of 30 seconds
+            verified = device.verify_token(token, tolerance=1)
+            print(f"DEBUG 2FA Login: verify_token returned: {verified}")
+
+            if verified:
                 print(f"DEBUG 2FA Login: Token verified successfully!")
+                print(f"DEBUG 2FA Login: Device drift after verification: {device.drift}")
+                print(f"DEBUG 2FA Login: Device last_t after verification: {device.last_t}")
+
                 # Valid TOTP token - complete login
                 request.session.pop('pending_2fa_user_id', None)
                 request.session.pop('pending_2fa_username', None)
