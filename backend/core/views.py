@@ -1569,7 +1569,8 @@ class TwoFactorSetupView(APIView):
             )
 
         # Delete any unconfirmed devices
-        TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()
+        deleted_count = TOTPDevice.objects.filter(user=request.user, confirmed=False).delete()[0]
+        print(f"DEBUG: Deleted {deleted_count} unconfirmed devices for user {request.user.id}")
 
         # Create new TOTP device
         device = TOTPDevice.objects.create(
@@ -1577,6 +1578,7 @@ class TwoFactorSetupView(APIView):
             name=f"{request.user.email}'s Authenticator",
             confirmed=False
         )
+        print(f"DEBUG: Created TOTP device {device.id} for user {request.user.id}, confirmed={device.confirmed}")
 
         # Generate QR code
         url = device.config_url
@@ -1612,6 +1614,12 @@ class TwoFactorVerifyView(APIView):
         try:
             device = TOTPDevice.objects.get(user=request.user, confirmed=False)
         except TOTPDevice.DoesNotExist:
+            # Debug: Check if any devices exist for this user
+            all_devices = TOTPDevice.objects.filter(user=request.user)
+            print(f"DEBUG: User {request.user.id} has {all_devices.count()} TOTP devices")
+            for d in all_devices:
+                print(f"  - Device {d.id}: confirmed={d.confirmed}, name={d.name}")
+
             return Response(
                 {'error': 'No setup in progress. Please start 2FA setup first.'},
                 status=status.HTTP_400_BAD_REQUEST
