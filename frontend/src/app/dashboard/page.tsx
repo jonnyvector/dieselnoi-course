@@ -152,23 +152,23 @@ export default function DashboardPage() {
         {/* Active Subscriptions */}
         <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
                 <h2 className="text-xl">Active Subscriptions</h2>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   {activeSubscriptions.length} active {activeSubscriptions.length === 1 ? 'subscription' : 'subscriptions'}
                 </p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link
                   href="/dashboard/profile"
-                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center"
                 >
                   Profile Settings
                 </Link>
                 <Link
                   href="/dashboard/security"
-                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-center"
                 >
                   Security Settings
                 </Link>
