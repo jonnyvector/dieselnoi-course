@@ -85,7 +85,7 @@ function SignupContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-light-bg dark:bg-dark-bg py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl">
@@ -263,7 +263,7 @@ function SignupContent() {
               <div className="w-full border-t border-gray-300 dark:border-gray-700" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 dark:bg-dark-bg text-gray-500 dark:text-gray-300">Or continue with</span>
+              <span className="px-2 bg-light-bg dark:bg-dark-bg text-gray-500 dark:text-gray-300">Or continue with</span>
             </div>
           </div>
         </div>
@@ -303,7 +303,7 @@ function SignupContent() {
 export default function SignupPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg">
+      <div className="min-h-screen flex items-center justify-center bg-light-bg dark:bg-dark-bg">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto"></div>
           <p className="mt-4 text-xl text-gray-700 dark:text-gray-300">Loading...</p>

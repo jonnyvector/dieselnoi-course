@@ -148,7 +148,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-16 bg-gray-50 dark:bg-dark-bg">
+      <section className="py-16 bg-light-bg dark:bg-dark-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl mb-4">
@@ -289,7 +289,7 @@ export default function Home() {
       </section>
 
       {/* Courses Section */}
-      <section id="courses" className="py-16 bg-gray-50 dark:bg-dark-bg">
+      <section id="courses" className="py-16 bg-light-bg dark:bg-dark-bg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl mb-4">
@@ -318,7 +318,7 @@ export default function Home() {
 
           <div className="space-y-6">
             {/* FAQ Item 1 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 Do I need prior Muay Thai experience?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -331,7 +331,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 2 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 How does the subscription work?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -344,7 +344,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 3 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 Can I access courses on mobile devices?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -357,7 +357,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 4 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 What if I'm not satisfied with a course?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -370,7 +370,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 5 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 How long do I have access to course content?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -383,7 +383,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 6 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 Are the certificates recognized?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -396,7 +396,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 7 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 Who is Dieselnoi?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -409,7 +409,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 8 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 Do I need special equipment?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,7 +422,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 9 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 Can I download videos for offline viewing?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,7 +435,7 @@ export default function Home() {
             </details>
 
             {/* FAQ Item 10 */}
-            <details className="group bg-gray-50 dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
+            <details className="group bg-light-bg dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg">
               <summary className="flex justify-between items-center cursor-pointer p-6 font-semibold text-gray-900 dark:text-dark-heading text-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors rounded-lg">
                 How do I cancel my subscription?
                 <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

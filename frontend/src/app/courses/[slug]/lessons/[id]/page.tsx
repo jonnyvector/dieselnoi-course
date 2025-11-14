@@ -197,7 +197,7 @@ export default function LessonDetailPage() {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
         <Navigation currentPage="lesson" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <VideoPlayerSkeleton />
@@ -211,7 +211,7 @@ export default function LessonDetailPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-dark-bg">
+      <div className="min-h-screen flex items-center justify-center bg-light-bg dark:bg-dark-bg">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
           <h3 className="font-semibold mb-2">Error Loading Lesson</h3>
           <p className="text-red-700 dark:text-red-300">{error}</p>
@@ -231,7 +231,7 @@ export default function LessonDetailPage() {
   const isLocked = lesson.is_locked
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <Navigation currentPage="lesson" />
 
       {/* Lesson Content */}

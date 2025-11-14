@@ -93,7 +93,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
           <p className="mt-2 text-gray-600 dark:text-gray-300">Loading course analytics...</p>
@@ -108,7 +108,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400">{error || 'Course not found'}</p>
           <button
@@ -123,7 +123,7 @@ export default function CourseAnalyticsDetailPage({ params }: PageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <Navigation currentPage="admin" />
 
       <div className="max-w-7xl mx-auto px-4 py-8">

@@ -107,7 +107,7 @@ export default function AdminAnalyticsPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
           <p className="mt-2 text-gray-600 dark:text-gray-300">Loading analytics...</p>
@@ -122,7 +122,7 @@ export default function AdminAnalyticsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 dark:text-red-400">{error}</p>
           <button
@@ -137,7 +137,7 @@ export default function AdminAnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg">
+    <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <Navigation currentPage="admin" />
 
       {/* Main Content */}
