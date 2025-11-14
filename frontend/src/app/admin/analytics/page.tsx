@@ -259,7 +259,7 @@ export default function AdminAnalyticsPage() {
                 {sortedCourses.map((course) => (
                   <tr
                     key={course.course_slug}
-                    className="hover:bg-gray-50 dark:hover:opacity-90 cursor-pointer"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                     onClick={() => router.push(`/admin/analytics/courses/${course.course_slug}`)}
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
