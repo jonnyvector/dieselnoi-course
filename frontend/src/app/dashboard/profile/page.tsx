@@ -100,7 +100,7 @@ export default function ProfileSettingsPage() {
         <div className="mb-8">
           <Link
             href="/dashboard"
-            className="text-purple-600 dark:text-gold-400 hover:underline mb-4 inline-block"
+            className="text-purple dark:text-gold hover:underline mb-4 inline-block"
           >
             ← Back to Dashboard
           </Link>
@@ -154,7 +154,7 @@ export default function ProfileSettingsPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold"
                 />
               </div>
 
@@ -167,7 +167,7 @@ export default function ProfileSettingsPage() {
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold"
                   />
                 </div>
 
@@ -179,7 +179,7 @@ export default function ProfileSettingsPage() {
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold"
                   />
                 </div>
               </div>
@@ -188,7 +188,7 @@ export default function ProfileSettingsPage() {
                 <button
                   type="submit"
                   disabled={profileLoading}
-                  className="px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium disabled:opacity-50"
+                  className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50"
                 >
                   {profileLoading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -224,7 +224,7 @@ export default function ProfileSettingsPage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold"
                 />
               </div>
 
@@ -237,7 +237,7 @@ export default function ProfileSettingsPage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold"
                   placeholder="Min 8 characters"
                 />
               </div>
@@ -251,7 +251,7 @@ export default function ProfileSettingsPage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export default function ProfileSettingsPage() {
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium disabled:opacity-50"
+                  className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50"
                 >
                   {passwordLoading ? 'Changing...' : 'Change Password'}
                 </button>

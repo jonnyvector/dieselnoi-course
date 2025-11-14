@@ -50,7 +50,7 @@ export default function SecurityPage() {
         <div className="mb-8">
           <button
             onClick={() => router.push('/dashboard')}
-            className="text-purple-600 dark:text-gold-400 hover:underline mb-4"
+            className="text-purple dark:text-gold hover:underline mb-4"
           >
             ← Back to Dashboard
           </button>
@@ -87,7 +87,7 @@ export default function SecurityPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowBackupCodesModal(true)}
-                      className="px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors text-sm font-medium"
+                      className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors text-sm font-medium"
                     >
                       Regenerate Backup Codes
                     </button>
@@ -107,7 +107,7 @@ export default function SecurityPage() {
                   </p>
                   <button
                     onClick={() => setShowSetupModal(true)}
-                    className="px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors text-sm font-medium"
                   >
                     Enable Two-Factor Authentication
                   </button>
@@ -117,7 +117,7 @@ export default function SecurityPage() {
 
             {/* Icon */}
             <div className="ml-4">
-              <svg className="w-12 h-12 text-purple-600 dark:text-gold-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-12 h-12 text-purple dark:text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
@@ -125,11 +125,11 @@ export default function SecurityPage() {
         </div>
 
         {/* Information Section */}
-        <div className="mt-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-300 mb-2">
+        <div className="mt-6 bg-purple/5 dark:bg-purple/10 border border-purple/20 dark:border-purple/30 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-purple dark:text-gold mb-2">
             How Two-Factor Authentication Works
           </h3>
-          <ul className="text-sm text-blue-800 dark:text-blue-400 space-y-1 list-disc list-inside">
+          <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-disc list-inside">
             <li>Download an authenticator app like Google Authenticator, Authy, or 1Password</li>
             <li>Scan the QR code provided during setup</li>
             <li>Enter the 6-digit code from your app to verify</li>
@@ -301,7 +301,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
           <div className="space-y-4">
             {loading ? (
               <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 dark:border-gold-400"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple dark:border-gold"></div>
               </div>
             ) : error ? (
               <>
@@ -310,7 +310,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
                 </div>
                 <button
                   onClick={loadQRCode}
-                  className="w-full px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium"
+                  className="w-full px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium"
                 >
                   Retry
                 </button>
@@ -345,7 +345,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
                 <button
                   onClick={() => setStep('verify')}
                   disabled={!qrCode || !secret}
-                  className="w-full px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                 </button>
@@ -374,7 +374,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
                 value={token}
                 onChange={(e) => setToken(e.target.value.replace(/\D/g, ''))}
                 placeholder="000000"
-                className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400 focus:border-transparent"
+                className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold focus:border-transparent"
                 autoFocus
               />
             </div>
@@ -415,7 +415,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
               <button
                 onClick={handleVerify}
                 disabled={loading || token.length !== 6}
-                className="flex-1 px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Verifying...' : 'Verify'}
               </button>
@@ -448,13 +448,13 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
             <div className="flex gap-3">
               <button
                 onClick={handleDownloadBackupCodes}
-                className="flex-1 px-4 py-2 border border-purple-600 dark:border-gold-500 text-purple-600 dark:text-gold-400 rounded-lg hover:bg-purple-50 dark:hover:bg-gold-900/20 transition-colors font-medium"
+                className="flex-1 px-4 py-2 border border-purple dark:border-gold text-purple dark:text-gold rounded-lg hover:bg-purple/10 dark:hover:bg-gold-900/20 transition-colors font-medium"
               >
                 Download Codes
               </button>
               <button
                 onClick={handleComplete}
-                className="flex-1 px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium"
               >
                 Done
               </button>
@@ -533,7 +533,7 @@ function DisableTwoFactorModal({ onClose, onSuccess }: DisableTwoFactorModalProp
               id="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold focus:border-transparent"
               placeholder="Enter your password"
             />
           </div>
@@ -652,7 +652,7 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple-500 dark:focus:ring-gold-400 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-purple dark:focus:ring-gold focus:border-transparent"
                 placeholder="Enter your password"
               />
             </div>
@@ -673,7 +673,7 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
               <button
                 onClick={handleRegenerate}
                 disabled={loading || !password}
-                className="flex-1 px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Generating...' : 'Regenerate'}
               </button>
@@ -703,13 +703,13 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
             <div className="flex gap-3">
               <button
                 onClick={handleDownloadBackupCodes}
-                className="flex-1 px-4 py-2 border border-purple-600 dark:border-gold-500 text-purple-600 dark:text-gold-400 rounded-lg hover:bg-purple-50 dark:hover:bg-gold-900/20 transition-colors font-medium"
+                className="flex-1 px-4 py-2 border border-purple dark:border-gold text-purple dark:text-gold rounded-lg hover:bg-purple/10 dark:hover:bg-gold-900/20 transition-colors font-medium"
               >
                 Download Codes
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 bg-purple-600 dark:bg-gold-500 text-white rounded-lg hover:bg-purple-700 dark:hover:bg-gold-600 transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium"
               >
                 Done
               </button>
