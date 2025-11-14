@@ -97,18 +97,20 @@ export default function ProfileSettingsPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-dark-bg py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
+        <div className="mb-8">
           <Link
             href="/dashboard"
-            className="text-sm text-primary-600 dark:text-gold-400 hover:text-primary-700 dark:hover:text-gold-300"
+            className="text-purple-600 dark:text-gold-400 hover:underline mb-4 inline-block"
           >
             ← Back to Dashboard
           </Link>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Profile Settings
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Manage your account information and password
+          </p>
         </div>
-
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Profile Settings
-        </h1>
 
         <div className="space-y-8">
           {/* Profile Information */}

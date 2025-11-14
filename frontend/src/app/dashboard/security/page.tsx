@@ -37,14 +37,14 @@ export default function SecurityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-dark-bg flex items-center justify-center">
         <div className="text-gray-600 dark:text-gray-400">Loading...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-dark-bg py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -61,7 +61,7 @@ export default function SecurityPage() {
         </div>
 
         {/* Two-Factor Authentication Section */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
