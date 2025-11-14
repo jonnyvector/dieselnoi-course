@@ -22,7 +22,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
   }
 
   return (
-    <nav className="bg-white dark:bg-dark-bg shadow-sm">
+    <nav className="bg-white dark:bg-dark-card shadow-sm dark:shadow-card border-b border-gray-200 dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -88,7 +88,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                 <span className="text-gray-700 dark:text-gray-300">Welcome, {user.username}</span>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-dark-button rounded-md hover:bg-primary-700 dark:hover:opacity-90"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-dark-button rounded-md hover:bg-primary-700 dark:hover:shadow-glow-purple-sm transition-all"
                 >
                   Logout
                 </button>
@@ -104,7 +104,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                 </button>
                 <button
                   onClick={() => router.push('/signup')}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-dark-button rounded-md hover:bg-primary-700 dark:hover:opacity-90"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 dark:bg-dark-button rounded-md hover:bg-primary-700 dark:hover:shadow-glow-purple-sm transition-all"
                 >
                   Sign Up
                 </button>

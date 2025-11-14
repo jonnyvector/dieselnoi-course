@@ -150,7 +150,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Active Subscriptions */}
-        <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
+        <div className="bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card mb-8 dark:border dark:border-gray-700">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div>
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                     <Link
                       key={subscription.id}
                       href={`/courses/${subscription.course_slug}`}
-                      className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-600 dark:hover:border-primary-500 hover:shadow-md transition-all"
+                      className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-600 dark:hover:border-primary-500 hover:shadow-card-hover transition-all"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -263,7 +263,7 @@ export default function DashboardPage() {
 
         {/* Continue Watching */}
         {recentlyWatched.length > 0 && (
-          <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
+          <div className="bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl">Continue Watching</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">Pick up where you left off</p>
@@ -279,7 +279,7 @@ export default function DashboardPage() {
                     <Link
                       key={item.lesson_id}
                       href={`/courses/${item.course_slug}/lessons/${item.lesson_id}`}
-                      className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-600 dark:hover:border-primary-500 hover:shadow-md transition-all"
+                      className="block p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-600 dark:hover:border-primary-500 hover:shadow-card-hover transition-all"
                     >
                       <div className="flex gap-4">
                         {/* Video thumbnail */}
@@ -345,7 +345,7 @@ export default function DashboardPage() {
 
         {/* Achievements */}
         {badges.length > 0 && (
-          <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
+          <div className="bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl">Achievements</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
@@ -422,7 +422,7 @@ export default function DashboardPage() {
 
         {/* Inactive Subscriptions */}
         {subscriptions.filter(sub => !sub.is_active).length > 0 && (
-          <div className="bg-white dark:bg-dark-bg rounded-lg shadow mb-8 dark:border dark:border-gray-700">
+          <div className="bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card mb-8 dark:border dark:border-gray-700">
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl">Past Subscriptions</h2>
             </div>

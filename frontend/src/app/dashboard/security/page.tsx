@@ -87,7 +87,7 @@ export default function SecurityPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setShowBackupCodesModal(true)}
-                      className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors text-sm font-medium"
+                      className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors text-sm font-medium"
                     >
                       Regenerate Backup Codes
                     </button>
@@ -107,7 +107,7 @@ export default function SecurityPage() {
                   </p>
                   <button
                     onClick={() => setShowSetupModal(true)}
-                    className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors text-sm font-medium"
+                    className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors text-sm font-medium"
                   >
                     Enable Two-Factor Authentication
                   </button>
@@ -310,7 +310,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
                 </div>
                 <button
                   onClick={loadQRCode}
-                  className="w-full px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium"
+                  className="w-full px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium"
                 >
                   Retry
                 </button>
@@ -345,7 +345,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
                 <button
                   onClick={() => setStep('verify')}
                   disabled={!qrCode || !secret}
-                  className="w-full px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                 </button>
@@ -415,7 +415,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
               <button
                 onClick={handleVerify}
                 disabled={loading || token.length !== 6}
-                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Verifying...' : 'Verify'}
               </button>
@@ -454,7 +454,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
               </button>
               <button
                 onClick={handleComplete}
-                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium"
               >
                 Done
               </button>
@@ -673,7 +673,7 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
               <button
                 onClick={handleRegenerate}
                 disabled={loading || !password}
-                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Generating...' : 'Regenerate'}
               </button>
@@ -709,7 +709,7 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
               </button>
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium"
+                className="flex-1 px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium"
               >
                 Done
               </button>

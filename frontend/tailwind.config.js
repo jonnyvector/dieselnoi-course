@@ -32,13 +32,22 @@ module.exports = {
           dark: '#b89a3a',
         },
         dark: {
-          bg: '#272727',
+          bg: '#1a1a1a',
+          card: '#222222',
           button: '#5f4891',
           heading: '#D6B84A',
         },
       },
       fontFamily: {
         'heading': ['"Master of Reality"', 'sans-serif'],
+      },
+      boxShadow: {
+        'glow-purple': '0 0 20px rgba(95, 72, 145, 0.3)',
+        'glow-purple-sm': '0 0 10px rgba(95, 72, 145, 0.2)',
+        'glow-gold': '0 0 20px rgba(214, 184, 74, 0.3)',
+        'glow-gold-sm': '0 0 10px rgba(214, 184, 74, 0.2)',
+        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+        'card-hover': '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
       },
     },
   },

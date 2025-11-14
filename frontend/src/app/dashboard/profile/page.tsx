@@ -188,7 +188,7 @@ export default function ProfileSettingsPage() {
                 <button
                   type="submit"
                   disabled={profileLoading}
-                  className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50"
+                  className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium disabled:opacity-50"
                 >
                   {profileLoading ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -259,7 +259,7 @@ export default function ProfileSettingsPage() {
                 <button
                   type="submit"
                   disabled={passwordLoading}
-                  className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark transition-colors font-medium disabled:opacity-50"
+                  className="px-4 py-2 bg-purple dark:bg-gold text-white rounded-lg hover:bg-purple-dark dark:hover:bg-gold-dark hover:shadow-glow-purple dark:hover:shadow-glow-gold transition-colors font-medium disabled:opacity-50"
                 >
                   {passwordLoading ? 'Changing...' : 'Change Password'}
                 </button>

@@ -81,7 +81,7 @@ export default function CourseList() {
 
   if (courses.length === 0) {
     return (
-      <div className="text-center py-12 bg-white dark:bg-dark-bg rounded-lg shadow">
+      <div className="text-center py-12 bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card">
         <p className="text-gray-600 dark:text-gray-300 text-lg">No courses available yet.</p>
       </div>
     )
@@ -109,7 +109,7 @@ export default function CourseList() {
           <Link
             key={course.id}
             href={`/courses/${course.slug}`}
-            className="bg-white dark:bg-dark-bg rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full dark:border dark:border-gray-700"
+            className="bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full dark:border dark:border-gray-700"
           >
             {course.thumbnail_url && (
               <div className="h-48 bg-gray-200 flex-shrink-0">
