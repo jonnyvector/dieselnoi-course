@@ -61,7 +61,7 @@ export default function SecurityPage() {
         </div>
 
         {/* Two-Factor Authentication Section */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div className="bg-white dark:bg-dark-bg rounded-lg p-6 shadow dark:border dark:border-gray-700">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
@@ -278,7 +278,7 @@ function SetupTwoFactorModal({ onClose, onSuccess }: SetupTwoFactorModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+      <div className="bg-white dark:bg-dark-bg rounded-lg max-w-md w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -501,7 +501,7 @@ function DisableTwoFactorModal({ onClose, onSuccess }: DisableTwoFactorModalProp
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+      <div className="bg-white dark:bg-dark-bg rounded-lg max-w-md w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -619,7 +619,7 @@ function RegenerateBackupCodesModal({ onClose }: RegenerateBackupCodesModalProps
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+      <div className="bg-white dark:bg-dark-bg rounded-lg max-w-md w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900 dark:text-white">

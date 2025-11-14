@@ -114,7 +114,7 @@ export default function ProfileSettingsPage() {
 
         <div className="space-y-8">
           {/* Profile Information */}
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 dark:border dark:border-gray-700">
+          <div className="bg-white dark:bg-dark-bg shadow rounded-lg p-6 dark:border dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Profile Information
             </h2>
@@ -197,7 +197,7 @@ export default function ProfileSettingsPage() {
           </div>
 
           {/* Change Password */}
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 dark:border dark:border-gray-700">
+          <div className="bg-white dark:bg-dark-bg shadow rounded-lg p-6 dark:border dark:border-gray-700">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Change Password
             </h2>
