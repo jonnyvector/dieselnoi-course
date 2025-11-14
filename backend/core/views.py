@@ -812,6 +812,11 @@ class ChangePasswordView(APIView):
         request.user.set_password(new_password)
         request.user.save()
 
+        # Update the session to keep user logged in with new password
+        # This prevents session invalidation after password change
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, request.user)
+
         return Response({
             'success': True,
             'message': 'Password changed successfully'
