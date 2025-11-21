@@ -6,6 +6,7 @@ from .views import (
     SubscriptionViewSet,
     LessonProgressViewSet,
     CommentViewSet,
+    VideoNoteViewSet,
     CourseReviewViewSet,
     CourseResourceViewSet,
     BadgeViewSet,
@@ -45,6 +46,7 @@ router.register(r'lessons', LessonViewSet, basename='lesson')
 router.register(r'subscriptions', SubscriptionViewSet, basename='subscription')
 router.register(r'progress', LessonProgressViewSet, basename='progress')
 router.register(r'comments', CommentViewSet, basename='comment')
+router.register(r'notes', VideoNoteViewSet, basename='note')
 router.register(r'reviews', CourseReviewViewSet, basename='review')
 router.register(r'resources', CourseResourceViewSet, basename='resource')
 router.register(r'badges', BadgeViewSet, basename='badge')

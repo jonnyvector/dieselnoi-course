@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.conf import settings
 from .models import (
     User, Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge,
-    ReferralCode, Referral, ReferralCredit, ReferralFraudCheck
+    ReferralCode, Referral, ReferralCredit, ReferralFraudCheck, VideoNote
 )
 from .mux_utils import get_signed_playback_id
 
@@ -334,6 +334,28 @@ class CommentSerializer(serializers.ModelSerializer):
         if 'content' in validated_data and validated_data['content'] != instance.content:
             validated_data['is_edited'] = True
         return super().update(instance, validated_data)
+
+
+class VideoNoteSerializer(serializers.ModelSerializer):
+    """Serializer for VideoNote model (personal bookmarks/notes)."""
+    lesson_title = serializers.CharField(source='lesson.title', read_only=True)
+
+    class Meta:
+        model = VideoNote
+        fields = [
+            'id',
+            'lesson',
+            'lesson_title',
+            'timestamp_seconds',
+            'content',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'lesson_title', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
 
 
 class CourseReviewSerializer(serializers.ModelSerializer):

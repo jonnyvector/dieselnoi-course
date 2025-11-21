@@ -20,7 +20,7 @@ import qrcode
 import qrcode.image.svg
 from io import BytesIO
 import base64
-from .models import Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge, Referral, ReferralCode, ReferralCredit, ReferralFraudCheck
+from .models import Course, Lesson, Subscription, LessonProgress, Comment, VideoNote, CourseReview, CourseResource, Badge, UserBadge, Referral, ReferralCode, ReferralCredit, ReferralFraudCheck
 from .serializers import (
     CourseSerializer,
     CourseDetailSerializer,
@@ -31,6 +31,7 @@ from .serializers import (
     LessonProgressSerializer,
     CourseProgressSerializer,
     CommentSerializer,
+    VideoNoteSerializer,
     CourseReviewSerializer,
     CourseResourceSerializer,
     BadgeSerializer,
@@ -439,6 +440,26 @@ class CommentViewSet(viewsets.ModelViewSet):
         if instance.user != self.request.user and not self.request.user.is_staff:
             raise permissions.PermissionDenied("You can only delete your own comments.")
         instance.delete()
+
+
+class VideoNoteViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for personal video bookmarks/notes.
+    Users can only see and manage their own notes.
+    """
+    serializer_class = VideoNoteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """Return only the current user's notes, optionally filtered by lesson."""
+        queryset = VideoNote.objects.filter(user=self.request.user).select_related('lesson')
+        lesson_id = self.request.query_params.get('lesson_id')
+        if lesson_id:
+            queryset = queryset.filter(lesson_id=lesson_id)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class CourseReviewViewSet(viewsets.ModelViewSet):

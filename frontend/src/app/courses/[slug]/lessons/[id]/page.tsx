@@ -7,6 +7,7 @@ import MuxPlayer from '@mux/mux-player-react'
 import api, { Lesson, stripeAPI, progressAPI, courseAPI, CourseDetail } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import Comments from '@/components/Comments'
+import VideoNotes from '@/components/VideoNotes'
 import { VideoPlayerSkeleton, CommentListSkeleton } from '@/components/Skeleton'
 import { useToast } from '@/contexts/ToastContext'
 import Navigation from '@/components/Navigation'
@@ -37,6 +38,7 @@ export default function LessonDetailPage() {
   const [subscribing, setSubscribing] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [savedWatchTime, setSavedWatchTime] = useState<number>(0)
+  const [currentVideoTime, setCurrentVideoTime] = useState<number>(0)
   const playerRef = useRef<any>(null)
   const progressMarkedRef = useRef(false)
   const lastSavedTimeRef = useRef(0)
@@ -129,6 +131,9 @@ export default function LessonDetailPage() {
 
     const currentTime = player.currentTime || 0
     const duration = player.duration || 0
+
+    // Update current time for notes UI
+    setCurrentVideoTime(currentTime)
 
     // Save progress every 10 seconds (with position for resume)
     if (currentTime - lastSavedTimeRef.current >= 10) {
@@ -381,6 +386,22 @@ export default function LessonDetailPage() {
                   </svg>
                 </div>
               </Link>
+            </div>
+          )}
+
+          {/* My Notes Section */}
+          {!isLocked && (
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4">My Notes</h3>
+              <VideoNotes
+                lessonId={lesson.id}
+                currentTime={currentVideoTime}
+                onSeek={(time) => {
+                  if (playerRef.current) {
+                    playerRef.current.currentTime = time
+                  }
+                }}
+              />
             </div>
           )}
 

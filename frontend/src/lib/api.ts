@@ -550,6 +550,38 @@ export interface PaginatedResponse<T> {
   results: T[]
 }
 
+export interface VideoNote {
+  id: number
+  lesson: number
+  lesson_title: string
+  timestamp_seconds: number
+  content: string
+  created_at: string
+  updated_at: string
+}
+
+export const videoNoteAPI = {
+  getNotes: async (lessonId: number): Promise<VideoNote[]> => {
+    const response = await api.get(`/notes/?lesson_id=${lessonId}`)
+    return response.data
+  },
+  createNote: async (lessonId: number, timestampSeconds: number, content: string): Promise<VideoNote> => {
+    const response = await api.post('/notes/', {
+      lesson: lessonId,
+      timestamp_seconds: timestampSeconds,
+      content,
+    })
+    return response.data
+  },
+  updateNote: async (noteId: number, content: string): Promise<VideoNote> => {
+    const response = await api.patch(`/notes/${noteId}/`, { content })
+    return response.data
+  },
+  deleteNote: async (noteId: number): Promise<void> => {
+    await api.delete(`/notes/${noteId}/`)
+  },
+}
+
 export const commentAPI = {
   // Get comments for a specific lesson (paginated)
   getComments: async (lessonId: number, page: number = 1): Promise<PaginatedResponse<Comment>> => {

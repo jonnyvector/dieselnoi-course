@@ -166,6 +166,26 @@ class LessonUnlock(models.Model):
         return f"{self.user.username} - {self.lesson.title} (manually unlocked)"
 
 
+class VideoNote(models.Model):
+    """Personal notes/bookmarks on specific video timestamps."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='video_notes')
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='video_notes')
+    timestamp_seconds = models.PositiveIntegerField(help_text="Video timestamp in seconds")
+    content = models.TextField(help_text="Note content")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['timestamp_seconds']
+        indexes = [
+            models.Index(fields=['user', 'lesson']),
+            models.Index(fields=['lesson', 'timestamp_seconds']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.lesson.title} @{self.timestamp_seconds}s"
+
+
 class Comment(models.Model):
     """Represents a comment on a lesson, with support for replies and timestamps."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
