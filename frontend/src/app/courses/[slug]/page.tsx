@@ -31,6 +31,11 @@ export default function CourseDetailPage() {
   const [isFirstSubscription, setIsFirstSubscription] = useState(false)
   const [generatingCertificate, setGeneratingCertificate] = useState(false)
 
+  // Compute subscription status once (instead of checking 5 times in render)
+  const hasActiveSubscription = subscriptions.some(
+    sub => sub.course_slug === params.slug && sub.is_active
+  )
+
   useEffect(() => {
     const fetchData = async () => {
       if (authLoading) return
@@ -261,7 +266,7 @@ export default function CourseDetailPage() {
                 </div>
 
                 {/* Pricing breakdown for new subscribers */}
-                {!subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) && (
+                {!hasActiveSubscription && (
                   <div className="text-sm text-left lg:text-right space-y-2">
                     {isFirstSubscription && (
                       <div className="flex items-center justify-between lg:justify-end gap-2 text-green-700 dark:text-green-400">
@@ -302,7 +307,7 @@ export default function CourseDetailPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) ? (
+                {hasActiveSubscription ? (
                   <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 rounded-lg">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -320,7 +325,7 @@ export default function CourseDetailPage() {
                 )}
 
                 {/* Certificate Download Button - show when course is 100% complete */}
-                {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) &&
+                {hasActiveSubscription &&
                  progress && progress.completion_percentage === 100 && (
                   <button
                     onClick={handleDownloadCertificate}
@@ -471,7 +476,7 @@ export default function CourseDetailPage() {
         </div>
 
         {/* Course Resources Section */}
-        {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) && course.resources && course.resources.length > 0 && (
+        {hasActiveSubscription && course.resources && course.resources.length > 0 && (
           <div className="mt-12">
             <h2 className="text-2xl mb-6">Course Resources</h2>
             <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow p-6">
@@ -481,7 +486,7 @@ export default function CourseDetailPage() {
         )}
 
         {/* Reviews Section */}
-        {subscriptions.some(sub => sub.course_slug === params.slug && sub.is_active) && (
+        {hasActiveSubscription && (
           <div className="mt-12">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div>

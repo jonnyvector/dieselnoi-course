@@ -3,13 +3,29 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import MuxPlayer from '@mux/mux-player-react'
+import dynamic from 'next/dynamic'
 import api, { Lesson, stripeAPI, progressAPI, courseAPI, CourseDetail } from '@/lib/api'
+
+// Dynamic import for MuxPlayer to reduce initial bundle size
+const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), { ssr: false })
 import { useAuth } from '@/contexts/AuthContext'
 import Comments from '@/components/Comments'
 import { VideoPlayerSkeleton, CommentListSkeleton } from '@/components/Skeleton'
 import { useToast } from '@/contexts/ToastContext'
 import Navigation from '@/components/Navigation'
+
+// Badge icon mapping (constant to avoid recreating on each render)
+const BADGE_ICON_MAP: { [key: string]: string } = {
+  'gi-white-belt': '🥋',
+  'books': '📚',
+  'muscle': '💪',
+  'trophy': '🏆',
+  'star': '⭐',
+  'chat': '💬',
+  'megaphone': '📣',
+}
+
+const getBadgeIcon = (iconName: string): string => BADGE_ICON_MAP[iconName] || '🎖️'
 
 export default function LessonDetailPage() {
   const params = useParams()
@@ -94,19 +110,6 @@ export default function LessonDetailPage() {
 
     fetchLesson()
   }, [params.id, params.slug, user, authLoading, router])
-
-  const getBadgeIcon = (iconName: string): string => {
-    const iconMap: { [key: string]: string } = {
-      'gi-white-belt': '🥋',
-      'books': '📚',
-      'muscle': '💪',
-      'trophy': '🏆',
-      'star': '⭐',
-      'chat': '💬',
-      'megaphone': '📣',
-    }
-    return iconMap[iconName] || '🎖️'
-  }
 
   const handleSubscribe = async () => {
     try {

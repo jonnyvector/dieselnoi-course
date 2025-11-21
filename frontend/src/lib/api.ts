@@ -11,7 +11,6 @@ const getApiUrl = () => {
   const hostname = typeof window !== 'undefined' ? window.location.hostname : 'localhost'
   const port = hostname === 'localhost' || hostname === '127.0.0.1' ? '8000' : '8000'
   const apiUrl = `http://${hostname}:${port}/api`
-  console.log('API URL:', apiUrl)
   return apiUrl
 }
 

@@ -12,7 +12,7 @@ from django_ratelimit.exceptions import Ratelimited
 import stripe
 import mux_python
 from mux_python.rest import ApiException
-from django.db.models import Count, Q, Max
+from django.db.models import Count, Q, Max, Subquery, OuterRef
 from django.utils import timezone
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from django_otp.plugins.otp_static.models import StaticDevice, StaticToken
@@ -35,6 +35,10 @@ from .serializers import (
     CourseResourceSerializer,
     BadgeSerializer,
     UserBadgeSerializer,
+    ReferralCodeSerializer,
+    ReferralStatsSerializer,
+    ReferralHistorySerializer,
+    ReferralCreditSerializer,
 )
 from .analytics import AnalyticsService
 from .badge_checker import check_and_award_badges, get_user_badge_progress
@@ -78,7 +82,6 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         """Only show published courses with optimized queries."""
-        from django.db.models import Count
         return Course.objects.filter(is_published=True).prefetch_related('lessons').annotate(
             lesson_count_annotated=Count('lessons')
         )
@@ -250,8 +253,6 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def course_progress(self, request):
         """Get progress summary for all courses the user has access to."""
-        from django.db.models import Count, Max, Q, Subquery, OuterRef
-
         # Get all courses user has subscriptions for, with aggregated data in single query
         subscribed_courses = Course.objects.filter(
             subscriptions__user=request.user,
@@ -414,9 +415,6 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter comments by lesson if lesson_id is provided."""
-        from rest_framework.pagination import PageNumberPagination
-        from django.db.models import Count
-
         queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies__user').annotate(
             reply_count=Count('replies')
         ).order_by('-created_at')
@@ -1435,7 +1433,6 @@ class ReferralViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def my_code(self, request):
         """Get or create user's referral code."""
-        from .serializers import ReferralCodeSerializer
         code, created = ReferralCode.objects.get_or_create(
             user=request.user,
             defaults={'code': ReferralCode.generate_code()}
@@ -1446,8 +1443,7 @@ class ReferralViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def stats(self, request):
         """Get referral statistics for current user."""
-        from .serializers import ReferralStatsSerializer
-        from django.db.models import Q, Sum
+        from django.db.models import Sum
         from django.utils import timezone
 
         # Get user's referral code
@@ -1498,7 +1494,6 @@ class ReferralViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def history(self, request):
         """Get referral history."""
-        from .serializers import ReferralHistorySerializer
         referrals = Referral.objects.filter(
             referrer=request.user
         ).select_related('referee').order_by('-created_at')[:50]
@@ -1509,9 +1504,6 @@ class ReferralViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'])
     def credits(self, request):
         """Get available credits."""
-        from .serializers import ReferralCreditSerializer
-        from django.utils import timezone
-
         credits = ReferralCredit.objects.filter(
             user=request.user,
             used=False,
@@ -1534,14 +1526,7 @@ class ReferralViewSet(viewsets.ViewSet):
             return Response({'error': 'Invalid code'}, status=404)
 
         # Get client IP and user agent
-        def get_client_ip(request):
-            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-            if x_forwarded_for:
-                ip = x_forwarded_for.split(',')[0]
-            else:
-                ip = request.META.get('REMOTE_ADDR')
-            return ip
-
+        from .auth_security import get_client_ip
         ip_address = get_client_ip(request)
         user_agent = request.META.get('HTTP_USER_AGENT', '')
 

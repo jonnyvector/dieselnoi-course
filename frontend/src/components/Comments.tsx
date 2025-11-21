@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Comment, commentAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
@@ -26,11 +26,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
   const [hasMore, setHasMore] = useState(false)
   const [totalCount, setTotalCount] = useState(0)
 
-  useEffect(() => {
-    fetchComments()
-  }, [lessonId])
-
-  const fetchComments = async (page: number = 1) => {
+  const fetchComments = useCallback(async (page: number = 1) => {
     try {
       if (page === 1) {
         setLoading(true)
@@ -52,7 +48,11 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
       setLoading(false)
       setLoadingMore(false)
     }
-  }
+  }, [lessonId])
+
+  useEffect(() => {
+    fetchComments()
+  }, [fetchComments])
 
   const loadMoreComments = () => {
     if (!loadingMore && hasMore) {
@@ -62,7 +62,6 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Submitting comment:', newComment)
     if (!newComment.trim() || submitting || !user) return
 
     const currentTime = playerRef?.current?.currentTime
@@ -92,7 +91,6 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
         content: optimisticComment.content,
         timestamp_seconds: optimisticComment.timestamp_seconds || undefined,
       })
-      console.log('Comment posted:', result)
       // Replace optimistic comment with real one
       setComments(prev => prev.map(c => c.id === optimisticComment.id ? result : c))
       addToast('Comment posted successfully!', 'success')
@@ -380,10 +378,7 @@ export default function Comments({ lessonId, playerRef }: CommentsProps) {
       <form onSubmit={handleSubmitComment} className="mb-8">
         <textarea
           value={newComment}
-          onChange={(e) => {
-            console.log('Typing:', e.target.value)
-            setNewComment(e.target.value)
-          }}
+          onChange={(e) => setNewComment(e.target.value)}
           placeholder="Add a comment..."
           className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-600 dark:focus:ring-primary-500 focus:border-transparent text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700"
           rows={3}
