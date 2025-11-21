@@ -6,6 +6,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django_ratelimit.decorators import ratelimit
 from django_ratelimit.exceptions import Ratelimited
 import stripe
@@ -76,14 +77,22 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     def get_queryset(self):
-        """Only show published courses."""
-        return Course.objects.filter(is_published=True).prefetch_related('lessons')
+        """Only show published courses with optimized queries."""
+        from django.db.models import Count
+        return Course.objects.filter(is_published=True).prefetch_related('lessons').annotate(
+            lesson_count_annotated=Count('lessons')
+        )
 
     def get_serializer_class(self):
         """Use detailed serializer for retrieve action."""
         if self.action == 'retrieve':
             return CourseDetailSerializer
         return CourseSerializer
+
+    @method_decorator(cache_page(60 * 5))  # Cache course list for 5 minutes
+    def list(self, request, *args, **kwargs):
+        """Cached course list - public data only."""
+        return super().list(request, *args, **kwargs)
 
     @action(detail=True, methods=['get'])
     def lessons(self, request, slug=None):
@@ -241,37 +250,41 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def course_progress(self, request):
         """Get progress summary for all courses the user has access to."""
-        # Get all courses user has subscriptions for
+        from django.db.models import Count, Max, Q, Subquery, OuterRef
+
+        # Get all courses user has subscriptions for, with aggregated data in single query
         subscribed_courses = Course.objects.filter(
             subscriptions__user=request.user,
             subscriptions__status__in=['active', 'trialing']
+        ).annotate(
+            total_lessons=Count('lessons'),
+            completed_lessons=Count(
+                'lessons__user_progress',
+                filter=Q(
+                    lessons__user_progress__user=request.user,
+                    lessons__user_progress__is_completed=True
+                )
+            ),
+            last_watched_at=Max(
+                'lessons__user_progress__last_watched_at',
+                filter=Q(lessons__user_progress__user=request.user)
+            )
         ).distinct()
 
         progress_data = []
         for course in subscribed_courses:
-            total_lessons = course.lessons.count()
-            completed_lessons = LessonProgress.objects.filter(
-                user=request.user,
-                lesson__course=course,
-                is_completed=True
-            ).count()
-
-            # Get last watched time
-            last_progress = LessonProgress.objects.filter(
-                user=request.user,
-                lesson__course=course
-            ).order_by('-last_watched_at').first()
-
-            completion_percentage = (completed_lessons / total_lessons * 100) if total_lessons > 0 else 0
+            total = course.total_lessons
+            completed = course.completed_lessons
+            completion_percentage = (completed / total * 100) if total > 0 else 0
 
             progress_data.append({
                 'course_id': course.id,
                 'course_title': course.title,
                 'course_slug': course.slug,
-                'total_lessons': total_lessons,
-                'completed_lessons': completed_lessons,
+                'total_lessons': total,
+                'completed_lessons': completed,
                 'completion_percentage': round(completion_percentage, 1),
-                'last_watched_at': last_progress.last_watched_at if last_progress else None
+                'last_watched_at': course.last_watched_at
             })
 
         serializer = CourseProgressSerializer(progress_data, many=True)
@@ -280,7 +293,14 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def recently_watched(self, request):
         """Get recently watched lessons for continue watching."""
-        # Get recent lesson progress, excluding completed ones
+        # Pre-fetch user's active subscription course IDs (single query)
+        active_course_ids = set(
+            request.user.subscriptions.filter(
+                status__in=['active', 'trialing']
+            ).values_list('course_id', flat=True)
+        )
+
+        # Get recent lesson progress
         recent_progress = LessonProgress.objects.filter(
             user=request.user
         ).select_related(
@@ -293,13 +313,8 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
             lesson = progress.lesson
             course = lesson.course
 
-            # Only include if user has active subscription to this course
-            has_subscription = request.user.subscriptions.filter(
-                course=course,
-                status__in=['active', 'trialing']
-            ).exists()
-
-            if not has_subscription:
+            # Filter in Python using pre-fetched set (no DB query)
+            if course.id not in active_course_ids:
                 continue
 
             data.append({

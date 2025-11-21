@@ -81,11 +81,15 @@ class LessonSerializer(serializers.ModelSerializer):
                 return data
 
         # Check if user has active subscription to this lesson's course
+        # Use context if provided (avoids N+1 when serializing multiple lessons)
         if request and request.user.is_authenticated:
-            has_subscription = request.user.subscriptions.filter(
-                course=instance.course,
-                status__in=['active', 'trialing']
-            ).exists()
+            has_subscription = self.context.get('has_subscription')
+            if has_subscription is None:
+                # Fall back to query if not in context (single lesson views)
+                has_subscription = request.user.subscriptions.filter(
+                    course=instance.course,
+                    status__in=['active', 'trialing']
+                ).exists()
             if not has_subscription and not instance.is_free_preview:
                 data['video_url'] = None
                 data['mux_playback_id'] = None
@@ -162,6 +166,9 @@ class CourseSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug', 'created_at']
 
     def get_lesson_count(self, obj):
+        # Use annotated value if available (avoids N+1), otherwise fall back to count
+        if hasattr(obj, 'lesson_count_annotated'):
+            return obj.lesson_count_annotated
         return obj.lessons.count()
 
 
@@ -195,6 +202,9 @@ class CourseDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'slug', 'created_at', 'average_rating', 'total_reviews']
 
     def get_lesson_count(self, obj):
+        # Use annotated value if available (avoids N+1), otherwise fall back to count
+        if hasattr(obj, 'lesson_count_annotated'):
+            return obj.lesson_count_annotated
         return obj.lessons.count()
 
     def get_user_review(self, obj):
@@ -207,6 +217,27 @@ class CourseDetailSerializer(serializers.ModelSerializer):
             except CourseReview.DoesNotExist:
                 return None
         return None
+
+    def to_representation(self, instance):
+        """Override to pass subscription status to nested lesson serializers."""
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+
+        # Pre-compute subscription status once for all lessons
+        has_subscription = False
+        if request and request.user.is_authenticated:
+            has_subscription = request.user.subscriptions.filter(
+                course=instance,
+                status__in=['active', 'trialing']
+            ).exists()
+
+        # Re-serialize lessons with subscription context
+        lesson_context = {**self.context, 'has_subscription': has_subscription}
+        data['lessons'] = LessonSerializer(
+            instance.lessons.all(), many=True, context=lesson_context
+        ).data
+
+        return data
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
