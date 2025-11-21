@@ -239,42 +239,6 @@ export default function LessonDetailPage() {
           ← Back to Course
         </Link>
 
-        {/* Resume notification */}
-        {savedWatchTime > 5 && !hasResumed && !isLocked && lesson.mux_playback_id && (
-          <div className="mb-4 p-3 bg-purple/10 dark:bg-purple/20 border border-purple dark:border-purple rounded-lg flex items-center justify-between">
-            <button
-              onClick={() => {
-                if (playerRef.current) {
-                  playerRef.current.currentTime = savedWatchTime
-                  playerRef.current.play()
-                }
-                setHasResumed(true)
-              }}
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
-            >
-              <svg className="w-5 h-5 text-purple dark:text-purple" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-              </svg>
-              <span className="text-sm text-gray-900 dark:text-white font-medium">
-                Resume from {Math.floor(savedWatchTime / 60)}:{String(Math.floor(savedWatchTime % 60)).padStart(2, '0')}
-              </span>
-            </button>
-            <button
-              onClick={() => {
-                if (playerRef.current) {
-                  playerRef.current.currentTime = 0
-                  playerRef.current.play()
-                }
-                setSavedWatchTime(0)
-                setHasResumed(true)
-              }}
-              className="text-xs text-gold dark:text-gold hover:text-gold-dark dark:hover:text-gold/80 font-semibold"
-            >
-              Start from beginning
-            </button>
-          </div>
-        )}
-
         {/* Video Player or Locked Message */}
         <div className="bg-black rounded-lg overflow-hidden mb-8" style={{ aspectRatio: '16/9' }}>
           {isLocked ? (
