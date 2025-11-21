@@ -3,11 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import dynamic from 'next/dynamic'
+import MuxPlayer from '@mux/mux-player-react'
 import api, { Lesson, stripeAPI, progressAPI, courseAPI, CourseDetail } from '@/lib/api'
-
-// Dynamic import for MuxPlayer to reduce initial bundle size
-const MuxPlayer = dynamic(() => import('@mux/mux-player-react'), { ssr: false })
 import { useAuth } from '@/contexts/AuthContext'
 import Comments from '@/components/Comments'
 import { VideoPlayerSkeleton, CommentListSkeleton } from '@/components/Skeleton'
