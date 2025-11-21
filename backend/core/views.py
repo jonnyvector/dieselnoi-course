@@ -415,8 +415,11 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Filter comments by lesson if lesson_id is provided."""
         from rest_framework.pagination import PageNumberPagination
+        from django.db.models import Count
 
-        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies__user').order_by('-created_at')
+        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies__user').annotate(
+            reply_count=Count('replies')
+        ).order_by('-created_at')
 
         lesson_id = self.request.query_params.get('lesson_id')
         if lesson_id:

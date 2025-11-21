@@ -88,14 +88,20 @@ export default function CourseDetailPage() {
     fetchData()
   }, [params.slug, user, authLoading, router])
 
-  // Update current time every minute to check for unlocked lessons
+  // Update current time every minute to check for unlocked lessons (only if there are future unlock dates)
   useEffect(() => {
+    const hasFutureUnlockDates = course?.lessons?.some(
+      (lesson: any) => lesson.unlock_date && new Date(lesson.unlock_date) > new Date()
+    )
+
+    if (!hasFutureUnlockDates) return
+
     const interval = setInterval(() => {
       setCurrentTime(new Date())
     }, 60000) // Update every minute
 
     return () => clearInterval(interval)
-  }, [])
+  }, [course?.lessons])
 
   // Helper function to check if lesson is still locked (client-side)
   const isLessonLocked = (lesson: any) => {

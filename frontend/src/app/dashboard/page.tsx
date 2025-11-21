@@ -35,12 +35,11 @@ export default function DashboardPage() {
 
       try {
         setLoading(true)
-        const [subscriptionsData, progressData, recentlyWatchedData, badgesData, referralData] = await Promise.allSettled([
+        // Load critical above-the-fold data first
+        const [subscriptionsData, progressData, recentlyWatchedData] = await Promise.allSettled([
           subscriptionAPI.getMySubscriptions(),
           progressAPI.getCourseProgress(),
           progressAPI.getRecentlyWatched(),
-          badgeAPI.getMyBadges(),
-          referralAPI.getStats(),
         ])
 
         if (subscriptionsData.status === 'fulfilled') {
@@ -55,14 +54,6 @@ export default function DashboardPage() {
           setRecentlyWatched(recentlyWatchedData.value)
         }
 
-        if (badgesData.status === 'fulfilled') {
-          setBadges(badgesData.value)
-        }
-
-        if (referralData.status === 'fulfilled') {
-          setReferralStats(referralData.value)
-        }
-
         setError(null)
       } catch (err: any) {
         console.error('Error fetching data:', err)
@@ -74,6 +65,28 @@ export default function DashboardPage() {
 
     fetchData()
   }, [user, authLoading, router])
+
+  // Lazy load below-the-fold data (badges and referral stats)
+  useEffect(() => {
+    if (!user || authLoading || loading) return
+
+    const fetchSecondaryData = async () => {
+      const [badgesData, referralData] = await Promise.allSettled([
+        badgeAPI.getMyBadges(),
+        referralAPI.getStats(),
+      ])
+
+      if (badgesData.status === 'fulfilled') {
+        setBadges(badgesData.value)
+      }
+
+      if (referralData.status === 'fulfilled') {
+        setReferralStats(referralData.value)
+      }
+    }
+
+    fetchSecondaryData()
+  }, [user, authLoading, loading])
 
   const handleManageBilling = async () => {
     try {

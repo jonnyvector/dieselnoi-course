@@ -39,7 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(false) // Start false so pages render immediately
+  const [loading, setLoading] = useState(true) // Start true to wait for initial auth check
 
   const checkAuth = async () => {
     setLoading(true)
