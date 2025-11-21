@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { courseAPI, subscriptionAPI, Course } from '@/lib/api'
 import { CourseListSkeleton } from './Skeleton'
 import { useAuth } from '@/contexts/AuthContext'
@@ -112,11 +113,14 @@ export default function CourseList() {
             className="bg-white dark:bg-dark-card rounded-lg shadow-card dark:shadow-card-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full dark:border dark:border-gray-700"
           >
             {course.thumbnail_url && (
-              <div className="h-48 bg-gray-200 flex-shrink-0">
-                <img
+              <div className="relative h-48 bg-gray-200 flex-shrink-0">
+                <Image
                   src={course.thumbnail_url}
                   alt={course.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  className="object-cover"
+                  priority={false}
                 />
               </div>
             )}

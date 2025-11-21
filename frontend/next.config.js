@@ -21,7 +21,10 @@ const withPWA = require('next-pwa')({
 const nextConfig = {
   reactStrictMode: false, // Disabled for better dev performance (auto-enabled in production builds)
   images: {
-    domains: ['localhost', 'image.mux.com'], // Add your video CDN domains here
+    remotePatterns: [
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'https', hostname: 'image.mux.com' },
+    ],
   },
   async headers() {
     return [

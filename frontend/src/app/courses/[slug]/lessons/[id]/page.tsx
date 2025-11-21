@@ -40,7 +40,6 @@ export default function LessonDetailPage() {
   const [subscribing, setSubscribing] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [savedWatchTime, setSavedWatchTime] = useState<number>(0)
-  const [hasResumed, setHasResumed] = useState(false)
   const playerRef = useRef<any>(null)
   const progressMarkedRef = useRef(false)
   const lastSavedTimeRef = useRef(0)
@@ -91,7 +90,8 @@ export default function LessonDetailPage() {
             (p: any) => p.lesson === Number(params.id)
           )
           if (lessonProgress) {
-            setSavedWatchTime(lessonProgress.watch_time_seconds || 0)
+            // Use last_position_seconds for resume (more accurate than watch_time_seconds)
+            setSavedWatchTime(lessonProgress.last_position_seconds || lessonProgress.watch_time_seconds || 0)
             setIsCompleted(lessonProgress.is_completed)
             if (lessonProgress.is_completed) {
               progressMarkedRef.current = true
@@ -133,18 +133,11 @@ export default function LessonDetailPage() {
     const currentTime = player.currentTime || 0
     const duration = player.duration || 0
 
-    // Resume to saved position on first play (but not for completed lessons)
-    if (!hasResumed && !isCompleted && savedWatchTime > 5 && currentTime < 5) {
-      player.currentTime = savedWatchTime
-      setHasResumed(true)
-      return
-    }
-
-    // Save progress every 10 seconds
+    // Save progress every 10 seconds (with position for resume)
     if (currentTime - lastSavedTimeRef.current >= 10) {
       lastSavedTimeRef.current = currentTime
       try {
-        await progressAPI.updateWatchTime(lesson.id, Math.floor(currentTime))
+        await progressAPI.updateWatchTime(lesson.id, Math.floor(currentTime), Math.floor(currentTime))
       } catch (err) {
         console.error('Error saving watch time:', err)
       }
@@ -329,7 +322,7 @@ export default function LessonDetailPage() {
               autoPlay={false}
               preload="auto"
               preferPlayback="mse"
-              startTime={0.01}
+              startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : 0.01}
               metadata={{
                 video_title: lesson.title,
               }}

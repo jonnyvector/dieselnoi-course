@@ -225,6 +225,7 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
         """Update watch time for a lesson (without marking complete)."""
         lesson_id = request.data.get('lesson_id')
         watch_time_seconds = request.data.get('watch_time_seconds', 0)
+        last_position_seconds = request.data.get('last_position_seconds', 0)
 
         if not lesson_id:
             return Response(
@@ -244,7 +245,10 @@ class LessonProgressViewSet(viewsets.ModelViewSet):
         progress, created = LessonProgress.objects.update_or_create(
             user=request.user,
             lesson=lesson,
-            defaults={'watch_time_seconds': watch_time_seconds}
+            defaults={
+                'watch_time_seconds': watch_time_seconds,
+                'last_position_seconds': last_position_seconds
+            }
         )
 
         serializer = self.get_serializer(progress)

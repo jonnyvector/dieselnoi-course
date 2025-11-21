@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { courseAPI, CourseDetail, stripeAPI, subscriptionAPI, Subscription, progressAPI, CourseDetailProgress, referralAPI, ReferralCredit, certificateAPI } from '@/lib/api'
 import { useAuth } from '@/contexts/AuthContext'
 import { LessonListSkeleton } from '@/components/Skeleton'
@@ -360,21 +361,43 @@ export default function CourseDetailPage() {
                   <div className="p-4 sm:p-6">
                     <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                       <div className="flex gap-4 sm:contents">
-                        {/* Video Thumbnail */}
-                        <div className="flex-shrink-0 w-24 h-16 sm:w-32 sm:h-20 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
-                          {lesson.mux_playback_id ? (
-                            <img
-                              src={`https://image.mux.com/${lesson.mux_playback_id}/thumbnail.jpg?width=256&height=160&fit_mode=smartcrop&time=0`}
-                              alt={lesson.title}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-300 dark:bg-gray-600">
-                              <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                          )}
+                        {/* Video Thumbnail with Progress Bar */}
+                        <div className="flex-shrink-0 w-24 sm:w-32">
+                          <div className="relative h-16 sm:h-20 bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                            {lesson.mux_playback_id ? (
+                              <Image
+                                src={`https://image.mux.com/${lesson.mux_playback_id}/thumbnail.jpg?width=256&height=160&fit_mode=smartcrop&time=0`}
+                                alt={lesson.title}
+                                fill
+                                sizes="128px"
+                                className="object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gray-300 dark:bg-gray-600">
+                                <svg className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
+                          </div>
+                          {/* Progress bar under thumbnail */}
+                          {(() => {
+                            const lessonProgress = progress?.lessons.find(l => l.lesson_id === lesson.id)
+                            const watchedSeconds = lessonProgress?.watch_time_seconds || 0
+                            const durationSeconds = (lesson.duration_minutes || 0) * 60
+                            const progressPercent = durationSeconds > 0 ? Math.min((watchedSeconds / durationSeconds) * 100, 100) : 0
+                            if (progressPercent > 0 && !lessonProgress?.is_completed) {
+                              return (
+                                <div className="mt-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full bg-purple dark:bg-gold transition-all"
+                                    style={{ width: `${progressPercent}%` }}
+                                  />
+                                </div>
+                              )
+                            }
+                            return null
+                          })()}
                         </div>
 
                         {/* Lesson Info - Mobile */}

@@ -132,6 +132,7 @@ class LessonProgress(models.Model):
     completed_at = models.DateTimeField(blank=True, null=True)
     last_watched_at = models.DateTimeField(auto_now=True)
     watch_time_seconds = models.PositiveIntegerField(default=0, help_text="Total time watched in seconds")
+    last_position_seconds = models.PositiveIntegerField(default=0, help_text="Last playback position for resume")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

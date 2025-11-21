@@ -151,6 +151,7 @@ A subscription-based Muay Thai training platform featuring courses by legendary 
 - Stores `mux_asset_id` and `mux_playback_id` in Lesson model
 - Webhook integration syncs video status and duration
 - Frontend uses @mux/mux-player-react for playback
+- **Note**: Mux Player has built-in keyboard shortcuts (space, arrows, etc.) - don't suggest adding custom ones
 - **Security**: Video access controlled via subscription check, not signed URLs (TODO for production)
 
 ### Progress Tracking

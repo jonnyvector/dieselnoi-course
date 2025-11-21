@@ -360,3 +360,31 @@ if not DEBUG:
 
 # Two-Factor Authentication Settings
 ALLAUTH_2FA_ALWAYS_REVEAL_BACKUP_TOKENS = False  # Only show backup tokens once during setup
+
+
+# Cache Configuration
+# Use Redis in production, local memory cache in development
+REDIS_URL = os.environ.get('REDIS_URL', '')
+
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            },
+            'KEY_PREFIX': 'dieselnoi',
+            'TIMEOUT': 300,  # 5 minutes default
+        }
+    }
+    # Use Redis for sessions in production (faster lookups)
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    SESSION_CACHE_ALIAS = 'default'
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'unique-snowflake',
+        }
+    }

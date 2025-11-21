@@ -275,6 +275,7 @@ class LessonProgressSerializer(serializers.ModelSerializer):
             'completed_at',
             'last_watched_at',
             'watch_time_seconds',
+            'last_position_seconds',
             'created_at',
         ]
         read_only_fields = ['id', 'created_at', 'lesson_title', 'course_title', 'course_slug']

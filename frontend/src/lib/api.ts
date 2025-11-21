@@ -215,6 +215,7 @@ export interface LessonProgress {
   completed_at: string | null
   last_watched_at: string
   watch_time_seconds: number
+  last_position_seconds: number
   created_at: string
 }
 
@@ -508,10 +509,11 @@ export const progressAPI = {
   },
 
   // Update watch time for a lesson (without marking complete)
-  updateWatchTime: async (lessonId: number, watchTimeSeconds: number): Promise<LessonProgress> => {
+  updateWatchTime: async (lessonId: number, watchTimeSeconds: number, lastPositionSeconds?: number): Promise<LessonProgress> => {
     const response = await api.post('/progress/update_watch_time/', {
       lesson_id: lessonId,
       watch_time_seconds: watchTimeSeconds,
+      last_position_seconds: lastPositionSeconds ?? watchTimeSeconds,
     })
     return response.data
   },
