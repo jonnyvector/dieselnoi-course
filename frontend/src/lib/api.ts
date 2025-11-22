@@ -216,6 +216,7 @@ export interface Lesson {
   description: string
   video_url: string | null
   mux_playback_id: string | null
+  playback_token: string | null
   duration_minutes: number
   order: number
   is_free_preview: boolean

@@ -4,7 +4,7 @@ from .models import (
     User, Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge,
     ReferralCode, Referral, ReferralCredit, ReferralFraudCheck, VideoNote, Category, CourseNotification, VideoChapter
 )
-from .mux_utils import get_signed_playback_id
+from .mux_utils import get_playback_token
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -61,6 +61,7 @@ class UserSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     """Serializer for Lesson model."""
     is_locked = serializers.SerializerMethodField()
+    playback_token = serializers.SerializerMethodField()
     chapters = VideoChapterSerializer(many=True, read_only=True)
 
     class Meta:
@@ -71,6 +72,7 @@ class LessonSerializer(serializers.ModelSerializer):
             'description',
             'video_url',
             'mux_playback_id',
+            'playback_token',
             'duration_minutes',
             'order',
             'is_free_preview',
@@ -80,6 +82,38 @@ class LessonSerializer(serializers.ModelSerializer):
             'created_at',
         ]
         read_only_fields = ['id', 'created_at']
+
+    def get_playback_token(self, instance):
+        """Generate JWT playback token for Mux signed URLs."""
+        request = self.context.get('request')
+
+        # Only generate token if user has access
+        if not instance.mux_playback_id:
+            return None
+
+        # Check if lesson is locked
+        if request and request.user.is_authenticated:
+            is_locked = self._is_lesson_locked(instance, request.user)
+            if is_locked:
+                return None
+
+        # Check subscription access
+        if request and request.user.is_authenticated:
+            has_subscription = self.context.get('has_subscription')
+            if has_subscription is None:
+                has_subscription = request.user.subscriptions.filter(
+                    course=instance.course,
+                    status__in=['active', 'trialing']
+                ).exists()
+
+            if has_subscription or instance.is_free_preview:
+                # Generate JWT token with 2-hour expiration
+                return get_playback_token(instance.mux_playback_id, expiration_seconds=7200)
+        elif instance.is_free_preview:
+            # Free preview for unauthenticated users
+            return get_playback_token(instance.mux_playback_id, expiration_seconds=7200)
+
+        return None
 
     def get_is_locked(self, instance):
         """Check if lesson is locked for the current user."""
@@ -123,6 +157,7 @@ class LessonSerializer(serializers.ModelSerializer):
             if is_locked:
                 data['video_url'] = None
                 data['mux_playback_id'] = None
+                data['playback_token'] = None
                 return data
 
         # Check if user has active subscription to this lesson's course
@@ -138,21 +173,11 @@ class LessonSerializer(serializers.ModelSerializer):
             if not has_subscription and not instance.is_free_preview:
                 data['video_url'] = None
                 data['mux_playback_id'] = None
-            elif instance.mux_playback_id:
-                # User has access - provide signed playback ID with 2-hour expiration
-                data['mux_playback_id'] = get_signed_playback_id(
-                    instance.mux_playback_id,
-                    expiration_seconds=7200  # 2 hours
-                )
+                data['playback_token'] = None
         elif not instance.is_free_preview:
             data['video_url'] = None
             data['mux_playback_id'] = None
-        elif instance.mux_playback_id:
-            # Free preview - provide signed playback ID with 2-hour expiration
-            data['mux_playback_id'] = get_signed_playback_id(
-                instance.mux_playback_id,
-                expiration_seconds=7200  # 2 hours
-            )
+            data['playback_token'] = None
 
         return data
 
