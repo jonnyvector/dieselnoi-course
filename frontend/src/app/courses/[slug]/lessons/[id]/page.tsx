@@ -292,7 +292,7 @@ export default function LessonDetailPage() {
                   autoPlay={false}
                   preload="auto"
                   preferPlayback="mse"
-                  startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : 0.01}
+                  startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : undefined}
                   metadata={{
                     video_title: lesson.title,
                   }}
