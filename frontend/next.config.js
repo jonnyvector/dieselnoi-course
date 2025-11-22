@@ -24,6 +24,7 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'http', hostname: 'localhost' },
       { protocol: 'https', hostname: 'image.mux.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
   },
   async headers() {
