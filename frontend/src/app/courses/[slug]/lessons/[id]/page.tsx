@@ -229,6 +229,24 @@ export default function LessonDetailPage() {
 
   const isLocked = lesson.is_locked
 
+  // Parse signed playback ID (separates token and expiration from playback ID)
+  const parseSignedPlaybackId = (signedId: string | null) => {
+    if (!signedId) return { playbackId: null, token: null }
+
+    // Check if this is a signed URL with token
+    if (signedId.includes('?token=')) {
+      const [playbackId, params] = signedId.split('?')
+      const urlParams = new URLSearchParams(params)
+      const token = urlParams.get('token')
+      return { playbackId, token }
+    }
+
+    // Regular unsigned playback ID
+    return { playbackId: signedId, token: null }
+  }
+
+  const { playbackId, token } = parseSignedPlaybackId(lesson.mux_playback_id)
+
   return (
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <Navigation currentPage="lesson" />
@@ -284,14 +302,15 @@ export default function LessonDetailPage() {
                     </button>
                   )}
                 </div>
-              ) : lesson.mux_playback_id ? (
+              ) : playbackId ? (
                 <MuxPlayer
                   ref={playerRef}
-                  playbackId={lesson.mux_playback_id}
+                  playbackId={playbackId}
+                  playbackToken={token || undefined}
                   streamType="on-demand"
                   autoPlay={false}
                   preload="metadata"
-                  poster={`https://image.mux.com/${lesson.mux_playback_id}/thumbnail.jpg?time=0`}
+                  poster={`https://image.mux.com/${playbackId}/thumbnail.jpg?time=0`}
                   startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : undefined}
                   metadata={{
                     video_title: lesson.title,
