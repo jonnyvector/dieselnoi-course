@@ -84,7 +84,12 @@ class LessonSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
     def get_playback_token(self, instance):
-        """Generate JWT playback token for Mux signed URLs."""
+        """Generate JWT playback token for Mux signed URLs.
+
+        NOTE: Returns None if signing keys not configured or if videos
+        don't have 'signed' playback policy. This is intentional -
+        MuxPlayer will work fine without tokens for public videos.
+        """
         request = self.context.get('request')
 
         # Only generate token if user has access
@@ -108,6 +113,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
             if has_subscription or instance.is_free_preview:
                 # Generate JWT token with 2-hour expiration
+                # Returns None if signing keys not configured (development mode)
                 return get_playback_token(instance.mux_playback_id, expiration_seconds=7200)
         elif instance.is_free_preview:
             # Free preview for unauthenticated users
