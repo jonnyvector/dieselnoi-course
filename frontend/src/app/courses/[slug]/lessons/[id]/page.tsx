@@ -292,11 +292,16 @@ export default function LessonDetailPage() {
                   autoPlay={false}
                   preload="metadata"
                   startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : undefined}
+                  maxResolution="720p"
+                  minResolution="360p"
                   metadata={{
                     video_title: lesson.title,
                   }}
                   onTimeUpdate={handleVideoProgress}
                   onEnded={handleVideoEnded}
+                  onError={(e) => console.error('Mux Player Error:', e)}
+                  onLoadStart={() => console.log('Video loading started')}
+                  onLoadedData={() => console.log('Video data loaded')}
                   style={{ height: '100%', maxWidth: '100%' }}
                 />
               ) : lesson.video_url ? (
