@@ -306,7 +306,7 @@ export default function LessonDetailPage() {
                 <MuxPlayer
                   ref={playerRef}
                   playbackId={playbackId}
-                  playbackToken={token || undefined}
+                  tokens={token ? { playback: token } : undefined}
                   streamType="on-demand"
                   autoPlay={false}
                   preload="metadata"
