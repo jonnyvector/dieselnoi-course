@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -18,7 +18,7 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue
 }
 
-export default function CoursesPage() {
+function CoursesPageContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -428,5 +428,23 @@ function CourseCard({ course }: { course: Course }) {
         </div>
       </div>
     </Link>
+  )
+}
+
+// Main page component with Suspense boundary
+export default function CoursesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
+        <Navigation currentPage="courses" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center py-12">
+            <p className="text-gray-600 dark:text-gray-400">Loading courses...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <CoursesPageContent />
+    </Suspense>
   )
 }
