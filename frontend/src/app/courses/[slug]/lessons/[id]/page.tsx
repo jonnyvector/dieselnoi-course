@@ -291,15 +291,13 @@ export default function LessonDetailPage() {
                   streamType="on-demand"
                   autoPlay={false}
                   preload="metadata"
+                  poster={`https://image.mux.com/${lesson.mux_playback_id}/thumbnail.jpg?time=0`}
                   startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : undefined}
                   metadata={{
                     video_title: lesson.title,
                   }}
                   onTimeUpdate={handleVideoProgress}
                   onEnded={handleVideoEnded}
-                  onError={(e) => console.error('Mux Player Error:', e)}
-                  onLoadStart={() => console.log('Video loading started')}
-                  onLoadedData={() => console.log('Video data loaded')}
                   style={{ height: '100%', maxWidth: '100%' }}
                 />
               ) : lesson.video_url ? (
