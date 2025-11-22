@@ -20,7 +20,7 @@ import qrcode
 import qrcode.image.svg
 from io import BytesIO
 import base64
-from .models import Course, Lesson, Subscription, LessonProgress, Comment, VideoNote, CourseReview, CourseResource, Badge, UserBadge, Referral, ReferralCode, ReferralCredit, ReferralFraudCheck
+from .models import Course, Lesson, Subscription, LessonProgress, Comment, VideoNote, CourseReview, CourseResource, Badge, UserBadge, Referral, ReferralCode, ReferralCredit, ReferralFraudCheck, Category, CourseNotification
 from .serializers import (
     CourseSerializer,
     CourseDetailSerializer,
@@ -40,6 +40,8 @@ from .serializers import (
     ReferralStatsSerializer,
     ReferralHistorySerializer,
     ReferralCreditSerializer,
+    CategorySerializer,
+    CourseNotificationSerializer,
 )
 from .analytics import AnalyticsService
 from .badge_checker import check_and_award_badges, get_user_badge_progress
@@ -72,20 +74,106 @@ class IsSubscriberOrReadOnly(permissions.BasePermission):
         return False
 
 
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """ViewSet for viewing course categories."""
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'slug'
+
+    def get_queryset(self):
+        """Return only active top-level categories (children are nested)."""
+        return Category.objects.filter(is_active=True, parent=None).order_by('order', 'name')
+
+
+class CourseNotificationViewSet(viewsets.ModelViewSet):
+    """ViewSet for managing course notifications (notify me for coming soon)."""
+    serializer_class = CourseNotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return CourseNotification.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
 class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     """
     ViewSet for viewing courses.
-    List view shows all published courses.
+    List view shows all published courses with filtering and sorting.
     Detail view shows course with all lessons.
+
+    Query params:
+    - category: Filter by category slug
+    - difficulty: Filter by difficulty (beginner, intermediate, advanced)
+    - price: Filter by price type (free, paid)
+    - featured: Filter featured courses only (true)
+    - coming_soon: Filter coming soon courses only (true)
+    - search: Search in title and description
+    - sort: Sort by (newest, popular, price_asc, price_desc, difficulty)
     """
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
 
     def get_queryset(self):
-        """Only show published courses with optimized queries."""
-        return Course.objects.filter(is_published=True).prefetch_related('lessons').annotate(
+        """Filter and sort courses based on query params."""
+        queryset = Course.objects.filter(
+            Q(is_published=True) | Q(is_coming_soon=True)
+        ).prefetch_related('lessons', 'categories').annotate(
             lesson_count_annotated=Count('lessons')
         )
+
+        # Filter by category
+        category = self.request.query_params.get('category')
+        if category:
+            queryset = queryset.filter(categories__slug=category)
+
+        # Filter by difficulty
+        difficulty = self.request.query_params.get('difficulty')
+        if difficulty:
+            queryset = queryset.filter(difficulty=difficulty)
+
+        # Filter by price type
+        price = self.request.query_params.get('price')
+        if price == 'free':
+            queryset = queryset.filter(Q(is_free=True) | Q(price=0))
+        elif price == 'paid':
+            queryset = queryset.filter(is_free=False, price__gt=0)
+
+        # Filter featured only
+        featured = self.request.query_params.get('featured')
+        if featured == 'true':
+            queryset = queryset.filter(is_featured=True)
+
+        # Filter coming soon only
+        coming_soon = self.request.query_params.get('coming_soon')
+        if coming_soon == 'true':
+            queryset = queryset.filter(is_coming_soon=True)
+
+        # Search
+        search = self.request.query_params.get('search')
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) | Q(description__icontains=search)
+            )
+
+        # Sorting
+        sort = self.request.query_params.get('sort', 'newest')
+        if sort == 'newest':
+            queryset = queryset.order_by('-created_at')
+        elif sort == 'popular':
+            queryset = queryset.order_by('-popularity_score', '-enrollment_count')
+        elif sort == 'price_asc':
+            queryset = queryset.order_by('price')
+        elif sort == 'price_desc':
+            queryset = queryset.order_by('-price')
+        elif sort == 'difficulty':
+            # Custom ordering for difficulty
+            queryset = queryset.order_by('difficulty', 'title')
+        else:
+            queryset = queryset.order_by('-created_at')
+
+        return queryset.distinct()
 
     def get_serializer_class(self):
         """Use detailed serializer for retrieve action."""
@@ -93,9 +181,12 @@ class CourseViewSet(viewsets.ReadOnlyModelViewSet):
             return CourseDetailSerializer
         return CourseSerializer
 
-    @method_decorator(cache_page(60 * 5))  # Cache course list for 5 minutes
     def list(self, request, *args, **kwargs):
-        """Cached course list - public data only."""
+        """Course list with filters - skip cache for authenticated users."""
+        # Don't cache if user is authenticated (personalized data)
+        if request.user.is_authenticated:
+            return super().list(request, *args, **kwargs)
+        # Could add caching for anonymous users here
         return super().list(request, *args, **kwargs)
 
     @action(detail=True, methods=['get'])
@@ -420,9 +511,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Filter comments by lesson if lesson_id is provided."""
-        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies__user').annotate(
-            reply_count=Count('replies')
-        ).order_by('-created_at')
+        queryset = Comment.objects.select_related('user', 'lesson').prefetch_related('replies__user').order_by('-created_at')
 
         lesson_id = self.request.query_params.get('lesson_id')
         if lesson_id:

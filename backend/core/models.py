@@ -16,6 +16,58 @@ class User(AbstractUser):
         return self.email
 
 
+class Category(models.Model):
+    """Course category with optional hierarchy support."""
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True, blank=True)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="Emoji or icon class")
+    image = models.URLField(blank=True, null=True, help_text="Category banner image URL")
+    order = models.PositiveIntegerField(default=0, help_text="Display order")
+    is_active = models.BooleanField(default=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='children', help_text="Parent category for hierarchy"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+        ordering = ['order', 'name']
+        indexes = [
+            models.Index(fields=['is_active', 'order']),
+            models.Index(fields=['parent']),
+        ]
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        if self.parent:
+            return f"{self.parent.name} → {self.name}"
+        return self.name
+
+    def get_children(self):
+        """Returns active child categories."""
+        return self.children.filter(is_active=True).order_by('order', 'name')
+
+    def get_course_count(self):
+        """Returns count of published courses in this category."""
+        return self.courses.filter(is_published=True).count()
+
+    def get_ancestors(self):
+        """Returns list of parent categories for breadcrumbs."""
+        ancestors = []
+        current = self.parent
+        while current:
+            ancestors.insert(0, current)
+            current = current.parent
+        return ancestors
+
+
 class Course(models.Model):
     """Represents a Muay Thai training course."""
     DIFFICULTY_CHOICES = [
@@ -32,6 +84,22 @@ class Course(models.Model):
     thumbnail_url = models.URLField(blank=True, null=True, help_text="Thumbnail image URL (upload to Cloudinary/Imgur)")
     is_published = models.BooleanField(default=False)
 
+    # Categories
+    categories = models.ManyToManyField(
+        Category, related_name='courses', blank=True,
+        help_text="Categories this course belongs to"
+    )
+
+    # Featured & Coming Soon
+    is_featured = models.BooleanField(default=False, help_text="Show in featured section")
+    is_coming_soon = models.BooleanField(default=False, help_text="Mark as coming soon")
+    release_date = models.DateTimeField(null=True, blank=True, help_text="Release date for coming soon courses")
+    is_free = models.BooleanField(default=False, help_text="Free course (no subscription required)")
+
+    # Popularity & Stats
+    popularity_score = models.PositiveIntegerField(default=0, help_text="Computed popularity for sorting")
+    enrollment_count = models.PositiveIntegerField(default=0, help_text="Cached subscription count")
+
     # Cached rating data (updated via signals)
     average_rating = models.DecimalField(
         max_digits=3, decimal_places=2, null=True, blank=True,
@@ -44,6 +112,11 @@ class Course(models.Model):
 
     class Meta:
         ordering = ['difficulty', 'title']
+        indexes = [
+            models.Index(fields=['is_published', 'is_coming_soon']),
+            models.Index(fields=['is_featured']),
+            models.Index(fields=['popularity_score']),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -85,6 +158,36 @@ class Lesson(models.Model):
 
     def __str__(self):
         return f"{self.course.title} - {self.order}: {self.title}"
+
+
+class VideoChapter(models.Model):
+    """Represents a chapter/timestamp marker within a lesson video."""
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='chapters')
+    title = models.CharField(max_length=200, help_text="Chapter title (e.g., 'Teep Setup')")
+    timestamp_seconds = models.PositiveIntegerField(help_text="Timestamp in seconds from start of video")
+    description = models.TextField(blank=True, help_text="Optional description of what's covered")
+
+    class Meta:
+        ordering = ['timestamp_seconds']
+        unique_together = ['lesson', 'timestamp_seconds']
+        indexes = [
+            models.Index(fields=['lesson', 'timestamp_seconds']),
+        ]
+
+    def __str__(self):
+        minutes = self.timestamp_seconds // 60
+        seconds = self.timestamp_seconds % 60
+        return f"{self.lesson.title} - {minutes}:{seconds:02d} - {self.title}"
+
+    @property
+    def formatted_timestamp(self):
+        """Return timestamp as MM:SS or H:MM:SS format."""
+        hours = self.timestamp_seconds // 3600
+        minutes = (self.timestamp_seconds % 3600) // 60
+        seconds = self.timestamp_seconds % 60
+        if hours > 0:
+            return f"{hours}:{minutes:02d}:{seconds:02d}"
+        return f"{minutes}:{seconds:02d}"
 
 
 class Subscription(models.Model):
@@ -313,6 +416,23 @@ class CourseResource(models.Model):
             return f"{round(size_bytes / 1024, 1)} KB"
         else:
             return f"{round(size_bytes / (1024 * 1024), 1)} MB"
+
+
+class CourseNotification(models.Model):
+    """Stores user requests to be notified when a coming soon course releases."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='course_notifications')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='notifications')
+    created_at = models.DateTimeField(auto_now_add=True)
+    notified_at = models.DateTimeField(null=True, blank=True, help_text="When notification was sent")
+
+    class Meta:
+        unique_together = ['user', 'course']
+        indexes = [
+            models.Index(fields=['course', 'notified_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} → {self.course.title}"
 
 
 class Badge(models.Model):

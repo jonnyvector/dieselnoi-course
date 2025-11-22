@@ -4,7 +4,7 @@ from django.utils import timezone
 from .models import (
     User, Course, Lesson, Subscription, LessonProgress, LessonUnlock,
     Comment, CourseReview, CourseResource, Badge, UserBadge,
-    ReferralCode, Referral, ReferralCredit, ReferralFraudCheck
+    ReferralCode, Referral, ReferralCredit, ReferralFraudCheck, VideoChapter
 )
 
 
@@ -27,6 +27,13 @@ class LessonInline(admin.TabularInline):
     ordering = ['order']
 
 
+class VideoChapterInline(admin.TabularInline):
+    model = VideoChapter
+    extra = 1
+    fields = ['timestamp_seconds', 'title', 'description']
+    ordering = ['timestamp_seconds']
+
+
 class CourseResourceInline(admin.TabularInline):
     model = CourseResource
     extra = 1
@@ -45,10 +52,15 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-    list_display = ['title', 'course', 'order', 'duration_minutes', 'is_free_preview', 'unlock_date', 'created_at']
+    list_display = ['title', 'course', 'order', 'duration_minutes', 'is_free_preview', 'unlock_date', 'chapter_count', 'created_at']
     list_filter = ['course', 'is_free_preview', 'unlock_date']
     search_fields = ['title', 'description', 'course__title']
     ordering = ['course', 'order']
+    inlines = [VideoChapterInline]
+
+    def chapter_count(self, obj):
+        return obj.chapters.count()
+    chapter_count.short_description = 'Chapters'
 
 
 @admin.register(Subscription)

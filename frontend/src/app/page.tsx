@@ -56,12 +56,12 @@ export default function Home() {
                     >
                       Start Training Now →
                     </Link>
-                    <a
-                      href="#courses"
+                    <Link
+                      href="/courses"
                       className="px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-gold text-white font-bold rounded-lg text-lg hover:bg-white/20 transition-all"
                     >
                       View Courses
-                    </a>
+                    </Link>
                   </>
                 )}
               </div>

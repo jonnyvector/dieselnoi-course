@@ -38,7 +38,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
             ) : user ? (
               <>
                 <Link
-                  href="/"
+                  href="/courses"
                   className={currentPage === 'home' ? 'text-primary-600 dark:text-primary-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'}
                 >
                   Browse Courses
@@ -142,7 +142,7 @@ export default function Navigation({ currentPage = 'home' }: NavigationProps) {
                     Welcome, {user.username}
                   </div>
                   <Link
-                    href="/"
+                    href="/courses"
                     className={`block px-4 py-2 ${currentPage === 'home' ? 'text-primary-600 dark:text-dark-heading font-semibold' : 'text-gray-700 dark:text-gray-300'} hover:bg-gray-100 dark:hover:bg-opacity-10`}
                     onClick={() => setMobileMenuOpen(false)}
                   >

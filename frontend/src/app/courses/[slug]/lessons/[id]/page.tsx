@@ -39,6 +39,7 @@ export default function LessonDetailPage() {
   const [isCompleted, setIsCompleted] = useState(false)
   const [savedWatchTime, setSavedWatchTime] = useState<number>(0)
   const [currentVideoTime, setCurrentVideoTime] = useState<number>(0)
+  const [showNotes, setShowNotes] = useState(true)
   const playerRef = useRef<any>(null)
   const progressMarkedRef = useRef(false)
   const lastSavedTimeRef = useRef(0)
@@ -197,7 +198,7 @@ export default function LessonDetailPage() {
     return (
       <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
         <Navigation currentPage="lesson" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <VideoPlayerSkeleton />
           <div className="mt-8">
             <CommentListSkeleton count={3} />
@@ -233,7 +234,7 @@ export default function LessonDetailPage() {
       <Navigation currentPage="lesson" />
 
       {/* Lesson Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Link
           href={`/courses/${params.slug}`}
           className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 mb-6 inline-block"
@@ -241,78 +242,134 @@ export default function LessonDetailPage() {
           ← Back to Course
         </Link>
 
-        {/* Video Player or Locked Message */}
-        <div className="bg-black rounded-lg overflow-hidden mb-8" style={{ aspectRatio: '16/9' }}>
-          {isLocked ? (
-            <div className="h-full flex flex-col items-center justify-center text-white bg-gray-900 px-6">
-              <svg className="w-16 h-16 mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              <h3 className="text-2xl mb-2">This lesson is locked</h3>
-              {lesson.unlock_date ? (
-                <p className="text-gray-400 mb-6 text-center">
-                  This lesson will unlock on{' '}
-                  <span className="font-semibold text-yellow-400">
-                    {new Date(lesson.unlock_date).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                    {' at '}
-                    {new Date(lesson.unlock_date).toLocaleTimeString('en-US', {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      timeZoneName: 'short'
-                    })}
-                  </span>
-                </p>
+        {/* Video Player and Notes Side Panel */}
+        <div className={`relative flex flex-col lg:flex-row mb-8 transition-slow ${showNotes ? 'gap-6' : 'gap-0'}`}>
+          {/* Video Player */}
+          <div className={`flex-1 transition-slow ${showNotes ? 'lg:w-2/3' : 'lg:w-full'}`}>
+            <div className="bg-black rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+              {isLocked ? (
+                <div className="h-full flex flex-col items-center justify-center text-white bg-gray-900 px-6">
+                  <svg className="w-16 h-16 mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                  </svg>
+                  <h3 className="text-2xl mb-2">This lesson is locked</h3>
+                  {lesson.unlock_date ? (
+                    <p className="text-gray-400 mb-6 text-center">
+                      This lesson will unlock on{' '}
+                      <span className="font-semibold text-yellow-400">
+                        {new Date(lesson.unlock_date).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                        {' at '}
+                        {new Date(lesson.unlock_date).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          timeZoneName: 'short'
+                        })}
+                      </span>
+                    </p>
+                  ) : (
+                    <p className="text-gray-400 mb-6">Subscribe to access this content</p>
+                  )}
+                  {!lesson.unlock_date && (
+                    <button
+                      onClick={handleSubscribe}
+                      disabled={subscribing}
+                      className="px-6 py-3 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {subscribing ? 'Redirecting...' : 'Subscribe Now'}
+                    </button>
+                  )}
+                </div>
+              ) : lesson.mux_playback_id ? (
+                <MuxPlayer
+                  ref={playerRef}
+                  playbackId={lesson.mux_playback_id}
+                  streamType="on-demand"
+                  autoPlay={false}
+                  preload="auto"
+                  preferPlayback="mse"
+                  startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : 0.01}
+                  metadata={{
+                    video_title: lesson.title,
+                  }}
+                  onTimeUpdate={handleVideoProgress}
+                  onEnded={handleVideoEnded}
+                  style={{ height: '100%', maxWidth: '100%' }}
+                />
+              ) : lesson.video_url ? (
+                <div className="h-full flex items-center justify-center bg-gray-900 text-white">
+                  {/* Fallback for non-Mux videos */}
+                  <div className="text-center">
+                    <svg className="w-20 h-20 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                    </svg>
+                    <p className="text-gray-400 mb-2">Legacy Video Format</p>
+                    <p className="text-sm text-gray-500">Video URL: {lesson.video_url}</p>
+                  </div>
+                </div>
               ) : (
-                <p className="text-gray-400 mb-6">Subscribe to access this content</p>
-              )}
-              {!lesson.unlock_date && (
-                <button
-                  onClick={handleSubscribe}
-                  disabled={subscribing}
-                  className="px-6 py-3 bg-primary-600 dark:bg-primary-500 text-white rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {subscribing ? 'Redirecting...' : 'Subscribe Now'}
-                </button>
+                <div className="h-full flex items-center justify-center bg-gray-900 text-gray-400">
+                  <div className="text-center">
+                    <p>No video available</p>
+                  </div>
+                </div>
               )}
             </div>
-          ) : lesson.mux_playback_id ? (
-            <MuxPlayer
-              ref={playerRef}
-              playbackId={lesson.mux_playback_id}
-              streamType="on-demand"
-              autoPlay={false}
-              preload="auto"
-              preferPlayback="mse"
-              startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : 0.01}
-              metadata={{
-                video_title: lesson.title,
+          </div>
+
+          {/* Notes Side Panel */}
+          {!isLocked && (
+            <div
+              className="lg:w-1/3 transition-slow"
+              style={{
+                width: showNotes ? undefined : 0,
+                opacity: showNotes ? 1 : 0,
+                overflow: 'hidden',
+                visibility: showNotes ? 'visible' : 'hidden',
               }}
-              onTimeUpdate={handleVideoProgress}
-              onEnded={handleVideoEnded}
-              style={{ height: '100%', maxWidth: '100%' }}
-            />
-          ) : lesson.video_url ? (
-            <div className="h-full flex items-center justify-center bg-gray-900 text-white">
-              {/* Fallback for non-Mux videos */}
-              <div className="text-center">
-                <svg className="w-20 h-20 mx-auto mb-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-                </svg>
-                <p className="text-gray-400 mb-2">Legacy Video Format</p>
-                <p className="text-sm text-gray-500">Video URL: {lesson.video_url}</p>
+            >
+              <div className="bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md p-4 lg:h-full lg:max-h-[calc(56.25vw*0.67)] lg:overflow-y-auto" style={{ minWidth: 280 }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">My Notes</h3>
+                  <button
+                    onClick={() => setShowNotes(false)}
+                    className="hidden lg:flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-base"
+                    title="Hide notes"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+                <VideoNotes
+                  lessonId={lesson.id}
+                  currentTime={currentVideoTime}
+                  onSeek={(time) => {
+                    if (playerRef.current) {
+                      playerRef.current.currentTime = time
+                    }
+                  }}
+                />
               </div>
             </div>
-          ) : (
-            <div className="h-full flex items-center justify-center bg-gray-900 text-gray-400">
-              <div className="text-center">
-                <p>No video available</p>
-              </div>
-            </div>
+          )}
+
+          {/* Show Notes Button (when hidden) */}
+          {!isLocked && !showNotes && (
+            <button
+              onClick={() => setShowNotes(true)}
+              className="hidden lg:flex absolute top-2 right-2 items-center gap-2 px-3 py-2 text-sm bg-white dark:bg-dark-bg dark:border dark:border-gray-700 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400 transition-base"
+              title="Show notes"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              Notes
+            </button>
           )}
         </div>
 
@@ -350,6 +407,52 @@ export default function LessonDetailPage() {
             </p>
           </div>
 
+          {/* Video Chapters */}
+          {lesson.chapters && lesson.chapters.length > 0 && (
+            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                Chapters
+              </h3>
+              <div className="space-y-2">
+                {lesson.chapters.map((chapter) => (
+                  <button
+                    key={chapter.id}
+                    onClick={() => {
+                      if (playerRef.current) {
+                        playerRef.current.currentTime = chapter.timestamp_seconds
+                        playerRef.current.play()
+                      }
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm font-mono text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-2 py-1 rounded">
+                        {chapter.formatted_timestamp}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                          {chapter.title}
+                        </p>
+                        {chapter.description && (
+                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+                            {chapter.description}
+                          </p>
+                        )}
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Additional lesson content could go here */}
           <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-semibold mb-4">About this lesson</h3>
@@ -386,22 +489,6 @@ export default function LessonDetailPage() {
                   </svg>
                 </div>
               </Link>
-            </div>
-          )}
-
-          {/* My Notes Section */}
-          {!isLocked && (
-            <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-lg font-semibold mb-4">My Notes</h3>
-              <VideoNotes
-                lessonId={lesson.id}
-                currentTime={currentVideoTime}
-                onSeek={(time) => {
-                  if (playerRef.current) {
-                    playerRef.current.currentTime = time
-                  }
-                }}
-              />
             </div>
           )}
 

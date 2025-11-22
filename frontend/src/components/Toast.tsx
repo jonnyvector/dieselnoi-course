@@ -29,28 +29,28 @@ function Toast({ toast }: { toast: ToastType }) {
 
   const colors = {
     success: {
-      bg: 'bg-green-50 dark:bg-green-900/20',
-      border: 'border-green-200 dark:border-green-800',
-      text: 'text-green-800 dark:text-green-300',
-      icon: 'text-green-400',
+      bg: 'bg-white dark:bg-gray-800',
+      border: 'border-l-4 border-l-green-500 border-y border-r border-gray-200 dark:border-gray-700',
+      text: 'text-gray-900 dark:text-gray-100',
+      icon: 'text-green-500',
     },
     error: {
-      bg: 'bg-red-50 dark:bg-red-900/20',
-      border: 'border-red-200 dark:border-red-800',
-      text: 'text-red-800 dark:text-red-300',
-      icon: 'text-red-400',
+      bg: 'bg-white dark:bg-gray-800',
+      border: 'border-l-4 border-l-red-500 border-y border-r border-gray-200 dark:border-gray-700',
+      text: 'text-gray-900 dark:text-gray-100',
+      icon: 'text-red-500',
     },
     warning: {
-      bg: 'bg-gold/10 dark:bg-gold/20',
-      border: 'border-gold/40 dark:border-gold/60',
-      text: 'text-gold-dark dark:text-gold',
+      bg: 'bg-white dark:bg-gray-800',
+      border: 'border-l-4 border-l-gold border-y border-r border-gray-200 dark:border-gray-700',
+      text: 'text-gray-900 dark:text-gray-100',
       icon: 'text-gold',
     },
     info: {
-      bg: 'bg-blue-50 dark:bg-blue-900/20',
-      border: 'border-blue-200 dark:border-blue-800',
-      text: 'text-blue-800 dark:text-blue-300',
-      icon: 'text-blue-400',
+      bg: 'bg-white dark:bg-gray-800',
+      border: 'border-l-4 border-l-blue-500 border-y border-r border-gray-200 dark:border-gray-700',
+      text: 'text-gray-900 dark:text-gray-100',
+      icon: 'text-blue-500',
     },
   }
 

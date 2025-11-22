@@ -159,6 +159,26 @@ export interface CourseResource {
   uploaded_at: string
 }
 
+export interface Category {
+  id: number
+  name: string
+  slug: string
+  description: string
+  icon: string
+  image?: string
+  order: number
+  parent?: number
+  course_count: number
+  children: Category[]
+}
+
+export interface CategoryMinimal {
+  id: number
+  name: string
+  slug: string
+  icon: string
+}
+
 export interface Course {
   id: number
   title: string
@@ -168,7 +188,26 @@ export interface Course {
   price: string
   thumbnail_url?: string
   lesson_count: number
+  categories: CategoryMinimal[]
+  is_featured: boolean
+  is_coming_soon: boolean
+  release_date?: string
+  is_free: boolean
+  enrollment_count: number
+  average_rating?: string | number
+  total_reviews?: number
+  is_subscribed?: boolean
+  user_progress?: number | null
+  is_notified?: boolean
   created_at: string
+}
+
+export interface VideoChapter {
+  id: number
+  title: string
+  timestamp_seconds: number
+  formatted_timestamp: string
+  description: string
 }
 
 export interface Lesson {
@@ -182,6 +221,7 @@ export interface Lesson {
   is_free_preview: boolean
   unlock_date: string | null
   is_locked: boolean
+  chapters: VideoChapter[]
   created_at: string
 }
 
@@ -443,11 +483,41 @@ export interface BadgeProgress {
   }
 }
 
+// Course filter params
+export interface CourseFilters {
+  category?: string
+  difficulty?: string
+  price?: 'free' | 'paid'
+  featured?: boolean
+  coming_soon?: boolean
+  search?: string
+  sort?: 'newest' | 'popular' | 'price_asc' | 'price_desc' | 'difficulty'
+}
+
 // API functions
+export const categoryAPI = {
+  // Get all categories
+  getCategories: async (): Promise<Category[]> => {
+    const response = await api.get('/categories/')
+    return response.data.results || response.data
+  },
+}
+
 export const courseAPI = {
-  // Get all courses
-  getCourses: async (): Promise<Course[]> => {
-    const response = await api.get('/courses/')
+  // Get all courses with optional filters
+  getCourses: async (filters?: CourseFilters): Promise<Course[]> => {
+    const params = new URLSearchParams()
+    if (filters?.category) params.append('category', filters.category)
+    if (filters?.difficulty) params.append('difficulty', filters.difficulty)
+    if (filters?.price) params.append('price', filters.price)
+    if (filters?.featured) params.append('featured', 'true')
+    if (filters?.coming_soon) params.append('coming_soon', 'true')
+    if (filters?.search) params.append('search', filters.search)
+    if (filters?.sort) params.append('sort', filters.sort)
+
+    const queryString = params.toString()
+    const url = queryString ? `/courses/?${queryString}` : '/courses/'
+    const response = await api.get(url)
     return response.data.results || response.data
   },
 
@@ -461,6 +531,21 @@ export const courseAPI = {
   getLessons: async (slug: string): Promise<Lesson[]> => {
     const response = await api.get(`/courses/${slug}/lessons/`)
     return response.data
+  },
+
+  // Subscribe to notification for coming soon course
+  notifyMe: async (courseId: number): Promise<void> => {
+    await api.post('/course-notifications/', { course: courseId })
+  },
+
+  // Unsubscribe from notification
+  unnotifyMe: async (courseId: number): Promise<void> => {
+    // First get the notification ID
+    const response = await api.get(`/course-notifications/?course=${courseId}`)
+    const notifications = response.data.results || response.data
+    if (notifications.length > 0) {
+      await api.delete(`/course-notifications/${notifications[0].id}/`)
+    }
   },
 }
 
@@ -563,7 +648,8 @@ export interface VideoNote {
 export const videoNoteAPI = {
   getNotes: async (lessonId: number): Promise<VideoNote[]> => {
     const response = await api.get(`/notes/?lesson_id=${lessonId}`)
-    return response.data
+    // Handle paginated response
+    return response.data.results || response.data
   },
   createNote: async (lessonId: number, timestampSeconds: number, content: string): Promise<VideoNote> => {
     const response = await api.post('/notes/', {

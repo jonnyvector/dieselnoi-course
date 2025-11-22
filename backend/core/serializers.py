@@ -2,9 +2,52 @@ from rest_framework import serializers
 from django.conf import settings
 from .models import (
     User, Course, Lesson, Subscription, LessonProgress, Comment, CourseReview, CourseResource, Badge, UserBadge,
-    ReferralCode, Referral, ReferralCredit, ReferralFraudCheck, VideoNote
+    ReferralCode, Referral, ReferralCredit, ReferralFraudCheck, VideoNote, Category, CourseNotification, VideoChapter
 )
 from .mux_utils import get_signed_playback_id
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Serializer for Category model."""
+    course_count = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'description', 'icon', 'image', 'order', 'parent', 'course_count', 'children']
+        read_only_fields = ['id', 'slug']
+
+    def get_course_count(self, obj):
+        return obj.get_course_count()
+
+    def get_children(self, obj):
+        children = obj.get_children()
+        return CategorySerializer(children, many=True, context=self.context).data if children else []
+
+
+class CategoryMinimalSerializer(serializers.ModelSerializer):
+    """Minimal category serializer for embedding in courses."""
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug', 'icon']
+
+
+class CourseNotificationSerializer(serializers.ModelSerializer):
+    """Serializer for course notifications (notify me)."""
+    class Meta:
+        model = CourseNotification
+        fields = ['id', 'course', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class VideoChapterSerializer(serializers.ModelSerializer):
+    """Serializer for video chapters/timestamps."""
+    formatted_timestamp = serializers.ReadOnlyField()
+
+    class Meta:
+        model = VideoChapter
+        fields = ['id', 'title', 'timestamp_seconds', 'formatted_timestamp', 'description']
+        read_only_fields = ['id']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -18,6 +61,7 @@ class UserSerializer(serializers.ModelSerializer):
 class LessonSerializer(serializers.ModelSerializer):
     """Serializer for Lesson model."""
     is_locked = serializers.SerializerMethodField()
+    chapters = VideoChapterSerializer(many=True, read_only=True)
 
     class Meta:
         model = Lesson
@@ -32,6 +76,7 @@ class LessonSerializer(serializers.ModelSerializer):
             'is_free_preview',
             'unlock_date',
             'is_locked',
+            'chapters',
             'created_at',
         ]
         read_only_fields = ['id', 'created_at']
@@ -149,6 +194,10 @@ class CourseResourceSerializer(serializers.ModelSerializer):
 class CourseSerializer(serializers.ModelSerializer):
     """Serializer for Course model (list view)."""
     lesson_count = serializers.SerializerMethodField()
+    categories = CategoryMinimalSerializer(many=True, read_only=True)
+    is_subscribed = serializers.SerializerMethodField()
+    user_progress = serializers.SerializerMethodField()
+    is_notified = serializers.SerializerMethodField()
 
     class Meta:
         model = Course
@@ -161,6 +210,17 @@ class CourseSerializer(serializers.ModelSerializer):
             'price',
             'thumbnail_url',
             'lesson_count',
+            'categories',
+            'is_featured',
+            'is_coming_soon',
+            'release_date',
+            'is_free',
+            'enrollment_count',
+            'average_rating',
+            'total_reviews',
+            'is_subscribed',
+            'user_progress',
+            'is_notified',
             'created_at',
         ]
         read_only_fields = ['id', 'slug', 'created_at']
@@ -170,6 +230,34 @@ class CourseSerializer(serializers.ModelSerializer):
         if hasattr(obj, 'lesson_count_annotated'):
             return obj.lesson_count_annotated
         return obj.lessons.count()
+
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return obj.subscriptions.filter(user=request.user, status='active').exists()
+
+    def get_user_progress(self, obj):
+        """Return user's progress percentage for this course."""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return None
+        # Use annotated value if available
+        if hasattr(obj, 'user_progress_annotated'):
+            return obj.user_progress_annotated
+        # Fallback: calculate from lesson progress
+        total_lessons = obj.lessons.count()
+        if total_lessons == 0:
+            return 0
+        completed = obj.lessons.filter(user_progress__user=request.user, user_progress__is_completed=True).count()
+        return round((completed / total_lessons) * 100)
+
+    def get_is_notified(self, obj):
+        """Check if user has requested notification for this coming soon course."""
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return obj.notifications.filter(user=request.user).exists()
 
 
 class CourseDetailSerializer(serializers.ModelSerializer):
