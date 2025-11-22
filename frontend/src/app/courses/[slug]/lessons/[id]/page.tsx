@@ -290,8 +290,7 @@ export default function LessonDetailPage() {
                   playbackId={lesson.mux_playback_id}
                   streamType="on-demand"
                   autoPlay={false}
-                  preload="auto"
-                  preferPlayback="mse"
+                  preload="metadata"
                   startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : undefined}
                   metadata={{
                     video_title: lesson.title,
