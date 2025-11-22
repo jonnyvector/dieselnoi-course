@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { ThemeToggle } from '@/components/ThemeToggle'
 
 interface NavigationProps {
-  currentPage?: 'home' | 'dashboard' | 'course' | 'lesson' | 'admin'
+  currentPage?: 'home' | 'dashboard' | 'course' | 'courses' | 'lesson' | 'admin'
 }
 
 export default function Navigation({ currentPage = 'home' }: NavigationProps) {
