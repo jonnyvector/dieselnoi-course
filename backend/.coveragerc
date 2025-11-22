@@ -1,0 +1,18 @@
+[run]
+omit =
+    */migrations/*
+    */tests/*
+    */venv/*
+    manage.py
+    backend/settings.py
+    backend/wsgi.py
+    backend/asgi.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    def __str__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:

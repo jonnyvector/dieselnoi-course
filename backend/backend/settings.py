@@ -4,6 +4,7 @@ Django settings for backend project.
 
 from pathlib import Path
 import os
+import sys
 from dotenv import load_dotenv
 import dj_database_url
 
@@ -21,6 +22,10 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Add testserver for pytest
+if 'pytest' in sys.modules:
+    ALLOWED_HOSTS.append('testserver')
 
 
 # Application definition
@@ -110,6 +115,16 @@ else:
             'HOST': os.getenv('DB_HOST', 'localhost'),
             'PORT': os.getenv('DB_PORT', '5432'),
             'CONN_MAX_AGE': 600,
+        }
+    }
+
+# Use SQLite for testing (avoids PostgreSQL permission issues)
+import sys
+if 'pytest' in sys.modules:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
         }
     }
 
