@@ -292,8 +292,6 @@ export default function LessonDetailPage() {
                   autoPlay={false}
                   preload="metadata"
                   startTime={savedWatchTime > 5 && !isCompleted ? savedWatchTime : undefined}
-                  maxResolution="720p"
-                  minResolution="360p"
                   metadata={{
                     video_title: lesson.title,
                   }}
