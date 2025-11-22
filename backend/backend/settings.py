@@ -7,6 +7,8 @@ import os
 import sys
 from dotenv import load_dotenv
 import dj_database_url
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,6 +16,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load environment variables from .env file
 load_dotenv(BASE_DIR / '.env')
 
+# Sentry Error Tracking (Production Only)
+SENTRY_DSN = os.environ.get('SENTRY_DSN', '')
+if SENTRY_DSN and os.environ.get('DEBUG', 'True') != 'True':
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        # Set traces_sample_rate to 1.0 to capture 100% of transactions for performance monitoring
+        # Adjust this in production to reduce overhead (e.g., 0.1 = 10%)
+        traces_sample_rate=0.1,
+        # Send PII (personally identifiable information) - set to False for privacy
+        send_default_pii=False,
+        # Environment name
+        environment=os.environ.get('SENTRY_ENVIRONMENT', 'production'),
+        # Release tracking (use git commit SHA in production)
+        release=os.environ.get('RAILWAY_GIT_COMMIT_SHA', 'development'),
+    )
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-change-this-in-production')

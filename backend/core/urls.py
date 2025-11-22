@@ -41,6 +41,7 @@ from .views import (
     UpdateProfileView,
     ChangePasswordView,
 )
+from .health import HealthCheckView, DetailedHealthCheckView
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet, basename='category')
@@ -58,6 +59,8 @@ router.register(r'referrals', ReferralViewSet, basename='referral')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('health/', HealthCheckView.as_view(), name='health-check'),
+    path('health/detailed/', DetailedHealthCheckView.as_view(), name='health-check-detailed'),
     path('auth/csrf/', GetCSRFToken.as_view(), name='csrf-token'),
     path('auth/register/', RegisterView.as_view(), name='register'),
     path('auth/login/', LoginView.as_view(), name='login'),
